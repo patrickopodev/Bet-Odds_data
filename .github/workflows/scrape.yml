@@ -2,9 +2,9 @@ name: Scheduled Web Scraper
 
 on:
   schedule:
-    # Runs every 6 hours. Set your preferred interval here
+    # Runs every 5 minutes (the minimum GitHub Actions interval.)
     # (5 fields: minute hour day-of-month month day-of-week).
-    - cron: "0 */6 * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch: {}
 
 permissions:
