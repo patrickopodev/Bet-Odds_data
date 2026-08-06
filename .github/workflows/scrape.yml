@@ -28,14 +28,12 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: webscraper-action/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        working-directory: webscraper-action
         run: npm ci || npm install
 
       - name: Run scraper
-        working-directory: webscraper-action
         id: scrape
         run: node scraper.js
         env:
@@ -45,12 +43,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: scraped-data
-          path: webscraper-action/data/*.json
+          path: data/*.json
           if-no-files-found: error
           retention-days: 90
 
       - name: Commit and push data
-        working-directory: webscraper-action
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
