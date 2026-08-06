@@ -38,6 +38,8 @@ jobs:
         run: node scraper.js
         env:
           TARGET_URL: ${{ vars.TARGET_URL || 'https://www.sportybet.com/gh/m/' }}
+          SPORTYBET_PHONE: ${{ secrets.SPORTYBET_PHONE }}
+          SPORTYBET_PASSWORD: ${{ secrets.SPORTYBET_PASSWORD }}
 
       - name: Upload scraped data as artifact
         uses: actions/upload-artifact@v4
