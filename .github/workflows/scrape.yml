@@ -1,0 +1,63 @@
+name: Scheduled Web Scraper
+
+on:
+  schedule:
+    # Runs every 6 hours. Set your preferred interval here
+    # (5 fields: minute hour day-of-month month day-of-week).
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: webscraper
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: webscraper-action/package-lock.json
+
+      - name: Install dependencies
+        working-directory: webscraper-action
+        run: npm ci || npm install
+
+      - name: Run scraper
+        working-directory: webscraper-action
+        id: scrape
+        run: node scraper.js
+        env:
+          TARGET_URL: ${{ vars.TARGET_URL || 'https://www.sportybet.com/gh/m/' }}
+
+      - name: Upload scraped data as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scraped-data
+          path: webscraper-action/data/*.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Commit and push data
+        working-directory: webscraper-action
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No changes to data; skipping commit."
+          else
+            git commit -m "chore(webscraper): update scraped data ($(date -u +%Y-%m-%dT%H:%M:%SZ))"
+            git push
+          fi
