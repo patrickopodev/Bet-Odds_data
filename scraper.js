@@ -1,79 +1,152 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import axios from 'axios';
-import * as cheerio from 'cheerio';
+import puppeteer from 'puppeteer';
 
 const TARGET_URL = process.env.TARGET_URL ?? 'https://www.sportybet.com/gh/m/';
 const DATA_DIR = process.env.DATA_DIR ?? 'data';
-const USER_AGENT =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
+const TIMEOUT = 30000;
 
-async function fetchHtml(url, retries = 3) {
-  let lastError;
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      const response = await axios.get(url, {
-        headers: {
-          'User-Agent': USER_AGENT,
-          Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'Cache-Control': 'no-cache',
-          Pragma: 'no-cache',
-        },
-        timeout: 30000,
-        maxRedirects: 5,
-      });
-      if (response.status !== 200) {
-        throw new Error(`HTTP ${response.status}`);
+async function launchBrowser() {
+  return puppeteer.launch({
+    headless: 'new',
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--window-size=375,812',
+    ],
+  });
+}
+
+async function waitForContent(page, selector, timeout = TIMEOUT) {
+  try {
+    await page.waitForSelector(selector, { timeout });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function extractOddsForMarket(page, marketTabText) {
+  const oddsData = [];
+
+  try {
+    const tabs = await page.$$('.m-tab-item, [class*="tab"]');
+    for (const tab of tabs) {
+      const text = await page.evaluate(el => el.textContent.trim(), tab);
+      if (text.toLowerCase().includes(marketTabText.toLowerCase())) {
+        await tab.click();
+        await new Promise(r => setTimeout(r, 2000));
+        break;
       }
-      return response.data;
-    } catch (error) {
-      lastError = error;
-      const delayMs = attempt * 2000;
-      console.warn(`Attempt ${attempt}/${retries} failed for ${url}: ${error.message}. Retrying in ${delayMs}ms...`);
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  } catch (e) {
+    console.warn(`Tab "${marketTabText}" not found: ${e.message}`);
+  }
+
+  const matches = await page.$$('.m-match-item, [class*="match-item"], [class*="event-item"]');
+  for (const match of matches) {
+    try {
+      const data = await page.evaluate(el => {
+        const teams = el.querySelectorAll('[class*="team-name"], [class*="team"]');
+        const odds = el.querySelectorAll('[class*="odd"], [class*="odds"], [class*="price"]');
+        const time = el.querySelector('[class*="time"], [class*="date"]');
+        const league = el.querySelector('[class*="league"], [class*="tournament"]');
+
+        return {
+          home: teams[0]?.textContent?.trim() || '',
+          away: teams[1]?.textContent?.trim() || '',
+          time: time?.textContent?.trim() || '',
+          league: league?.textContent?.trim() || '',
+          odds: Array.from(odds).map(o => o.textContent.trim()).filter(Boolean),
+        };
+      }, match);
+
+      if (data.home || data.away) {
+        oddsData.push(data);
+      }
+    } catch {
+      continue;
     }
   }
-  throw lastError;
+
+  return oddsData;
 }
 
-function parsePage(html, sourceUrl) {
-  const $ = cheerio.load(html);
-  const title = $('title').first().text().trim() || null;
-  const metaDescription = $('meta[name="description"]').attr('content') ?? null;
-  const metaKeywords = $('meta[name="keywords"]').attr('content') ?? null;
+async function scrapeSportyBet() {
+  console.log('Launching browser...');
+  const browser = await launchBrowser();
+  const page = await browser.newPage();
 
-  const navLinks = [];
-  $('a[href]').each((_, el) => {
-    const text = $(el).text().trim().replace(/\s+/g, ' ');
-    const href = $(el).attr('href');
-    if (text && href && href !== '#') {
-      navLinks.push({ text, href });
+  await page.setViewport({ width: 375, height: 812 });
+  await page.setUserAgent(
+    'Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36'
+  );
+
+  console.log(`Navigating to ${TARGET_URL}`);
+  await page.goto(TARGET_URL, { waitUntil: 'networkidle2', timeout: TIMEOUT });
+
+  await new Promise(r => setTimeout(r, 3000));
+
+  const hasMatches = await waitForContent(page, '[class*="match"], [class*="event"], [class*="game"]', 10000);
+
+  if (!hasMatches) {
+    console.warn('No match elements detected — page may have changed structure');
+  }
+
+  console.log('Extracting football matches with odds...');
+
+  const allData = await page.evaluate(() => {
+    const result = [];
+    const allElements = document.querySelectorAll('[class*="match"], [class*="event"], [class*="game"], [class*="card"]');
+
+    for (const el of allElements) {
+      const text = el.textContent || '';
+      if (text.length < 10 || text.length > 2000) continue;
+
+      const oddsMatch = text.match(/\d+\.\d{2}/g);
+      if (!oddsMatch || oddsMatch.length < 2) continue;
+
+      const teams = el.querySelectorAll('[class*="team"], [class*="name"]');
+      const home = teams[0]?.textContent?.trim() || '';
+      const away = teams[1]?.textContent?.trim() || '';
+
+      if (!home && !away) continue;
+
+      const timeEl = el.querySelector('[class*="time"], [class*="date"]');
+      const leagueEl = el.querySelector('[class*="league"], [class*="tournament"]');
+
+      result.push({
+        home,
+        away,
+        time: timeEl?.textContent?.trim() || '',
+        league: leagueEl?.textContent?.trim() || '',
+        allOdds: oddsMatch,
+        rawText: text.replace(/\s+/g, ' ').trim().slice(0, 500),
+      });
     }
+
+    return result;
   });
 
-  const headings = [];
-  $('h1, h2, h3').each((_, el) => {
-    const text = $(el).text().trim().replace(/\s+/g, ' ');
-    if (text) headings.push(text);
-  });
+  console.log(`Found ${allData.length} potential match entries`);
 
-  return {
-    scrapedAt: new Date().toISOString(),
-    sourceUrl,
-    title,
-    metaDescription,
-    metaKeywords,
-    headings: [...new Set(headings)].slice(0, 50),
-    navLinks: navLinks.slice(0, 100),
-    htmlBytes: Buffer.byteLength(html),
-  };
+  await browser.close();
+  return allData;
 }
 
-async function writeSnapshot(snapshot) {
+async function writeSnapshot(data) {
   await fs.mkdir(DATA_DIR, { recursive: true });
-  const stamp = snapshot.scrapedAt.replace(/[:.]/g, '-');
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const filename = path.join(DATA_DIR, `snapshot-${stamp}.json`);
+  const snapshot = {
+    scrapedAt: new Date().toISOString(),
+    sourceUrl: TARGET_URL,
+    matchCount: data.length,
+    matches: data,
+  };
+
   await fs.writeFile(filename, JSON.stringify(snapshot, null, 2), 'utf8');
   await fs.writeFile(
     path.join(DATA_DIR, 'latest.json'),
@@ -85,13 +158,14 @@ async function writeSnapshot(snapshot) {
 
 async function run() {
   console.log(`Scraping ${TARGET_URL}`);
-  const html = await fetchHtml(TARGET_URL);
-  const snapshot = parsePage(html, TARGET_URL);
-  const filename = await writeSnapshot(snapshot);
+  const data = await scrapeSportyBet();
+  const filename = await writeSnapshot(data);
   console.log(`Saved snapshot to ${filename}`);
-  console.log(
-    `Title: ${snapshot.title} | Headings: ${snapshot.headings.length} | Links: ${snapshot.navLinks.length}`
-  );
+  console.log(`Matches: ${data.length}`);
+
+  if (data.length > 0) {
+    console.log('Sample match:', JSON.stringify(data[0], null, 2));
+  }
 }
 
 run().catch((error) => {
