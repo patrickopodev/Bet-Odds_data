@@ -1,7 +1,7 @@
 # SportyBet Odds Performance
 
-_Generated 2026-08-13T09:49:07.896Z UTC_
+_Generated 2026-08-13T10:47:00.992Z UTC_
 
 No settled outcomes yet. The resolver settles matches once they finish (FT), so check back after matches complete.
 
-Unsettled outcome/odds combinations tracked: 2188
+Unsettled outcome/odds combinations tracked: 2530
