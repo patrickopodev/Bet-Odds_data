@@ -1,20 +1,10 @@
-import { DB_FILE, fetchJson, fetchText, loadDb, mapWithConcurrency, saveDb } from './lib/common.mjs';
+import { DB_FILE, decodeFeedBlock, fetchJson, fetchText, loadDb, mapWithConcurrency, normTeam, queryTeam, saveDb } from './lib/common.mjs';
 
 const CONCURRENCY = 3;
 
 // Allow a small tolerance when matching a scraped kickoff (unix seconds) to the
 // Flashscore feed's AD field, in case the fixture time shifted slightly.
 const KICKOFF_TOLERANCE_SECONDS = 60 * 60;
-
-// Decode a Flashscore feed block ("key÷value¬key÷value¬...") into a map.
-function decodeFeedBlock(block) {
-  const fields = {};
-  for (const p of block.split('¬')) {
-    const x = p.indexOf('÷');
-    if (x > 0) fields[p.slice(0, x)] = p.slice(x + 1);
-  }
-  return fields;
-}
 
 // Pull the embedded feed string (e.g. cjs.initialFeeds["summary-results"]) out of
 // a Flashscore team page HTML. Returns decoded events as field maps.
@@ -38,20 +28,23 @@ function extractFeedEvents(html, feedName) {
 // Resolve a team's Flashscore page URL + id via the Livesport search API.
 // Returns { id, url, name } or null.
 async function resolveTeam(name) {
-  const q = encodeURIComponent(name.replace(/\s+FC$/i, '').trim());
+  const q = encodeURIComponent(queryTeam(name));
   const data = await fetchJson(`https://s.livesport.services/api/v2/search?q=${q}&sport=football&lang=en`, {
     headers: { 'Accept': 'application/json' },
   });
   const teams = (data ?? []).filter(
     (r) => r.type?.name === 'Team' && r.sport?.name === 'Soccer'
   );
-  const norm = (s) => s?.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const target = norm(name);
-  // Require a name match: guessing `teams[0]` risks attaching the wrong fixture's
-  // final score. Return null so the event is skipped (and stays unsettled).
+  const target = normTeam(name);
+  // Require a core-name match: guessing `teams[0]` risks attaching the wrong
+  // fixture's final score. The length>=4 guard avoids trivial short matches.
+  // Return null so the event is skipped (and stays unsettled) if no match.
   const exact = teams.find((t) => {
-    const n = norm(t.name);
-    return n === target || n.includes(target) || target.includes(n);
+    const n = normTeam(t.name);
+    return (
+      n === target ||
+      (n.length >= 4 && target.length >= 4 && (n.includes(target) || target.includes(n)))
+    );
   });
   return exact ?? null;
 }
@@ -117,9 +110,9 @@ async function run() {
     // Kickoff we are looking for, in unix seconds.
     const kickoff = Math.floor(new Date(ev.startTime).getTime() / 1000);
 
-    const norm = (s) => (s ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
-    const homeToken = norm(homeName.replace(/\s+FC$/i, '').split(' ')[0]);
-    const awayToken = norm(awayName.replace(/\s+FC$/i, '').split(' ')[0]);
+    const norm = (s) => normTeam(s);
+    const homeToken = norm(homeName);
+    const awayToken = norm(awayName);
 
     // A genuinely finished fixture must come from the results feed (AB=3) with a
     // score, a kickoff (AD) near our startTime, and no interruption/abandonment
@@ -179,7 +172,9 @@ async function run() {
     console.log(`  ${r.home} ${r.score} ${r.away} (${r.flashscoreId}) start ${r.verifiedStart} == expected ${r.expectedStart}`);
   }
   if (skipped.length) {
-    console.log(`  Skipped ${skipped.length}: ${skipped[0].skipped} ...`);
+    const tally = {};
+    for (const r of skipped) tally[r.skipped] = (tally[r.skipped] || 0) + 1;
+    for (const [k, v] of Object.entries(tally)) console.log(`  skipped ${v}: ${k}`);
   }
 
   if (ok.length) await saveDb(db);

@@ -2,9 +2,8 @@ name: Scheduled Web Scraper
 
 on:
   schedule:
-    # Runs every 5 minutes (the minimum GitHub Actions interval.)
-    # (5 fields: minute hour day-of-month month day-of-week).
-    - cron: "*/5 * * * *"
+    # Every 30 minutes.
+    - cron: "*/30 * * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -17,7 +16,7 @@ concurrency:
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 120
 
     steps:
       - name: Checkout repository
@@ -33,12 +32,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run scraper
+      - name: Install Chromium for Playwright
+        run: npx playwright-core install chromium --with-deps
+
+      - name: Run API scraper (full today's coverage)
         id: scrape
         run: node scraper.js
-        env:
-          SPORTYBET_PHONE: ${{ secrets.SPORTYBET_PHONE }}
-          SPORTYBET_PASSWORD: ${{ secrets.SPORTYBET_PASSWORD }}
 
       - name: Build persistent odds database
         run: node build-db.mjs
@@ -48,6 +47,9 @@ jobs:
 
       - name: Generate good/bad odds report
         run: node analyze-odds.mjs --db
+
+      - name: Verify SportyBet coverage vs Flashscore
+        run: node compare-coverage.mjs
 
       - name: Upload scraped data as artifact
         uses: actions/upload-artifact@v4

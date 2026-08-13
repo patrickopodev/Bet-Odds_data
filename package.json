@@ -8,7 +8,10 @@
     "scrape": "node scraper.js",
     "build-db": "node build-db.mjs",
     "resolve": "node resolve-results.mjs",
-    "analyze": "node analyze-odds.mjs --db"
+    "analyze": "node analyze-odds.mjs --db",
+    "compare": "node compare-coverage.mjs",
+    "winners": "node winners.mjs",
+    "test": "node --test test/"
   },
   "engines": {
     "node": ">=20"

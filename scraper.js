@@ -1,10 +1,16 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { DATA_DIR, UA, fetchJson, mapWithConcurrency, MARKET_ORDER, TARGET_MARKET_IDS, TARGET_MARKET_IDS_SET } from './lib/common.mjs';
+import {
+  DATA_DIR,
+  mapWithConcurrency,
+  MARKET_ORDER,
+  TARGET_MARKET_IDS,
+  TARGET_MARKET_IDS_SET,
+  fetchTodayFootballEvents,
+  fetchEventMarkets,
+} from './lib/common.mjs';
 
 const BASE_URL = 'https://www.sportybet.com';
-const PRODUCT_ID = '3'; // 3 = pre-match (Today's Football), 1 = live
-const TARGET_SPORT = 'sr:sport:1'; // Football
 
 // Sort Over/Under outcomes ascending by goal line (0.5, 1, 1.5, 2, ... 5.5)
 // so each Over/Under pair reads like the UI table.
@@ -23,94 +29,41 @@ const MARKET_SORTERS = {
   '18': sortOverUnder,
 };
 
-async function fetchSportyJson(url) {
-  const body = await fetchJson(url, {
-    headers: {
-      'Accept': 'application/json, text/plain, */*',
-      'Referer': BASE_URL + '/gh/m/',
-    },
-  });
-  if (body.bizCode !== 10000) {
-    throw new Error(`API error ${body.bizCode}: ${body.message ?? body.innerMsg} for ${url}`);
-  }
-  return body.data;
-}
+async function getEventMarkets(eventId) {
+  const data = await fetchEventMarkets(eventId);
+  const markets = (data?.markets ?? []).filter(m => TARGET_MARKET_IDS_SET.has(String(m.id)));
+  if (markets.length === 0) return [];
 
-async function getPreMatchEvents() {
-  const url = `${BASE_URL}/api/gh/factsCenter/recommendScrollEvents/v2`;
-    const data = await fetchSportyJson(url);
-  const events = [];
-  for (const tournament of data ?? []) {
-    for (const ev of tournament.eventVOS ?? []) {
-      const sportId = ev.sport?.id;
-      if (sportId !== TARGET_SPORT) continue;
-      events.push({
-        eventId: ev.eventId,
-        gameId: ev.gameId,
-        homeTeam: ev.homeTeamName,
-        awayTeam: ev.awayTeamName,
-        startTime: ev.estimateStartTime,
-        matchStatus: ev.matchStatus,
-        tournamentId: ev.sport?.category?.tournament?.id,
-        tournamentName: ev.sport?.category?.tournament?.name,
-        categoryName: ev.sport?.category?.name,
+  const merged = {};
+  for (const m of markets) {
+    const id = String(m.id);
+    if (!merged[id]) {
+      merged[id] = { marketId: id, name: m.desc || m.name, group: m.group, outcomes: [] };
+    }
+    for (const o of m.outcomes ?? []) {
+      merged[id].outcomes.push({
+        name: o.desc,
+        odds: parseFloat(o.odds),
+        active: o.isActive === 1,
       });
     }
   }
-  return events;
-}
 
-async function getEventMarkets(eventId, matchStatus) {
-  const products = [];
-  if (isLiveStatus(matchStatus)) {
-    products.push('1', '3');
-  } else {
-    products.push('3', '1');
+  for (const m of Object.values(merged)) {
+    const sorter = MARKET_SORTERS[m.marketId];
+    if (sorter) m.outcomes = sorter(m.outcomes);
   }
-  for (const productId of products) {
-    const url = `${BASE_URL}/api/gh/factsCenter/event?productId=${productId}&eventId=${encodeURIComponent(eventId)}`;
-  const data = await fetchSportyJson(url);
-    const markets = (data?.markets ?? []).filter(m => TARGET_MARKET_IDS_SET.has(String(m.id)));
-    if (markets.length > 0) {
-      const merged = {};
-      for (const m of markets) {
-        const id = String(m.id);
-        if (!merged[id]) {
-          merged[id] = { marketId: id, name: m.desc || m.name, group: m.group, outcomes: [] };
-        }
-        for (const o of m.outcomes ?? []) {
-          merged[id].outcomes.push({
-            name: o.desc,
-            odds: parseFloat(o.odds),
-            active: o.isActive === 1,
-          });
-        }
-      }
 
-      for (const m of Object.values(merged)) {
-        const sorter = MARKET_SORTERS[m.marketId];
-        if (sorter) m.outcomes = sorter(m.outcomes);
-      }
-
-      return Object.values(merged);
-    }
-  }
-  return [];
-}
-
-// Statuses where a match has kicked off and pre-match (product 3) stops
-// serving markets; the live product (1) must be queried instead.
-function isLiveStatus(status) {
-  return ['H1', 'H2', 'HT', 'AET', 'FT'].includes(status);
+  return Object.values(merged);
 }
 
 async function scrapeSportyBet() {
-  console.log(`Fetching pre-match football events...`);
-  const events = await getPreMatchEvents();
-  console.log(`Found ${events.length} football events in Today's Football`);
+  console.log(`Fetching today's football events...`);
+  const events = await fetchTodayFootballEvents();
+  console.log(`Found ${events.length} football events today`);
 
   const results = await mapWithConcurrency(events, async (ev) => {
-    const markets = await getEventMarkets(ev.eventId, ev.matchStatus);
+    const markets = await getEventMarkets(ev.eventId);
     const byId = {};
     for (const m of markets) byId[m.marketId] = m;
     const marketsByKey = {};

@@ -140,7 +140,16 @@ function evaluateMultigoals(name, score) {
   return null;
 }
 
+// 1X2 market (id 1): "Home" / "Draw" / "Away" outcomes.
+function evaluateOneXTwo(name, score) {
+  if (name === 'Home') return score.home > score.away ? 'WON' : 'LOST';
+  if (name === 'Draw') return score.home === score.away ? 'WON' : 'LOST';
+  if (name === 'Away') return score.away > score.home ? 'WON' : 'LOST';
+  return null;
+}
+
 export const MARKET_EVALUATORS = {
+  '1': evaluateOneXTwo,
   '18': evaluateOverUnder,
   '41': evaluateCorrectScore,
   '551': evaluateMultiscores,
@@ -249,7 +258,7 @@ function oddsReport(list) {
   lines.push(`**Mixed** (settled >=3, some won some lost): ${mixed.length}`, '');
   lines.push('');
 
-  const marketNames = { '18': '1X2 / O/U', '41': 'Correct Score [0:0]', '551': 'Multiscores', '548': 'Multigoals' };
+  const marketNames = { '1': '1X2 / O/U', '18': '1X2 / O/U', '41': 'Correct Score [0:0]', '551': 'Multiscores', '548': 'Multigoals' };
 
   if (good.length) {
     lines.push('## Good Odds (historically play)', '');

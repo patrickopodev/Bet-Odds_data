@@ -1,0 +1,710 @@
+{
+  "generatedAt": "2026-08-13T14:05:14.764Z",
+  "source": "sportybet.com/gh/m/ vs flashscore.com/football/",
+  "flashscoreTotal": 148,
+  "sportybetTotal": 86,
+  "matched": 59,
+  "missing": 89,
+  "missingMatches": [
+    {
+      "homeTeam": "Argentinos Jrs 2",
+      "awayTeam": "Gimnasia L.P. 2",
+      "league": "ARGENTINA: Reserve League - Clausura",
+      "kickoff": "2026-08-13T18:00:00.000Z"
+    },
+    {
+      "homeTeam": "Ind. Rivadavia 2",
+      "awayTeam": "Ferro 2",
+      "league": "ARGENTINA: Reserve League - Clausura",
+      "kickoff": "2026-08-13T18:00:00.000Z"
+    },
+    {
+      "homeTeam": "Quilmes 2",
+      "awayTeam": "Platense 2",
+      "league": "ARGENTINA: Reserve League - Clausura",
+      "kickoff": "2026-08-13T18:00:00.000Z"
+    },
+    {
+      "homeTeam": "San Lorenzo 2",
+      "awayTeam": "Barracas Central 2",
+      "league": "ARGENTINA: Reserve League - Clausura",
+      "kickoff": "2026-08-13T18:00:00.000Z"
+    },
+    {
+      "homeTeam": "Tigre 2",
+      "awayTeam": "Talleres Cordoba 2",
+      "league": "ARGENTINA: Reserve League - Clausura",
+      "kickoff": "2026-08-13T18:00:00.000Z"
+    },
+    {
+      "homeTeam": "Central Cordoba 2",
+      "awayTeam": "Independiente 2",
+      "league": "ARGENTINA: Reserve League - Clausura",
+      "kickoff": "2026-08-13T20:00:00.000Z"
+    },
+    {
+      "homeTeam": "Lernayin Artsakh",
+      "awayTeam": "Ararat-Armenia 2",
+      "league": "ARMENIA: First League",
+      "kickoff": "2026-08-13T12:30:00.000Z"
+    },
+    {
+      "homeTeam": "Olympia Yerevan",
+      "awayTeam": "Sardarapat 2",
+      "league": "ARMENIA: First League",
+      "kickoff": "2026-08-13T12:30:00.000Z"
+    },
+    {
+      "homeTeam": "Central Coast (Sol)",
+      "awayTeam": "Venus (Tah)",
+      "league": "AUSTRALIA & OCEANIA: OFC Champions League",
+      "kickoff": "2026-08-13T03:00:00.000Z"
+    },
+    {
+      "homeTeam": "Esportivo",
+      "awayTeam": "Santa Cruz RS",
+      "league": "BRAZIL: Gaucho 2",
+      "kickoff": "2026-08-13T22:00:00.000Z"
+    },
+    {
+      "homeTeam": "Gaucho",
+      "awayTeam": "Pelotas",
+      "league": "BRAZIL: Gaucho 2",
+      "kickoff": "2026-08-13T22:00:00.000Z"
+    },
+    {
+      "homeTeam": "Atletico Gloriense",
+      "awayTeam": "Lagarto",
+      "league": "BRAZIL: Copa Governo (Sergipe)",
+      "kickoff": "2026-08-13T18:15:00.000Z"
+    },
+    {
+      "homeTeam": "America SP U20",
+      "awayTeam": "Portuguesa Santista U20",
+      "league": "BRAZIL: Paulista U20",
+      "kickoff": "2026-08-13T18:00:00.000Z"
+    },
+    {
+      "homeTeam": "Amazonas Legis W",
+      "awayTeam": "Taruma W",
+      "league": "BRAZIL: Amazonense Women",
+      "kickoff": "2026-08-13T19:00:00.000Z"
+    },
+    {
+      "homeTeam": "Curico Unido",
+      "awayTeam": "CD Santa Cruz",
+      "league": "CHILE: Liga de Ascenso",
+      "kickoff": "2026-08-14T00:30:00.000Z"
+    },
+    {
+      "homeTeam": "Deportes Iquique",
+      "awayTeam": "Copiapo",
+      "league": "CHILE: Liga de Ascenso",
+      "kickoff": "2026-08-14T00:30:00.000Z"
+    },
+    {
+      "homeTeam": "Alianza",
+      "awayTeam": "Once Caldas",
+      "league": "COLOMBIA: Copa Colombia - Second stage",
+      "kickoff": "2026-08-14T00:00:00.000Z"
+    },
+    {
+      "homeTeam": "Cumbaya",
+      "awayTeam": "Dep. Santo Domingo",
+      "league": "ECUADOR: Serie B",
+      "kickoff": "2026-08-13T20:30:00.000Z"
+    },
+    {
+      "homeTeam": "Astillero",
+      "awayTeam": "Daquilema",
+      "league": "ECUADOR: Copa Ecuador",
+      "kickoff": "2026-08-13T20:00:00.000Z"
+    },
+    {
+      "homeTeam": "Univ. Craiova (Rou)",
+      "awayTeam": "KuPS (Fin)",
+      "league": "EUROPE: Europa League - Qualification",
+      "kickoff": "2026-08-13T17:00:00.000Z"
+    },
+    {
+      "homeTeam": "Flora (Est)",
+      "awayTeam": "Inter Escaldes (And)",
+      "league": "EUROPE: Conference League - Qualification",
+      "kickoff": "2026-08-13T16:00:00.000Z"
+    },
+    {
+      "homeTeam": "Qarabag (Aze)",
+      "awayTeam": "Dyn. Kyiv (Ukr)",
+      "league": "EUROPE: Conference League - Qualification",
+      "kickoff": "2026-08-13T16:00:00.000Z"
+    },
+    {
+      "homeTeam": "Din. Minsk (Blr)",
+      "awayTeam": "Braga (Por)",
+      "league": "EUROPE: Conference League - Qualification",
+      "kickoff": "2026-08-13T17:00:00.000Z"
+    },
+    {
+      "homeTeam": "Dun. Streda (Svk)",
+      "awayTeam": "Twente (Ned)",
+      "league": "EUROPE: Conference League - Qualification",
+      "kickoff": "2026-08-13T17:00:00.000Z"
+    },
+    {
+      "homeTeam": "ML Vitebsk (Blr)",
+      "awayTeam": "Borac Banja Luka (Bih)",
+      "league": "EUROPE: Conference League - Qualification",
+      "kickoff": "2026-08-13T17:00:00.000Z"
+    },
+    {
+      "homeTeam": "Austria Vienna (Aut)",
+      "awayTeam": "Beitar Jerusalem (Isr)",
+      "league": "EUROPE: Conference League - Qualification",
+      "kickoff": "2026-08-13T18:30:00.000Z"
+    },
+    {
+      "homeTeam": "Motherwell (Sco)",
+      "awayTeam": "HJK (Fin)",
+      "league": "EUROPE: Conference League - Qualification",
+      "kickoff": "2026-08-13T18:30:00.000Z"
+    },
+    {
+      "homeTeam": "Labasa",
+      "awayTeam": "Lautoka",
+      "league": "FIJI: Premier League",
+      "kickoff": "2026-08-14T03:00:00.000Z"
+    },
+    {
+      "homeTeam": "PPJ",
+      "awayTeam": "MyPa",
+      "league": "FINLAND: Kakkonen Group A",
+      "kickoff": "2026-08-13T16:00:00.000Z"
+    },
+    {
+      "homeTeam": "Didube",
+      "awayTeam": "Betlemi",
+      "league": "GEORGIA: Liga 3",
+      "kickoff": "2026-08-13T13:00:00.000Z"
+    },
+    {
+      "homeTeam": "Merani Tbilisi",
+      "awayTeam": "Guria",
+      "league": "GEORGIA: Liga 3",
+      "kickoff": "2026-08-13T13:00:00.000Z"
+    },
+    {
+      "homeTeam": "Orbi",
+      "awayTeam": "Gardabani",
+      "league": "GEORGIA: Liga 3",
+      "kickoff": "2026-08-13T13:00:00.000Z"
+    },
+    {
+      "homeTeam": "Iberia 1999 2",
+      "awayTeam": "Loco. Tbilisi",
+      "league": "GEORGIA: Liga 3",
+      "kickoff": "2026-08-13T13:30:00.000Z"
+    },
+    {
+      "homeTeam": "Dinamo Tbilisi 2",
+      "awayTeam": "Iberia 2010",
+      "league": "GEORGIA: Liga 3",
+      "kickoff": "2026-08-13T14:00:00.000Z"
+    },
+    {
+      "homeTeam": "Gonio",
+      "awayTeam": "Iveria Khashuri",
+      "league": "GEORGIA: Liga 3",
+      "kickoff": "2026-08-13T15:00:00.000Z"
+    },
+    {
+      "homeTeam": "Tbilisi 2025",
+      "awayTeam": "Khobi",
+      "league": "GEORGIA: Liga 3",
+      "kickoff": "2026-08-13T17:00:00.000Z"
+    },
+    {
+      "homeTeam": "Blumenthaler",
+      "awayTeam": "Schwachhausen",
+      "league": "GERMANY: Oberliga Bremen",
+      "kickoff": "2026-08-13T17:00:00.000Z"
+    },
+    {
+      "homeTeam": "Union 60 Bremen",
+      "awayTeam": "Oberneuland",
+      "league": "GERMANY: Oberliga Bremen",
+      "kickoff": "2026-08-13T17:00:00.000Z"
+    },
+    {
+      "homeTeam": "Grotta",
+      "awayTeam": "Njardvik",
+      "league": "ICELAND: Division 1",
+      "kickoff": "2026-08-13T19:15:00.000Z"
+    },
+    {
+      "homeTeam": "Bidhannagar",
+      "awayTeam": "Mohun Bagan U23",
+      "league": "INDIA: Calcutta Premier Division",
+      "kickoff": "2026-08-13T09:30:00.000Z"
+    },
+    {
+      "homeTeam": "BSS Sporting",
+      "awayTeam": "Kidderpore",
+      "league": "INDIA: Calcutta Premier Division",
+      "kickoff": "2026-08-13T09:30:00.000Z"
+    },
+    {
+      "homeTeam": "George Telegrapher",
+      "awayTeam": "United Kolkata",
+      "league": "INDIA: Calcutta Premier Division",
+      "kickoff": "2026-08-13T09:30:00.000Z"
+    },
+    {
+      "homeTeam": "Bodoland FC",
+      "awayTeam": "Karbi Anglong",
+      "league": "INDIA: Durand Cup",
+      "kickoff": "2026-08-13T10:30:00.000Z"
+    },
+    {
+      "homeTeam": "Jamshedpur",
+      "awayTeam": "Indian Air Force",
+      "league": "INDIA: Durand Cup",
+      "kickoff": "2026-08-13T10:30:00.000Z"
+    },
+    {
+      "homeTeam": "Lajong",
+      "awayTeam": "Langsning",
+      "league": "INDIA: Durand Cup",
+      "kickoff": "2026-08-13T13:30:00.000Z"
+    },
+    {
+      "homeTeam": "Kairat Almaty 2",
+      "awayTeam": "Akademiya Ontustik",
+      "league": "KAZAKHSTAN: First League",
+      "kickoff": "2026-08-13T12:00:00.000Z"
+    },
+    {
+      "homeTeam": "Aktobe 2",
+      "awayTeam": "Shakhter Karagandy",
+      "league": "KAZAKHSTAN: First League",
+      "kickoff": "2026-08-13T13:00:00.000Z"
+    },
+    {
+      "homeTeam": "FC Astana 2",
+      "awayTeam": "Tobol 2",
+      "league": "KAZAKHSTAN: First League",
+      "kickoff": "2026-08-13T14:00:00.000Z"
+    },
+    {
+      "homeTeam": "Alebrijes Oaxaca",
+      "awayTeam": "Tepatitlan de Morelos",
+      "league": "MEXICO: Liga de Expansion MX - Apertura",
+      "kickoff": "2026-08-14T01:00:00.000Z"
+    },
+    {
+      "homeTeam": "Chingale de Tete",
+      "awayTeam": "ENH Vilankulo",
+      "league": "MOZAMBIQUE: Mocambola",
+      "kickoff": "2026-08-13T12:45:00.000Z"
+    },
+    {
+      "homeTeam": "Ferroviario Nacala",
+      "awayTeam": "Ferroviario Maputo",
+      "league": "MOZAMBIQUE: Mocambola",
+      "kickoff": "2026-08-13T12:45:00.000Z"
+    },
+    {
+      "homeTeam": "FAS (Sal)",
+      "awayTeam": "Verdes (Blz)",
+      "league": "NORTH & CENTRAL AMERICA: CONCACAF Central American Cup",
+      "kickoff": "2026-08-13T03:00:00.000Z"
+    },
+    {
+      "homeTeam": "Alianza (Pan)",
+      "awayTeam": "UMECIT (Pan)",
+      "league": "NORTH & CENTRAL AMERICA: CONCACAF Central American Cup",
+      "kickoff": "2026-08-14T00:00:00.000Z"
+    },
+    {
+      "homeTeam": "Antigua (Gtm)",
+      "awayTeam": "Marathon (Hon)",
+      "league": "NORTH & CENTRAL AMERICA: CONCACAF Central American Cup",
+      "kickoff": "2026-08-14T02:00:00.000Z"
+    },
+    {
+      "homeTeam": "Luis Angel Firpo (Sal)",
+      "awayTeam": "Diriangen (Nic)",
+      "league": "NORTH & CENTRAL AMERICA: CONCACAF Central American Cup",
+      "kickoff": "2026-08-14T02:00:00.000Z"
+    },
+    {
+      "homeTeam": "Club America",
+      "awayTeam": "Austin FC",
+      "league": "NORTH & CENTRAL AMERICA: Leagues Cup",
+      "kickoff": "2026-08-14T00:30:00.000Z"
+    },
+    {
+      "homeTeam": "Cruz Azul",
+      "awayTeam": "Chicago Fire",
+      "league": "NORTH & CENTRAL AMERICA: Leagues Cup",
+      "kickoff": "2026-08-14T01:00:00.000Z"
+    },
+    {
+      "homeTeam": "Portland Timbers",
+      "awayTeam": "Club Tijuana",
+      "league": "NORTH & CENTRAL AMERICA: Leagues Cup",
+      "kickoff": "2026-08-14T02:30:00.000Z"
+    },
+    {
+      "homeTeam": "Lyn U19",
+      "awayTeam": "Viking U19",
+      "league": "NORWAY: Nasjonal U19 CL - Play Offs",
+      "kickoff": "2026-08-13T11:30:00.000Z"
+    },
+    {
+      "homeTeam": "1 de Marzo Pilar",
+      "awayTeam": "Atl. Tembetary",
+      "league": "PARAGUAY: Copa Paraguay",
+      "kickoff": "2026-08-13T19:30:00.000Z"
+    },
+    {
+      "homeTeam": "Spartak Nalchik",
+      "awayTeam": "Alania Vladikavkaz",
+      "league": "RUSSIA: Russian Cup - Regions Path",
+      "kickoff": "2026-08-13T14:00:00.000Z"
+    },
+    {
+      "homeTeam": "Dynamo Vologda",
+      "awayTeam": "Tver",
+      "league": "RUSSIA: Russian Cup - Regions Path",
+      "kickoff": "2026-08-13T16:30:00.000Z"
+    },
+    {
+      "homeTeam": "Abha",
+      "awayTeam": "Al Hazem",
+      "league": "SAUDI ARABIA: Saudi Professional League",
+      "kickoff": "2026-08-13T16:15:00.000Z"
+    },
+    {
+      "homeTeam": "Mogadishu City",
+      "awayTeam": "Heegan",
+      "league": "SOMALIA: National league",
+      "kickoff": "2026-08-13T12:30:00.000Z"
+    },
+    {
+      "homeTeam": "Rosario Central (Arg)",
+      "awayTeam": "Corinthians (Bra)",
+      "league": "SOUTH AMERICA: Copa Libertadores - Play Offs",
+      "kickoff": "2026-08-14T00:30:00.000Z"
+    },
+    {
+      "homeTeam": "Cienciano (Per)",
+      "awayTeam": "Botafogo RJ (Bra)",
+      "league": "SOUTH AMERICA: Copa Sudamericana - Play Offs",
+      "kickoff": "2026-08-14T00:30:00.000Z"
+    },
+    {
+      "homeTeam": "Zhytomyr W",
+      "awayTeam": "FC Kharkiv W",
+      "league": "UKRAINE: Championship Women",
+      "kickoff": "2026-08-13T09:00:00.000Z"
+    },
+    {
+      "homeTeam": "Shakhtar Donetsk W",
+      "awayTeam": "Kryvbas W",
+      "league": "UKRAINE: Championship Women",
+      "kickoff": "2026-08-13T10:00:00.000Z"
+    },
+    {
+      "homeTeam": "Andijan",
+      "awayTeam": "Neftchi Fargona",
+      "league": "UZBEKISTAN: Super League",
+      "kickoff": "2026-08-13T14:00:00.000Z"
+    },
+    {
+      "homeTeam": "Termez Surkhon",
+      "awayTeam": "Sogdiana",
+      "league": "UZBEKISTAN: Super League",
+      "kickoff": "2026-08-13T14:00:00.000Z"
+    },
+    {
+      "homeTeam": "Buxoro",
+      "awayTeam": "OKMK",
+      "league": "UZBEKISTAN: Super League",
+      "kickoff": "2026-08-13T15:30:00.000Z"
+    },
+    {
+      "homeTeam": "Oman U20",
+      "awayTeam": "Syria U20",
+      "league": "WORLD: Friendly International",
+      "kickoff": "2026-08-13T16:15:00.000Z"
+    },
+    {
+      "homeTeam": "Arconatese (Ita)",
+      "awayTeam": "Leon (Ita)",
+      "league": "WORLD: Club Friendly",
+      "kickoff": "2026-08-13T09:00:00.000Z"
+    },
+    {
+      "homeTeam": "Bali United (Ina)",
+      "awayTeam": "Sabah (Mys)",
+      "league": "WORLD: Club Friendly",
+      "kickoff": "2026-08-13T12:00:00.000Z"
+    },
+    {
+      "homeTeam": "Liefering (Aut)",
+      "awayTeam": "Aris (Cyp)",
+      "league": "WORLD: Club Friendly",
+      "kickoff": "2026-08-13T13:00:00.000Z"
+    },
+    {
+      "homeTeam": "Giugliano (Ita)",
+      "awayTeam": "Ischia (Ita)",
+      "league": "WORLD: Club Friendly",
+      "kickoff": "2026-08-13T15:30:00.000Z"
+    },
+    {
+      "homeTeam": "FAR Rabat (Mar)",
+      "awayTeam": "Chabab Atlas Khenifra (Mar)",
+      "league": "WORLD: Club Friendly",
+      "kickoff": "2026-08-13T16:00:00.000Z"
+    },
+    {
+      "homeTeam": "Latte Dolce (Ita)",
+      "awayTeam": "Santa Teresa (Esp)",
+      "league": "WORLD: Club Friendly",
+      "kickoff": "2026-08-13T16:00:00.000Z"
+    },
+    {
+      "homeTeam": "Montevarchi (Ita)",
+      "awayTeam": "Grassina (Ita)",
+      "league": "WORLD: Club Friendly",
+      "kickoff": "2026-08-13T16:30:00.000Z"
+    },
+    {
+      "homeTeam": "Hercules (Esp)",
+      "awayTeam": "Valencia (Esp)",
+      "league": "WORLD: Club Friendly",
+      "kickoff": "2026-08-13T17:30:00.000Z"
+    },
+    {
+      "homeTeam": "Atl. Madrid B (Esp)",
+      "awayTeam": "Mirandes (Esp)",
+      "league": "WORLD: Club Friendly",
+      "kickoff": "2026-08-13T18:00:00.000Z"
+    },
+    {
+      "homeTeam": "CD Zafra (Esp)",
+      "awayTeam": "Don Benito (Esp)",
+      "league": "WORLD: Club Friendly",
+      "kickoff": "2026-08-13T18:00:00.000Z"
+    },
+    {
+      "homeTeam": "Portugal U20 W",
+      "awayTeam": "England U20 W",
+      "league": "WORLD: Friendly International Women",
+      "kickoff": "2026-08-13T16:30:00.000Z"
+    },
+    {
+      "homeTeam": "Verona W (Ita)",
+      "awayTeam": "Parma W (Ita)",
+      "league": "WORLD: Club Friendly Women",
+      "kickoff": "2026-08-13T09:00:00.000Z"
+    },
+    {
+      "homeTeam": "Bologna W (Ita)",
+      "awayTeam": "Arezzo W (Ita)",
+      "league": "WORLD: Club Friendly Women",
+      "kickoff": "2026-08-13T15:00:00.000Z"
+    },
+    {
+      "homeTeam": "Dep. A Coruna W (Esp)",
+      "awayTeam": "Porto W (Por)",
+      "league": "WORLD: Club Friendly Women",
+      "kickoff": "2026-08-13T15:00:00.000Z"
+    },
+    {
+      "homeTeam": "Ternana W (Ita)",
+      "awayTeam": "Frosinone W (Ita)",
+      "league": "WORLD: Club Friendly Women",
+      "kickoff": "2026-08-13T15:00:00.000Z"
+    },
+    {
+      "homeTeam": "Al Wahda",
+      "awayTeam": "Al Yarmuk",
+      "league": "YEMEN: Division 1",
+      "kickoff": "2026-08-13T13:00:00.000Z"
+    },
+    {
+      "homeTeam": "Ittihad Hadramout",
+      "awayTeam": "Al Baydaa",
+      "league": "YEMEN: Division 1",
+      "kickoff": "2026-08-13T13:00:00.000Z"
+    }
+  ],
+  "sportybetNotOnFlashscore": 27,
+  "notOnFlashscore": [
+    {
+      "homeTeam": "Qarabag",
+      "awayTeam": "FC Dynamo Kyiv",
+      "league": "UEFA Conference League",
+      "kickoff": "2026-08-13T16:00:00.000Z"
+    },
+    {
+      "homeTeam": "CS Universitatea Craiova",
+      "awayTeam": "Kuopion Palloseura",
+      "league": "UEFA Europa League",
+      "kickoff": "2026-08-13T17:00:00.000Z"
+    },
+    {
+      "homeTeam": "DAC 1904 Dunajska Streda",
+      "awayTeam": "FC Twente Enschede",
+      "league": "UEFA Conference League",
+      "kickoff": "2026-08-13T17:00:00.000Z"
+    },
+    {
+      "homeTeam": "FC Dinamo Minsk",
+      "awayTeam": "Braga",
+      "league": "UEFA Conference League",
+      "kickoff": "2026-08-13T17:00:00.000Z"
+    },
+    {
+      "homeTeam": "Bologna FC",
+      "awayTeam": "SS Arezzo",
+      "league": "Club Friendly Games, Women",
+      "kickoff": "2026-08-13T15:00:00.000Z"
+    },
+    {
+      "homeTeam": "RC Deportivo De La Coruna",
+      "awayTeam": "FC Porto",
+      "league": "Club Friendly Games, Women",
+      "kickoff": "2026-08-13T15:00:00.000Z"
+    },
+    {
+      "homeTeam": "FK Buxoro",
+      "awayTeam": "AGMK FC",
+      "league": "Superliga",
+      "kickoff": "2026-08-13T15:30:00.000Z"
+    },
+    {
+      "homeTeam": "Tallinna FC Flora",
+      "awayTeam": "Inter Club de Escaldes",
+      "league": "UEFA Conference League",
+      "kickoff": "2026-08-13T16:00:00.000Z"
+    },
+    {
+      "homeTeam": "PPJ Helsinki",
+      "awayTeam": "Myllykosken Pallo -47",
+      "league": "Kakkonen",
+      "kickoff": "2026-08-13T16:00:00.000Z"
+    },
+    {
+      "homeTeam": "FC Ylivieska",
+      "awayTeam": "Nykarleby IK",
+      "league": "Kolmonen",
+      "kickoff": "2026-08-13T16:00:00.000Z"
+    },
+    {
+      "homeTeam": "MPS/Atletico Malmi",
+      "awayTeam": "VJS 2",
+      "league": "Kolmonen",
+      "kickoff": "2026-08-13T16:00:00.000Z"
+    },
+    {
+      "homeTeam": "SJK-J",
+      "awayTeam": "Vasa IFK",
+      "league": "Kolmonen",
+      "kickoff": "2026-08-13T16:00:00.000Z"
+    },
+    {
+      "homeTeam": "Tampereen Peli-Toverit",
+      "awayTeam": "Toip-49",
+      "league": "Kolmonen",
+      "kickoff": "2026-08-13T16:00:00.000Z"
+    },
+    {
+      "homeTeam": "Abha Club",
+      "awayTeam": "Al-Hazm",
+      "league": "Saudi Pro League",
+      "kickoff": "2026-08-13T16:15:00.000Z"
+    },
+    {
+      "homeTeam": "Maxline Vitebsk",
+      "awayTeam": "FK Borac Banja Luka",
+      "league": "UEFA Conference League",
+      "kickoff": "2026-08-13T17:00:00.000Z"
+    },
+    {
+      "homeTeam": "Argentinos Juniors Reserve",
+      "awayTeam": "Gimnasia de la Plata Reserve",
+      "league": "Primera LPF, Reserves",
+      "kickoff": "2026-08-13T18:00:00.000Z"
+    },
+    {
+      "homeTeam": "CA Quilmes Reserve",
+      "awayTeam": "CA Platense",
+      "league": "Primera LPF, Reserves",
+      "kickoff": "2026-08-13T18:00:00.000Z"
+    },
+    {
+      "homeTeam": "CA Tigre Reserve",
+      "awayTeam": "CA Talleres de Cordoba Reserve",
+      "league": "Primera LPF, Reserves",
+      "kickoff": "2026-08-13T18:00:00.000Z"
+    },
+    {
+      "homeTeam": "Independiente Rivadavia de Mendoza Reserve",
+      "awayTeam": "Ferro Carril Oeste",
+      "league": "Primera LPF, Reserves",
+      "kickoff": "2026-08-13T18:00:00.000Z"
+    },
+    {
+      "homeTeam": "San Lorenzo de Almagro Res.",
+      "awayTeam": "CA Barracas Central Reserve",
+      "league": "Primera LPF, Reserves",
+      "kickoff": "2026-08-13T18:00:00.000Z"
+    },
+    {
+      "homeTeam": "America FC SP",
+      "awayTeam": "AA Portuguesa Santista SP",
+      "league": "U20 Paulista",
+      "kickoff": "2026-08-13T18:00:00.000Z"
+    },
+    {
+      "homeTeam": "FK Austria Wien",
+      "awayTeam": "Beitar Jerusalem FC",
+      "league": "UEFA Conference League",
+      "kickoff": "2026-08-13T18:30:00.000Z"
+    },
+    {
+      "homeTeam": "Motherwell FC",
+      "awayTeam": "HJK Helsinki",
+      "league": "UEFA Conference League",
+      "kickoff": "2026-08-13T18:30:00.000Z"
+    },
+    {
+      "homeTeam": "CA Central Cordoba SE Reserve",
+      "awayTeam": "Independiente Reserve",
+      "league": "Primera LPF, Reserves",
+      "kickoff": "2026-08-13T20:00:00.000Z"
+    },
+    {
+      "homeTeam": "Cumbaya FC",
+      "awayTeam": "DSD Santo Domingo",
+      "league": "Serie B",
+      "kickoff": "2026-08-13T20:30:00.000Z"
+    },
+    {
+      "homeTeam": "Academia Mario Mendez",
+      "awayTeam": "Veraguas United FC B",
+      "league": "Liga Prom",
+      "kickoff": "2026-08-13T21:00:00.000Z"
+    },
+    {
+      "homeTeam": "CE Bento Goncalves RS",
+      "awayTeam": "FC Santa Cruz RS",
+      "league": "Gaucho, Serie A2",
+      "kickoff": "2026-08-13T22:00:00.000Z"
+    }
+  ],
+  "complete": false
+}

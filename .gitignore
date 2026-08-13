@@ -4,9 +4,13 @@ data/snapshot-*.json
 data/report-*.json
 data/report-*.md
 data/performance-*.md
+data/winners-*.md
 
 # Sensitive / dev-only files
 sportybet-page-structure.md
 pw-*.png
 pw-login-inspect.mjs
 pw-smoke.mjs
+
+# Graphify knowledge-graph build output (regenerated on demand)
+graphify-out/
