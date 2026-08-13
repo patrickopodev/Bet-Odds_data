@@ -5,13 +5,15 @@
   "type": "module",
   "main": "scraper.js",
   "scripts": {
-    "scrape": "node scraper.js"
+    "scrape": "node scraper.js",
+    "build-db": "node build-db.mjs",
+    "resolve": "node resolve-results.mjs",
+    "analyze": "node analyze-odds.mjs --db"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
-    "playwright": "^1.62.1",
-    "puppeteer": "^24.0.0"
+    "playwright-core": "^1.62.1"
   }
 }

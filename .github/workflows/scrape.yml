@@ -31,21 +31,31 @@ jobs:
           cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: npm ci || npm install
+        run: npm ci
 
       - name: Run scraper
         id: scrape
         run: node scraper.js
         env:
-          TARGET_URL: ${{ vars.TARGET_URL || 'https://www.sportybet.com/gh/m/' }}
           SPORTYBET_PHONE: ${{ secrets.SPORTYBET_PHONE }}
           SPORTYBET_PASSWORD: ${{ secrets.SPORTYBET_PASSWORD }}
+
+      - name: Build persistent odds database
+        run: node build-db.mjs
+
+      - name: Resolve finished matches
+        run: node resolve-results.mjs
+
+      - name: Generate good/bad odds report
+        run: node analyze-odds.mjs --db
 
       - name: Upload scraped data as artifact
         uses: actions/upload-artifact@v4
         with:
           name: scraped-data
-          path: data/*.json
+          path: |
+            data/*.json
+            data/*.md
           if-no-files-found: error
           retention-days: 90
 
