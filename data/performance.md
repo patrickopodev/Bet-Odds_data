@@ -1,8 +1,8 @@
 # SportyBet Odds Performance
 
-_Generated 2026-08-14T12:45:04.399Z UTC_
+_Generated 2026-08-14T14:03:34.802Z UTC_
 
-Total outcome/odds combinations: 6368
+Total outcome/odds combinations: 6506
 
 **Good odds** (settled >=3, always won): 33
 
@@ -153,7 +153,7 @@ Total outcome/odds combinations: 6368
 - **Correct Score [0:0] | 2:2 @ 14**: 1/4 won (25%) across 4 match(es)
 - **Multigoals | 3-4 @ 1.72**: 2/4 won (50%) across 4 match(es)
 
-## Unsettled (2935)
+## Unsettled (3073)
 
 These were recorded but their matches have not finished yet:
 
