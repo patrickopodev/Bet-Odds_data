@@ -4,57 +4,14 @@ import {
   DATA_DIR,
   mapWithConcurrency,
   MARKET_ORDER,
-  TARGET_MARKET_IDS,
-  TARGET_MARKET_IDS_SET,
   fetchTodayFootballEvents,
-  fetchEventMarkets,
+  fetchEventMarketsByKey,
 } from './lib/common.mjs';
 
 const BASE_URL = 'https://www.sportybet.com';
 
-// Sort Over/Under outcomes ascending by goal line (0.5, 1, 1.5, 2, ... 5.5)
-// so each Over/Under pair reads like the UI table.
-function sortOverUnder(outcomes) {
-  return [...outcomes].sort((a, b) => {
-    const va = parseFloat(a.name.replace(/[^\d.]/g, ''));
-    const vb = parseFloat(b.name.replace(/[^\d.]/g, ''));
-    if (va === vb) return a.name.startsWith('Under') ? 1 : -1;
-    return (va || 0) - (vb || 0);
-  });
-}
-
-// All other markets (Correct Score, Multiscores, Multigoals) keep the API's
-// native outcome order, which matches the SportyBet UI exactly.
-const MARKET_SORTERS = {
-  '18': sortOverUnder,
-};
-
 async function getEventMarkets(eventId) {
-  const data = await fetchEventMarkets(eventId);
-  const markets = (data?.markets ?? []).filter(m => TARGET_MARKET_IDS_SET.has(String(m.id)));
-  if (markets.length === 0) return [];
-
-  const merged = {};
-  for (const m of markets) {
-    const id = String(m.id);
-    if (!merged[id]) {
-      merged[id] = { marketId: id, name: m.desc || m.name, group: m.group, outcomes: [] };
-    }
-    for (const o of m.outcomes ?? []) {
-      merged[id].outcomes.push({
-        name: o.desc,
-        odds: parseFloat(o.odds),
-        active: o.isActive === 1,
-      });
-    }
-  }
-
-  for (const m of Object.values(merged)) {
-    const sorter = MARKET_SORTERS[m.marketId];
-    if (sorter) m.outcomes = sorter(m.outcomes);
-  }
-
-  return Object.values(merged);
+  return fetchEventMarketsByKey(eventId);
 }
 
 async function scrapeSportyBet() {
@@ -63,27 +20,7 @@ async function scrapeSportyBet() {
   console.log(`Found ${events.length} football events today`);
 
   const results = await mapWithConcurrency(events, async (ev) => {
-    const markets = await getEventMarkets(ev.eventId);
-    const byId = {};
-    for (const m of markets) byId[m.marketId] = m;
-    const marketsByKey = {};
-    for (const key of MARKET_ORDER) marketsByKey[key] = null;
-    for (const [id, m] of Object.entries(byId)) {
-      const key = TARGET_MARKET_IDS[id];
-      if (!key) continue;
-      const outs = m.outcomes.map((o) => ({ ...o, marketId: id }));
-      if (key === '1X2 / O/U') {
-        const existing = marketsByKey[key];
-        marketsByKey[key] = {
-          marketId: '1+18',
-          name: key,
-          group: null,
-          outcomes: (existing?.outcomes ?? []).concat(outs),
-        };
-      } else {
-        marketsByKey[key] = { marketId: id, name: key, group: null, outcomes: outs };
-      }
-    }
+    const marketsByKey = await getEventMarkets(ev.eventId);
     return {
       eventId: ev.eventId,
       gameId: ev.gameId,
@@ -93,7 +30,7 @@ async function scrapeSportyBet() {
       matchStatus: ev.matchStatus,
       tournament: ev.tournamentName,
       category: ev.categoryName,
-      markets: Object.fromEntries(MARKET_ORDER.map(k => [k, marketsByKey[k]])),
+      markets: marketsByKey,
     };
   });
 

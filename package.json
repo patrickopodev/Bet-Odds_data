@@ -11,6 +11,8 @@
     "analyze": "node analyze-odds.mjs --db",
     "compare": "node compare-coverage.mjs",
     "winners": "node winners.mjs",
+    "prematch": "node prematch-monitor.mjs",
+    "live": "node live-monitor.mjs",
     "test": "node --test test/"
   },
   "engines": {
