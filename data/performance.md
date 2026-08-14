@@ -1,6 +1,6 @@
 # SportyBet Odds Performance
 
-_Generated 2026-08-14T23:14:27.673Z UTC_
+_Generated 2026-08-14T23:37:30.096Z UTC_
 
 Total outcome/odds combinations: 7814
 
