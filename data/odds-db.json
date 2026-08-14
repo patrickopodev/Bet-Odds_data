@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-14T19:31:08.611Z",
+  "updatedAt": "2026-08-14T20:04:45.270Z",
   "events": {
     "sr:match:73008766": {
       "eventId": "sr:match:73008766",
@@ -158923,7 +158923,7 @@
       "category": "Portugal",
       "startTime": "2026-08-14T19:15:00.000Z",
       "firstSeen": "2026-08-13T21:49:36.430Z",
-      "lastSeen": "2026-08-14T19:30:55.569Z",
+      "lastSeen": "2026-08-14T20:04:37.155Z",
       "finalScore": null,
       "settledAt": null,
       "outcomes": {
@@ -159015,6 +159015,11 @@
               "odds": 1.16,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.03,
+              "active": false,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -159106,6 +159111,11 @@
               "odds": 7.5,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 19,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -159197,6 +159207,11 @@
               "odds": 16.5,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -160188,6 +160203,11 @@
               "odds": 1.95,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.16,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -160279,6 +160299,11 @@
               "odds": 1.85,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 5.1,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -160370,6 +160395,11 @@
               "odds": 2.65,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.25,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -160461,6 +160491,11 @@
               "odds": 1.47,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 3.8,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -160552,6 +160587,11 @@
               "odds": 3.3,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.75,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -160643,6 +160683,11 @@
               "odds": 1.32,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 2.05,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -160734,6 +160779,11 @@
               "odds": 5.6,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 2.45,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -160825,6 +160875,11 @@
               "odds": 1.14,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.52,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -160916,6 +160971,11 @@
               "odds": 6.25,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 3.25,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -161007,6 +161067,11 @@
               "odds": 1.12,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.32,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -161043,6 +161108,11 @@
               "odds": 11,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 6,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -161079,6 +161149,11 @@
               "odds": 1.03,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.12,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -161438,6 +161513,11 @@
               "odds": 7.25,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 5.2,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -161529,6 +161609,11 @@
               "odds": 12,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 4.3,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -161620,6 +161705,11 @@
               "odds": 26,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 7,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -161711,6 +161801,11 @@
               "odds": 70,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 16.5,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -162070,6 +162165,11 @@
               "odds": 8.75,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 8.5,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -162161,6 +162261,11 @@
               "odds": 14.5,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 7,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -162252,6 +162357,11 @@
               "odds": 31,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 11.5,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -162611,6 +162721,11 @@
               "odds": 21,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 28,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -162702,6 +162817,11 @@
               "odds": 34,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 23,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -163061,6 +163181,11 @@
               "odds": 75,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 140,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -166133,6 +166258,11 @@
               "odds": 225,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 55,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -166144,6 +166274,11 @@
               "odds": 85,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 28,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -166155,6 +166290,11 @@
               "odds": 75,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 35,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -166166,6 +166306,11 @@
               "odds": 130,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 110,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -166177,6 +166322,11 @@
               "odds": 250,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -166201,6 +166351,237 @@
               "scrapedAt": "2026-08-14T19:30:55.569Z"
             }
           ]
+        },
+        "18|Over 6.5": {
+          "marketId": "18",
+          "name": "Over 6.5",
+          "plays": [
+            {
+              "odds": 6.75,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "18|Under 6.5": {
+          "marketId": "18",
+          "name": "Under 6.5",
+          "plays": [
+            {
+              "odds": 1.09,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "18|Over 7": {
+          "marketId": "18",
+          "name": "Over 7",
+          "plays": [
+            {
+              "odds": 12.5,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "18|Under 7": {
+          "marketId": "18",
+          "name": "Under 7",
+          "plays": [
+            {
+              "odds": 1.02,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "18|Over 7.5": {
+          "marketId": "18",
+          "name": "Over 7.5",
+          "plays": [
+            {
+              "odds": 13,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "18|Under 7.5": {
+          "marketId": "18",
+          "name": "Under 7.5",
+          "plays": [
+            {
+              "odds": 1.02,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "18|Over 8": {
+          "marketId": "18",
+          "name": "Over 8",
+          "plays": [
+            {
+              "odds": 16,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "18|Under 8": {
+          "marketId": "18",
+          "name": "Under 8",
+          "plays": [
+            {
+              "odds": 0,
+              "active": false,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|8:0": {
+          "marketId": "41",
+          "name": "8:0",
+          "plays": [
+            {
+              "odds": 225,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|9:0": {
+          "marketId": "41",
+          "name": "9:0",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|7:1": {
+          "marketId": "41",
+          "name": "7:1",
+          "plays": [
+            {
+              "odds": 90,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|8:1": {
+          "marketId": "41",
+          "name": "8:1",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|6:2": {
+          "marketId": "41",
+          "name": "6:2",
+          "plays": [
+            {
+              "odds": 90,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|7:2": {
+          "marketId": "41",
+          "name": "7:2",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|5:3": {
+          "marketId": "41",
+          "name": "5:3",
+          "plays": [
+            {
+              "odds": 190,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|6:3": {
+          "marketId": "41",
+          "name": "6:3",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|4:4": {
+          "marketId": "41",
+          "name": "4:4",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|5:4": {
+          "marketId": "41",
+          "name": "5:4",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|3:5": {
+          "marketId": "41",
+          "name": "3:5",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|4:5": {
+          "marketId": "41",
+          "name": "4:5",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|3:6": {
+          "marketId": "41",
+          "name": "3:6",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
         }
       }
     },
@@ -166212,7 +166593,7 @@
       "category": "England",
       "startTime": "2026-08-14T19:00:00.000Z",
       "firstSeen": "2026-08-13T21:49:36.430Z",
-      "lastSeen": "2026-08-14T19:30:55.569Z",
+      "lastSeen": "2026-08-14T20:04:37.155Z",
       "finalScore": null,
       "settledAt": null,
       "outcomes": {
@@ -166304,6 +166685,11 @@
               "odds": 1.85,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.79,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -166395,6 +166781,11 @@
               "odds": 3.25,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 2.85,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -166486,6 +166877,11 @@
               "odds": 4.9,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 7,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -167265,6 +167661,11 @@
               "odds": 1.12,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.23,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -167356,6 +167757,11 @@
               "odds": 6,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 4,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -167447,6 +167853,11 @@
               "odds": 1.19,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.45,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -167538,6 +167949,11 @@
               "odds": 4.5,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 2.7,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -167629,6 +168045,11 @@
               "odds": 1.65,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 2.2,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -167720,6 +168141,11 @@
               "odds": 2.2,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.65,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -167811,6 +168237,11 @@
               "odds": 2.25,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 3.85,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -167902,6 +168333,11 @@
               "odds": 1.62,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.25,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -167993,6 +168429,11 @@
               "odds": 3.05,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 5,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -168084,6 +168525,11 @@
               "odds": 1.37,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.16,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -168175,6 +168621,11 @@
               "odds": 5.75,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 11,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -168266,6 +168717,11 @@
               "odds": 1.13,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.03,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -168357,6 +168813,11 @@
               "odds": 6.5,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 11,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -168448,6 +168909,11 @@
               "odds": 1.1,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.03,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -173275,6 +173741,11 @@
               "odds": 13,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 17,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -173286,6 +173757,11 @@
               "odds": 1.02,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.01,
+              "active": false,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -173297,6 +173773,11 @@
               "odds": 13,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 17,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -173308,6 +173789,11 @@
               "odds": 1.02,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.01,
+              "active": false,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -173319,6 +173805,11 @@
               "odds": 17,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 17,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -173330,6 +173821,11 @@
               "odds": 1,
               "active": false,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1,
+              "active": false,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         }
@@ -173343,7 +173839,7 @@
       "category": "Italy",
       "startTime": "2026-08-14T19:15:00.000Z",
       "firstSeen": "2026-08-13T21:49:36.430Z",
-      "lastSeen": "2026-08-14T19:30:55.569Z",
+      "lastSeen": "2026-08-14T20:04:37.155Z",
       "finalScore": null,
       "settledAt": null,
       "outcomes": {
@@ -173435,6 +173931,11 @@
               "odds": 1.12,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.03,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -173526,6 +174027,11 @@
               "odds": 9,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 16,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -173617,6 +174123,11 @@
               "odds": 21,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 70,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -174406,6 +174917,11 @@
               "odds": 1.27,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.18,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -174497,6 +175013,11 @@
               "odds": 3.9,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 5,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -174588,6 +175109,11 @@
               "odds": 1.4,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.3,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -174679,6 +175205,11 @@
               "odds": 3.05,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 3.65,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -174770,6 +175301,11 @@
               "odds": 1.8,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.8,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -174861,6 +175397,11 @@
               "odds": 2.05,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 2,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -174952,6 +175493,11 @@
               "odds": 2.35,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 2.65,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -175043,6 +175589,11 @@
               "odds": 1.6,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.5,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -175134,6 +175685,11 @@
               "odds": 3,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 3.5,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -175225,6 +175781,11 @@
               "odds": 1.4,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.3,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -175316,6 +175877,11 @@
               "odds": 4.8,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 6.75,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -175407,6 +175973,11 @@
               "odds": 1.18,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.1,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -175498,6 +176069,11 @@
               "odds": 5.6,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 7.75,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -175589,6 +176165,11 @@
               "odds": 1.15,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.09,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -175857,6 +176438,11 @@
               "odds": 7,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 4.85,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -175948,6 +176534,11 @@
               "odds": 6.75,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 4.2,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -176039,6 +176630,11 @@
               "odds": 10,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 7,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -176130,6 +176726,11 @@
               "odds": 19.5,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 18,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -176221,6 +176822,11 @@
               "odds": 50,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 60,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -176489,6 +177095,11 @@
               "odds": 8.75,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 8.25,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -176580,6 +177191,11 @@
               "odds": 8.75,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 7,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -176671,6 +177287,11 @@
               "odds": 12.5,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 12,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -176762,6 +177383,11 @@
               "odds": 25,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 30,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -177030,6 +177656,11 @@
               "odds": 23,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 27,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -177121,6 +177752,11 @@
               "odds": 22,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 23,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -177212,6 +177848,11 @@
               "odds": 32,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 40,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -177480,6 +178121,11 @@
               "odds": 80,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 140,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -177571,6 +178217,11 @@
               "odds": 85,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 120,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -177839,6 +178490,11 @@
               "odds": 250,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -180521,6 +181177,11 @@
               "odds": 10,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 14.5,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -180532,6 +181193,11 @@
               "odds": 1.05,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.02,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -180543,6 +181209,11 @@
               "odds": 10.5,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 15,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -180554,6 +181225,11 @@
               "odds": 1.05,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.02,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -180565,6 +181241,11 @@
               "odds": 140,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -180576,6 +181257,11 @@
               "odds": 60,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -180587,6 +181273,11 @@
               "odds": 65,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -180598,6 +181289,11 @@
               "odds": 120,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 200,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -180609,6 +181305,11 @@
               "odds": 250,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -180620,6 +181321,11 @@
               "odds": 250,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -180633,6 +181339,105 @@
               "scrapedAt": "2026-08-14T19:30:55.569Z"
             }
           ]
+        },
+        "18|Over 7": {
+          "marketId": "18",
+          "name": "Over 7",
+          "plays": [
+            {
+              "odds": 19.5,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "18|Under 7": {
+          "marketId": "18",
+          "name": "Under 7",
+          "plays": [
+            {
+              "odds": 1.01,
+              "active": false,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|8:0": {
+          "marketId": "41",
+          "name": "8:0",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|7:1": {
+          "marketId": "41",
+          "name": "7:1",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|6:2": {
+          "marketId": "41",
+          "name": "6:2",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|5:3": {
+          "marketId": "41",
+          "name": "5:3",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|4:4": {
+          "marketId": "41",
+          "name": "4:4",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|3:5": {
+          "marketId": "41",
+          "name": "3:5",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|2:6": {
+          "marketId": "41",
+          "name": "2:6",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
         }
       }
     },
@@ -180644,7 +181449,7 @@
       "category": "Turkiye",
       "startTime": "2026-08-14T18:30:00.000Z",
       "firstSeen": "2026-08-13T21:49:36.430Z",
-      "lastSeen": "2026-08-14T19:30:55.569Z",
+      "lastSeen": "2026-08-14T20:04:37.155Z",
       "finalScore": null,
       "settledAt": null,
       "outcomes": {
@@ -180736,6 +181541,11 @@
               "odds": 1.45,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 3.25,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -180827,6 +181637,11 @@
               "odds": 3.85,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 2.6,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -180918,6 +181733,11 @@
               "odds": 9.5,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 2.7,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -181909,6 +182729,11 @@
               "odds": 5.5,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.35,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -182000,6 +182825,11 @@
               "odds": 1.14,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 3,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -182091,6 +182921,11 @@
               "odds": 10,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.8,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -182182,6 +183017,11 @@
               "odds": 1.04,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.95,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -182273,6 +183113,11 @@
               "odds": 11,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 2.7,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -182364,6 +183209,11 @@
               "odds": 1.03,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.42,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -184165,6 +185015,11 @@
               "odds": 40,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 2.85,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -184256,6 +185111,11 @@
               "odds": 55,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 2.45,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -184347,6 +185207,11 @@
               "odds": 100,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 4.25,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -184438,6 +185303,11 @@
               "odds": 250,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 12,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -184620,6 +185490,11 @@
               "odds": 250,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 34,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -184711,6 +185586,11 @@
               "odds": 250,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 31,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -184802,6 +185682,11 @@
               "odds": 250,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 50,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -184984,6 +185869,11 @@
               "odds": 250,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -185075,6 +185965,11 @@
               "odds": 250,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -185257,6 +186152,11 @@
               "odds": 250,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -187730,6 +188630,204 @@
               "scrapedAt": "2026-08-14T19:30:55.569Z"
             }
           ]
+        },
+        "41|5:2": {
+          "marketId": "41",
+          "name": "5:2",
+          "plays": [
+            {
+              "odds": 45,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|6:2": {
+          "marketId": "41",
+          "name": "6:2",
+          "plays": [
+            {
+              "odds": 190,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|7:2": {
+          "marketId": "41",
+          "name": "7:2",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|4:3": {
+          "marketId": "41",
+          "name": "4:3",
+          "plays": [
+            {
+              "odds": 140,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|5:3": {
+          "marketId": "41",
+          "name": "5:3",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|6:3": {
+          "marketId": "41",
+          "name": "6:3",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|3:4": {
+          "marketId": "41",
+          "name": "3:4",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|4:4": {
+          "marketId": "41",
+          "name": "4:4",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|5:4": {
+          "marketId": "41",
+          "name": "5:4",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|2:5": {
+          "marketId": "41",
+          "name": "2:5",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|3:5": {
+          "marketId": "41",
+          "name": "3:5",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|4:5": {
+          "marketId": "41",
+          "name": "4:5",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|1:6": {
+          "marketId": "41",
+          "name": "1:6",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|2:6": {
+          "marketId": "41",
+          "name": "2:6",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|3:6": {
+          "marketId": "41",
+          "name": "3:6",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|1:7": {
+          "marketId": "41",
+          "name": "1:7",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|2:7": {
+          "marketId": "41",
+          "name": "2:7",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|1:8": {
+          "marketId": "41",
+          "name": "1:8",
+          "plays": [
+            {
+              "odds": 250,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
         }
       }
     },
@@ -187742,8 +188840,8 @@
       "startTime": "2026-08-14T17:30:00.000Z",
       "firstSeen": "2026-08-13T21:49:36.430Z",
       "lastSeen": "2026-08-14T18:31:42.623Z",
-      "finalScore": null,
-      "settledAt": null,
+      "finalScore": "4:1",
+      "settledAt": "2026-08-14T20:04:42.457Z",
       "outcomes": {
         "1|Home": {
           "marketId": "1",
@@ -194503,7 +195601,10 @@
             }
           ]
         }
-      }
+      },
+      "finalStatus": "FT",
+      "flashscoreId": "tfsidTL5",
+      "flashscoreStart": "1786728600"
     },
     "sr:match:71913022": {
       "eventId": "sr:match:71913022",
@@ -212330,7 +213431,7 @@
       "category": "Poland",
       "startTime": "2026-08-14T18:30:00.000Z",
       "firstSeen": "2026-08-13T21:49:36.430Z",
-      "lastSeen": "2026-08-14T19:30:55.569Z",
+      "lastSeen": "2026-08-14T20:04:37.155Z",
       "finalScore": null,
       "settledAt": null,
       "outcomes": {
@@ -212422,6 +213523,11 @@
               "odds": 1.02,
               "active": false,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.02,
+              "active": false,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -212513,6 +213619,11 @@
               "odds": 16,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 15,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -212604,6 +213715,11 @@
               "odds": 100,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -214370,6 +215486,11 @@
               "odds": 1.95,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.7,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -214456,6 +215577,11 @@
               "odds": 1.8,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 2.05,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -214982,6 +216108,11 @@
               "odds": 3.75,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.9,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -215073,6 +216204,11 @@
               "odds": 6.5,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 3.4,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -215599,6 +216735,11 @@
               "odds": 7.75,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 6.75,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219173,6 +220314,11 @@
               "odds": 3.85,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 4.45,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219184,6 +220330,11 @@
               "odds": 1.25,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.18,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219195,6 +220346,11 @@
               "odds": 8,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 11,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219206,6 +220362,11 @@
               "odds": 1.06,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.02,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219239,6 +220400,11 @@
               "odds": 16.5,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 12,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219250,6 +220416,11 @@
               "odds": 55,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 65,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219261,6 +220432,11 @@
               "odds": 100,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219272,6 +220448,11 @@
               "odds": 100,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219283,6 +220464,11 @@
               "odds": 13,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 12.5,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219294,6 +220480,11 @@
               "odds": 34,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 45,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219305,6 +220496,11 @@
               "odds": 100,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219316,6 +220512,11 @@
               "odds": 100,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219327,6 +220528,11 @@
               "odds": 32,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 50,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219338,6 +220544,11 @@
               "odds": 55,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 95,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219349,6 +220560,11 @@
               "odds": 100,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219360,6 +220576,11 @@
               "odds": 100,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219382,6 +220603,11 @@
               "odds": 100,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219393,6 +220619,11 @@
               "odds": 100,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219404,6 +220635,11 @@
               "odds": 100,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219426,6 +220662,11 @@
               "odds": 100,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219437,6 +220678,11 @@
               "odds": 100,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219459,6 +220705,11 @@
               "odds": 100,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -219470,6 +220721,83 @@
               "odds": 100,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            }
+          ]
+        },
+        "41|11:0": {
+          "marketId": "41",
+          "name": "11:0",
+          "plays": [
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|10:1": {
+          "marketId": "41",
+          "name": "10:1",
+          "plays": [
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|9:2": {
+          "marketId": "41",
+          "name": "9:2",
+          "plays": [
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|8:3": {
+          "marketId": "41",
+          "name": "8:3",
+          "plays": [
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|7:4": {
+          "marketId": "41",
+          "name": "7:4",
+          "plays": [
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|6:5": {
+          "marketId": "41",
+          "name": "6:5",
+          "plays": [
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
+            }
+          ]
+        },
+        "41|5:6": {
+          "marketId": "41",
+          "name": "5:6",
+          "plays": [
+            {
+              "odds": 100,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         }
@@ -228148,7 +229476,7 @@
       "category": "International Clubs",
       "startTime": "2026-08-14T18:45:00.000Z",
       "firstSeen": "2026-08-13T21:49:36.430Z",
-      "lastSeen": "2026-08-14T19:30:55.569Z",
+      "lastSeen": "2026-08-14T20:04:37.155Z",
       "finalScore": null,
       "settledAt": null,
       "outcomes": {
@@ -228240,6 +229568,11 @@
               "odds": 2.55,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.28,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -228331,6 +229664,11 @@
               "odds": 2.65,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 4.6,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -228422,6 +229760,11 @@
               "odds": 3.4,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 17,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -228867,6 +230210,11 @@
               "odds": 1.93,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.5,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -228958,6 +230306,11 @@
               "odds": 1.81,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 2.5,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -229221,6 +230574,11 @@
               "odds": 3.8,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 3.3,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -229312,6 +230670,11 @@
               "odds": 1.24,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.3,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -229575,6 +230938,11 @@
               "odds": 8.5,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 9,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -229666,6 +231034,11 @@
               "odds": 1.05,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.04,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -229929,6 +231302,11 @@
               "odds": 15,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 15,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -230020,6 +231398,11 @@
               "odds": 1.01,
               "active": false,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.01,
+              "active": false,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -230213,6 +231596,11 @@
               "odds": 15,
               "active": true,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 15,
+              "active": true,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         },
@@ -230234,6 +231622,11 @@
               "odds": 1.01,
               "active": false,
               "scrapedAt": "2026-08-14T19:30:55.569Z"
+            },
+            {
+              "odds": 1.01,
+              "active": false,
+              "scrapedAt": "2026-08-14T20:04:37.155Z"
             }
           ]
         }
@@ -235466,8 +236859,8 @@
       "startTime": "2026-08-14T18:00:00.000Z",
       "firstSeen": "2026-08-14T03:38:34.252Z",
       "lastSeen": "2026-08-14T19:30:55.569Z",
-      "finalScore": null,
-      "settledAt": null,
+      "finalScore": "0:5",
+      "settledAt": "2026-08-14T20:04:44.812Z",
       "outcomes": {
         "1|Home": {
           "marketId": "1",
@@ -241289,7 +242682,10 @@
             }
           ]
         }
-      }
+      },
+      "finalStatus": "FT",
+      "flashscoreId": "UTxAlWfL",
+      "flashscoreStart": "1786730400"
     },
     "sr:match:67126702": {
       "eventId": "sr:match:67126702",
