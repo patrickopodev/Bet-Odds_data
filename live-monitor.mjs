@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fetchSportyApiJson, SPORTYBET_BASE_URL, TARGET_SPORT } from './lib/common.mjs';
+import { fetchSportyApiJson, assertEventListShape, SPORTYBET_BASE_URL, TARGET_SPORT } from './lib/common.mjs';
 
 // Poll a live event's 1X2 market and log every odds change as it is seen.
 // Usage:
@@ -35,6 +35,7 @@ async function fetchLiveFootball() {
     method: 'POST',
     body: JSON.stringify({ productId: Number(LIVE_PRODUCT), pageNum: 1, pageSize: 200 }),
   });
+  assertEventListShape(data);
   const events = [];
   for (const t of data?.tournaments ?? []) {
     for (const ev of t.events ?? []) {

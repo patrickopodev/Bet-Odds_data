@@ -1,5 +1,7 @@
 import { chromium } from 'playwright-core';
 import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DATA_DIR, UA, decodeFeedBlock, fetchTodayFootballEvents, kickoffDeltaMs, normTeam, sameTeam } from './lib/common.mjs';
 
 const CHROMIUM_PATH = process.env.CHROMIUM_PATH || null;
@@ -75,7 +77,7 @@ function pairKey(m) {
 
 // A SportyBet match "covers" a Flashscore match when home~home AND away~away
 // AND kickoff is within tolerance (default 6h; Flashscore lists today's window).
-function covers(sb, fsMatch, toleranceMs = 6 * 60 * 60 * 1000) {
+export function covers(sb, fsMatch, toleranceMs = 6 * 60 * 60 * 1000) {
   const h = sameTeam(normTeam(sb.homeTeam), normTeam(fsMatch.homeTeam));
   const a = sameTeam(normTeam(sb.awayTeam), normTeam(fsMatch.awayTeam));
   const t = kickoffDeltaMs(sb.kickoff, fsMatch.kickoff) <= toleranceMs;
@@ -156,7 +158,10 @@ async function main() {
   }
 }
 
-main().catch((e) => {
-  console.error(`comparison failed: ${e.message}`);
-  process.exit(1);
-});
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) {
+  main().catch((e) => {
+    console.error(`comparison failed: ${e.message}`);
+    process.exit(1);
+  });
+}

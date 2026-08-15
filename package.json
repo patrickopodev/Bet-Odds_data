@@ -13,6 +13,7 @@
     "winners": "node winners.mjs",
     "prematch": "node prematch-monitor.mjs",
     "live": "node live-monitor.mjs",
+    "share-code": "node share-code.mjs",
     "test": "node --test test/"
   },
   "engines": {

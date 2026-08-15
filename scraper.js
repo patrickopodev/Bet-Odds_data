@@ -1,26 +1,24 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   DATA_DIR,
   mapWithConcurrency,
   MARKET_ORDER,
+  TARGET_MARKET_IDS_SET,
   fetchTodayFootballEvents,
   fetchEventMarketsByKey,
 } from './lib/common.mjs';
 
 const BASE_URL = 'https://www.sportybet.com';
 
-async function getEventMarkets(eventId) {
-  return fetchEventMarketsByKey(eventId);
-}
-
-async function scrapeSportyBet() {
+export async function scrapeSportyBet({ fetchEvents = fetchTodayFootballEvents, fetchMarkets = fetchEventMarketsByKey } = {}) {
   console.log(`Fetching today's football events...`);
-  const events = await fetchTodayFootballEvents();
+  const events = await fetchEvents();
   console.log(`Found ${events.length} football events today`);
 
   const results = await mapWithConcurrency(events, async (ev) => {
-    const marketsByKey = await getEventMarkets(ev.eventId);
+    const marketsByKey = await fetchMarkets(ev.eventId);
     return {
       eventId: ev.eventId,
       gameId: ev.gameId,
@@ -61,7 +59,7 @@ async function writeSnapshot(data) {
   return filename;
 }
 
-function oddsMarkdown(outcomes) {
+export function oddsMarkdown(outcomes) {
   const rows = outcomes.map(o => `| ${o.name} | ${o.odds}${o.active ? '' : ' (suspended)'} |`);
   return `| Outcome | Odds |\n| --- | ---: |\n${rows.join('\n')}`;
 }
@@ -132,7 +130,10 @@ async function run() {
   }
 }
 
-run().catch((error) => {
-  console.error(`Scrape failed: ${error.message}`);
-  process.exit(1);
-});
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) {
+  run().catch((error) => {
+    console.error(`Scrape failed: ${error.message}`);
+    process.exit(1);
+  });
+}

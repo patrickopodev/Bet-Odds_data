@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import { DB_FILE, decodeFeedBlock, fetchJson, fetchText, loadDb, mapWithConcurrency, normTeam, queryTeam, saveDb } from './lib/common.mjs';
 
 const CONCURRENCY = 3;
@@ -8,7 +10,7 @@ const KICKOFF_TOLERANCE_SECONDS = 60 * 60;
 
 // Pull the embedded feed string (e.g. cjs.initialFeeds["summary-results"]) out of
 // a Flashscore team page HTML. Returns decoded events as field maps.
-function extractFeedEvents(html, feedName) {
+export function extractFeedEvents(html, feedName) {
   const marker = `cjs.initialFeeds["${feedName}"]`;
   const i = html.indexOf(marker);
   if (i === -1) return [];
@@ -181,7 +183,10 @@ async function run() {
   console.log(`Settled ${ok.length} event(s). DB: ${DB_FILE}`);
 }
 
-run().catch((e) => {
-  console.error(`resolve-results failed: ${e.message}`);
-  process.exit(1);
-});
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) {
+  run().catch((e) => {
+    console.error(`resolve-results failed: ${e.message}`);
+    process.exit(1);
+  });
+}
