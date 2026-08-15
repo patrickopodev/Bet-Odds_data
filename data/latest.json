@@ -1,5 +1,5 @@
 {
-  "scrapedAt": "2026-08-15T08:54:35.567Z",
+  "scrapedAt": "2026-08-15T09:15:56.431Z",
   "source": "sportybet.com/gh/m/",
   "marketIds": {
     "1": true,
@@ -528,19 +528,19 @@
           "outcomes": [
             {
               "name": "Home",
-              "odds": 2.45,
+              "odds": 2.46,
               "active": true,
               "marketId": "1"
             },
             {
               "name": "Draw",
-              "odds": 3.24,
+              "odds": 3.25,
               "active": true,
               "marketId": "1"
             },
             {
               "name": "Away",
-              "odds": 3.29,
+              "odds": 3.26,
               "active": true,
               "marketId": "1"
             },
@@ -709,7 +709,7 @@
             },
             {
               "name": "4:0",
-              "odds": 74,
+              "odds": 75,
               "active": true,
               "marketId": "41"
             },
@@ -727,7 +727,7 @@
             },
             {
               "name": "0:1",
-              "odds": 8.2,
+              "odds": 8.1,
               "active": true,
               "marketId": "41"
             },
@@ -751,7 +751,7 @@
             },
             {
               "name": "4:1",
-              "odds": 69,
+              "odds": 70,
               "active": true,
               "marketId": "41"
             },
@@ -860,19 +860,19 @@
           "outcomes": [
             {
               "name": "1:0, 2:0 or 3:0",
-              "odds": 3.45,
+              "odds": 3.46,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "0:1, 0:2 or 0:3",
-              "odds": 4.52,
+              "odds": 4.49,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "4:0, 5:0 or 6:0",
-              "odds": 52.3,
+              "odds": 53,
               "active": true,
               "marketId": "551"
             },
@@ -884,25 +884,25 @@
             },
             {
               "name": "2:1, 3:1 or 4:1",
-              "odds": 5.91,
+              "odds": 5.93,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "1:2, 1:3 or 1:4",
-              "odds": 7.59,
+              "odds": 7.54,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "3:2, 4:2, 4:3 or 5:1",
-              "odds": 24.41,
+              "odds": 24.5,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "2:3, 2:4, 3:4 or 1:5",
-              "odds": 31.67,
+              "odds": 31.47,
               "active": true,
               "marketId": "551"
             },
@@ -920,7 +920,7 @@
             },
             {
               "name": "Draw",
-              "odds": 2.63,
+              "odds": 2.64,
               "active": true,
               "marketId": "551"
             }
@@ -2130,97 +2130,97 @@
             },
             {
               "name": "Under 0.5",
-              "odds": 8.1,
+              "odds": 8,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Over 1",
-              "odds": 1.12,
+              "odds": 1.13,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Under 1",
-              "odds": 6.7,
+              "odds": 6.5,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Over 1.5",
-              "odds": 1.41,
+              "odds": 1.42,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Under 1.5",
-              "odds": 3,
+              "odds": 2.95,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Over 2",
-              "odds": 1.67,
+              "odds": 1.7,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Under 2",
-              "odds": 2.25,
+              "odds": 2.2,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Over 2.5",
-              "odds": 2.25,
+              "odds": 2.3,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Under 2.5",
-              "odds": 1.68,
+              "odds": 1.65,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Over 3",
-              "odds": 3.33,
+              "odds": 3.5,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Under 3",
-              "odds": 1.35,
+              "odds": 1.33,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Over 3.5",
-              "odds": 4.1,
+              "odds": 4.25,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Under 3.5",
-              "odds": 1.25,
+              "odds": 1.24,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Over 4",
-              "odds": 7.7,
+              "odds": 8,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Under 4",
-              "odds": 1.1,
+              "odds": 1.09,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Over 4.5",
-              "odds": 8.6,
+              "odds": 8.9,
               "active": true,
               "marketId": "18"
             },
@@ -2232,7 +2232,7 @@
             },
             {
               "name": "Over 5",
-              "odds": 16,
+              "odds": 16.5,
               "active": true,
               "marketId": "18"
             },
@@ -2244,7 +2244,7 @@
             },
             {
               "name": "Over 5.5",
-              "odds": 16.5,
+              "odds": 17,
               "active": true,
               "marketId": "18"
             },
@@ -2263,13 +2263,13 @@
           "outcomes": [
             {
               "name": "0:0",
-              "odds": 7.9,
+              "odds": 7.7,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "1:0",
-              "odds": 8.1,
+              "odds": 7.9,
               "active": true,
               "marketId": "41"
             },
@@ -2287,7 +2287,7 @@
             },
             {
               "name": "4:0",
-              "odds": 130,
+              "odds": 135,
               "active": true,
               "marketId": "41"
             },
@@ -2305,13 +2305,13 @@
             },
             {
               "name": "0:1",
-              "odds": 7.3,
+              "odds": 7.1,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "1:1",
-              "odds": 5.6,
+              "odds": 5.7,
               "active": true,
               "marketId": "41"
             },
@@ -2323,13 +2323,13 @@
             },
             {
               "name": "3:1",
-              "odds": 29,
+              "odds": 30,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "4:1",
-              "odds": 100,
+              "odds": 105,
               "active": true,
               "marketId": "41"
             },
@@ -2341,7 +2341,7 @@
             },
             {
               "name": "0:2",
-              "odds": 11.5,
+              "odds": 11,
               "active": true,
               "marketId": "41"
             },
@@ -2353,19 +2353,19 @@
             },
             {
               "name": "2:2",
-              "odds": 15,
+              "odds": 15.5,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "3:2",
-              "odds": 45,
+              "odds": 47,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "4:2",
-              "odds": 160,
+              "odds": 170,
               "active": true,
               "marketId": "41"
             },
@@ -2377,7 +2377,7 @@
             },
             {
               "name": "1:3",
-              "odds": 23,
+              "odds": 24,
               "active": true,
               "marketId": "41"
             },
@@ -2389,25 +2389,25 @@
             },
             {
               "name": "3:3",
-              "odds": 94,
+              "odds": 99,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "0:4",
-              "odds": 81,
+              "odds": 84,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "1:4",
-              "odds": 71,
+              "odds": 75,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "2:4",
-              "odds": 125,
+              "odds": 135,
               "active": true,
               "marketId": "41"
             },
@@ -2438,49 +2438,49 @@
           "outcomes": [
             {
               "name": "1:0, 2:0 or 3:0",
-              "odds": 4.38,
+              "odds": 4.32,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "0:1, 0:2 or 0:3",
-              "odds": 3.7,
+              "odds": 3.64,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "4:0, 5:0 or 6:0",
-              "odds": 94.4,
+              "odds": 96.8,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "0:4, 0:5 or 0:6",
-              "odds": 57.9,
+              "odds": 59.3,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "2:1, 3:1 or 4:1",
-              "odds": 7.07,
+              "odds": 7.15,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "1:2, 1:3 or 1:4",
-              "odds": 6.05,
+              "odds": 6.12,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "3:2, 4:2, 4:3 or 5:1",
-              "odds": 28.04,
+              "odds": 29.25,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "2:3, 2:4, 3:4 or 1:5",
-              "odds": 23.83,
+              "odds": 24.85,
               "active": true,
               "marketId": "551"
             },
@@ -2511,7 +2511,7 @@
           "outcomes": [
             {
               "name": "1-2",
-              "odds": 1.56,
+              "odds": 1.55,
               "active": true,
               "marketId": "548"
             },
@@ -2553,13 +2553,13 @@
             },
             {
               "name": "2-5",
-              "odds": 1.27,
+              "odds": 1.28,
               "active": true,
               "marketId": "548"
             },
             {
               "name": "2-6",
-              "odds": 1.24,
+              "odds": 1.25,
               "active": true,
               "marketId": "548"
             },
@@ -2571,43 +2571,43 @@
             },
             {
               "name": "3-5",
-              "odds": 1.81,
+              "odds": 1.84,
               "active": true,
               "marketId": "548"
             },
             {
               "name": "3-6",
-              "odds": 1.73,
+              "odds": 1.76,
               "active": true,
               "marketId": "548"
             },
             {
               "name": "4-5",
-              "odds": 3.25,
+              "odds": 3.33,
               "active": true,
               "marketId": "548"
             },
             {
               "name": "4-6",
-              "odds": 2.9,
+              "odds": 3,
               "active": true,
               "marketId": "548"
             },
             {
               "name": "5-6",
-              "odds": 6.7,
+              "odds": 6.9,
               "active": true,
               "marketId": "548"
             },
             {
               "name": "7+",
-              "odds": 45,
+              "odds": 49,
               "active": true,
               "marketId": "548"
             },
             {
               "name": "No goal",
-              "odds": 5.5,
+              "odds": 5.4,
               "active": true,
               "marketId": "548"
             }
@@ -2632,19 +2632,19 @@
           "outcomes": [
             {
               "name": "Home",
-              "odds": 8,
+              "odds": 8.6,
               "active": true,
               "marketId": "1"
             },
             {
               "name": "Draw",
-              "odds": 4.81,
+              "odds": 5.05,
               "active": true,
               "marketId": "1"
             },
             {
               "name": "Away",
-              "odds": 1.43,
+              "odds": 1.4,
               "active": true,
               "marketId": "1"
             },
@@ -2668,13 +2668,13 @@
             },
             {
               "name": "Under 1",
-              "odds": 9.9,
+              "odds": 10,
               "active": true,
               "marketId": "18"
             },
             {
               "name": "Over 1.5",
-              "odds": 1.27,
+              "odds": 1.28,
               "active": true,
               "marketId": "18"
             },
@@ -2764,7 +2764,7 @@
             },
             {
               "name": "Under 5",
-              "odds": 1.06,
+              "odds": 1.05,
               "active": true,
               "marketId": "18"
             },
@@ -2795,19 +2795,19 @@
             },
             {
               "name": "1:0",
-              "odds": 17.5,
+              "odds": 18.5,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "2:0",
-              "odds": 48,
+              "odds": 54,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "3:0",
-              "odds": 200,
+              "odds": 230,
               "active": true,
               "marketId": "41"
             },
@@ -2831,25 +2831,25 @@
             },
             {
               "name": "0:1",
-              "odds": 6.3,
+              "odds": 6.1,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "1:1",
-              "odds": 8.4,
+              "odds": 8.8,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "2:1",
-              "odds": 23,
+              "odds": 25,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "3:1",
-              "odds": 97,
+              "odds": 110,
               "active": true,
               "marketId": "41"
             },
@@ -2867,25 +2867,25 @@
             },
             {
               "name": "0:2",
-              "odds": 6.1,
+              "odds": 5.9,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "1:2",
-              "odds": 8.3,
+              "odds": 8.4,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "2:2",
-              "odds": 22,
+              "odds": 24,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "3:2",
-              "odds": 94,
+              "odds": 105,
               "active": true,
               "marketId": "41"
             },
@@ -2897,7 +2897,7 @@
             },
             {
               "name": "0:3",
-              "odds": 8.75,
+              "odds": 8.3,
               "active": true,
               "marketId": "41"
             },
@@ -2909,19 +2909,19 @@
             },
             {
               "name": "2:3",
-              "odds": 33,
+              "odds": 34,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "3:3",
-              "odds": 130,
+              "odds": 150,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "0:4",
-              "odds": 16.5,
+              "odds": 15.5,
               "active": true,
               "marketId": "41"
             },
@@ -2933,25 +2933,25 @@
             },
             {
               "name": "2:4",
-              "odds": 64,
+              "odds": 65,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "0:5",
-              "odds": 40,
+              "odds": 37,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "1:5",
-              "odds": 55,
+              "odds": 54,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "0:6",
-              "odds": 115,
+              "odds": 105,
               "active": true,
               "marketId": "41"
             }
@@ -2964,13 +2964,13 @@
           "outcomes": [
             {
               "name": "1:0, 2:0 or 3:0",
-              "odds": 11.46,
+              "odds": 12.06,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "0:1, 0:2 or 0:3",
-              "odds": 2.34,
+              "odds": 2.26,
               "active": true,
               "marketId": "551"
             },
@@ -2982,13 +2982,13 @@
             },
             {
               "name": "0:4, 0:5 or 0:6",
-              "odds": 10.08,
+              "odds": 9.37,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "2:1, 3:1 or 4:1",
-              "odds": 17.1,
+              "odds": 18.58,
               "active": true,
               "marketId": "551"
             },
@@ -3000,13 +3000,13 @@
             },
             {
               "name": "3:2, 4:2, 4:3 or 5:1",
-              "odds": 65.3,
+              "odds": 73.6,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "2:3, 2:4, 3:4 or 1:5",
-              "odds": 13.79,
+              "odds": 14.1,
               "active": true,
               "marketId": "551"
             },
@@ -3018,13 +3018,13 @@
             },
             {
               "name": "Other Awaywin",
-              "odds": 37.71,
+              "odds": 36.88,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "Draw",
-              "odds": 3.84,
+              "odds": 4.01,
               "active": true,
               "marketId": "551"
             }
@@ -3085,7 +3085,7 @@
             },
             {
               "name": "2-6",
-              "odds": 1.17,
+              "odds": 1.18,
               "active": true,
               "marketId": "548"
             },
@@ -3109,7 +3109,7 @@
             },
             {
               "name": "4-5",
-              "odds": 2.55,
+              "odds": 2.6,
               "active": true,
               "marketId": "548"
             },
@@ -3133,7 +3133,7 @@
             },
             {
               "name": "No goal",
-              "odds": 8.2,
+              "odds": 8.3,
               "active": true,
               "marketId": "548"
             }
@@ -6314,19 +6314,19 @@
           "outcomes": [
             {
               "name": "Home",
-              "odds": 1.54,
+              "odds": 1.52,
               "active": true,
               "marketId": "1"
             },
             {
               "name": "Draw",
-              "odds": 4.68,
+              "odds": 4.77,
               "active": true,
               "marketId": "1"
             },
             {
               "name": "Away",
-              "odds": 5.62,
+              "odds": 5.8,
               "active": true,
               "marketId": "1"
             },
@@ -6477,37 +6477,37 @@
             },
             {
               "name": "1:0",
-              "odds": 9.4,
+              "odds": 9.3,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "2:0",
-              "odds": 8.3,
+              "odds": 8.2,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "3:0",
-              "odds": 11,
+              "odds": 10.5,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "4:0",
-              "odds": 19,
+              "odds": 18.5,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "5:0",
-              "odds": 41,
+              "odds": 40,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "6:0",
-              "odds": 110,
+              "odds": 105,
               "active": true,
               "marketId": "41"
             },
@@ -6519,7 +6519,7 @@
             },
             {
               "name": "1:1",
-              "odds": 8.2,
+              "odds": 8.3,
               "active": true,
               "marketId": "41"
             },
@@ -6537,37 +6537,37 @@
             },
             {
               "name": "4:1",
-              "odds": 17.5,
+              "odds": 17,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "5:1",
-              "odds": 38,
+              "odds": 37,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "0:2",
-              "odds": 35,
+              "odds": 37,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "1:2",
-              "odds": 15.5,
+              "odds": 16,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "2:2",
-              "odds": 13,
+              "odds": 13.5,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "3:2",
-              "odds": 18,
+              "odds": 18.5,
               "active": true,
               "marketId": "41"
             },
@@ -6579,25 +6579,25 @@
             },
             {
               "name": "0:3",
-              "odds": 97,
+              "odds": 100,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "1:3",
-              "odds": 44,
+              "odds": 45,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "2:3",
-              "odds": 38,
+              "odds": 39,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "3:3",
-              "odds": 47,
+              "odds": 48,
               "active": true,
               "marketId": "41"
             },
@@ -6609,13 +6609,13 @@
             },
             {
               "name": "1:4",
-              "odds": 155,
+              "odds": 165,
               "active": true,
               "marketId": "41"
             },
             {
               "name": "2:4",
-              "odds": 140,
+              "odds": 145,
               "active": true,
               "marketId": "41"
             },
@@ -6646,19 +6646,19 @@
           "outcomes": [
             {
               "name": "1:0, 2:0 or 3:0",
-              "odds": 3.39,
+              "odds": 3.34,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "0:1, 0:2 or 0:3",
-              "odds": 11.48,
+              "odds": 11.76,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "4:0, 5:0 or 6:0",
-              "odds": 12.02,
+              "odds": 11.56,
               "active": true,
               "marketId": "551"
             },
@@ -6670,13 +6670,13 @@
             },
             {
               "name": "2:1, 3:1 or 4:1",
-              "odds": 3.73,
+              "odds": 3.7,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "1:2, 1:3 or 1:4",
-              "odds": 11.07,
+              "odds": 11.41,
               "active": true,
               "marketId": "551"
             },
@@ -6688,13 +6688,13 @@
             },
             {
               "name": "2:3, 2:4, 3:4 or 1:5",
-              "odds": 25.25,
+              "odds": 26.27,
               "active": true,
               "marketId": "551"
             },
             {
               "name": "Other Homewin",
-              "odds": 20.15,
+              "odds": 19.77,
               "active": true,
               "marketId": "551"
             },
@@ -6706,7 +6706,7 @@
             },
             {
               "name": "Draw",
-              "odds": 3.84,
+              "odds": 3.91,
               "active": true,
               "marketId": "551"
             }
@@ -6815,7 +6815,7 @@
             },
             {
               "name": "No goal",
-              "odds": 12.5,
+              "odds": 13,
               "active": true,
               "marketId": "548"
             }
