@@ -1,14 +1,14 @@
 # SportyBet Odds Performance
 
-_Generated 2026-08-15T15:19:20.839Z UTC_
+_Generated 2026-08-15T15:39:50.473Z UTC_
 
-Total outcome/odds combinations: 9532
+Total outcome/odds combinations: 9573
 
-**Good odds** (settled >=3, always won): 92
+**Good odds** (settled >=3, always won): 98
 
-**Bad odds** (settled >=3, always lost): 611
+**Bad odds** (settled >=3, always lost): 619
 
-**Mixed** (settled >=3, some won some lost): 455
+**Mixed** (settled >=3, some won some lost): 462
 
 
 ## Good Odds (historically play)
@@ -19,22 +19,22 @@ Total outcome/odds combinations: 9532
 - **1X2 / O/U | Over 1.5 @ 1.21**: won 9/9 times (100%) across 9 match(es)
 - **Multigoals | 1-5 @ 1.09**: won 9/9 times (100%) across 9 match(es)
 - **1X2 / O/U | Over 0.5 @ 1.02**: won 8/8 times (100%) across 8 match(es)
+- **1X2 / O/U | Under 4.5 @ 1.12**: won 7/7 times (100%) across 7 match(es)
 - **1X2 / O/U | Over 1.5 @ 1.23**: won 7/7 times (100%) across 7 match(es)
 - **1X2 / O/U | Over 1.5 @ 1.22**: won 7/7 times (100%) across 7 match(es)
 - **1X2 / O/U | Over 1.5 @ 1.2**: won 7/7 times (100%) across 7 match(es)
 - **1X2 / O/U | Over 1.5 @ 1.17**: won 7/7 times (100%) across 7 match(es)
+- **1X2 / O/U | Over 1.5 @ 1.16**: won 7/7 times (100%) across 7 match(es)
 - **1X2 / O/U | Under 5.5 @ 1.09**: won 7/7 times (100%) across 7 match(es)
 - **1X2 / O/U | Under 6 @ 1.04**: won 7/7 times (100%) across 7 match(es)
 - **Multigoals | 1-6 @ 1.04**: won 6/6 times (100%) across 6 match(es)
 - **1X2 / O/U | Over 0.5 @ 1.05**: won 6/6 times (100%) across 6 match(es)
-- **1X2 / O/U | Under 4.5 @ 1.12**: won 6/6 times (100%) across 6 match(es)
 - **1X2 / O/U | Under 4.5 @ 1.01**: won 6/6 times (100%) across 6 match(es)
 - **1X2 / O/U | Under 5 @ 1.04**: won 6/6 times (100%) across 6 match(es)
 - **1X2 / O/U | Under 5.5 @ 1.03**: won 6/6 times (100%) across 6 match(es)
 - **1X2 / O/U | Under 5.5 @ 1.04**: won 6/6 times (100%) across 6 match(es)
 - **1X2 / O/U | Under 5.5 @ 1.1**: won 6/6 times (100%) across 6 match(es)
 - **1X2 / O/U | Over 1.5 @ 1.18**: won 6/6 times (100%) across 6 match(es)
-- **1X2 / O/U | Over 1.5 @ 1.16**: won 6/6 times (100%) across 6 match(es)
 - **1X2 / O/U | Under 5.5 @ 1.11**: won 6/6 times (100%) across 6 match(es)
 - **1X2 / O/U | Under 5 @ 1.01**: won 6/6 times (100%) across 6 match(es)
 - **Multigoals | 1-4 @ 1.12**: won 5/5 times (100%) across 5 match(es)
@@ -69,8 +69,8 @@ Total outcome/odds combinations: 9532
 - **Correct Score [0:0] | 0:6 @ 250**: lost 28/28 times (0% win) across 28 match(es)
 - **Correct Score [0:0] | 0:5 @ 250**: lost 25/25 times (0% win) across 25 match(es)
 - **Correct Score [0:0] | 1:5 @ 250**: lost 25/25 times (0% win) across 25 match(es)
-- **Multiscores | Other Awaywin @ 100**: lost 24/24 times (0% win) across 24 match(es)
-- **Multiscores | 0:4, 0:5 or 0:6 @ 100**: lost 20/20 times (0% win) across 20 match(es)
+- **Multiscores | Other Awaywin @ 100**: lost 25/25 times (0% win) across 25 match(es)
+- **Multiscores | 0:4, 0:5 or 0:6 @ 100**: lost 21/21 times (0% win) across 21 match(es)
 - **Correct Score [0:0] | 6:0 @ 250**: lost 18/18 times (0% win) across 18 match(es)
 - **Correct Score [0:0] | 0:4 @ 250**: lost 16/16 times (0% win) across 16 match(es)
 - **Correct Score [0:0] | 1:4 @ 250**: lost 16/16 times (0% win) across 16 match(es)
@@ -104,6 +104,9 @@ Total outcome/odds combinations: 9532
 - **Correct Score [0:0] | 4:4 @ 100**: lost 8/8 times (0% win) across 8 match(es)
 - **Correct Score [0:0] | 2:6 @ 100**: lost 8/8 times (0% win) across 8 match(es)
 - **Correct Score [0:0] | 0:0 @ 13**: lost 8/8 times (0% win) across 8 match(es)
+- **Correct Score [0:0] | 1:0 @ 10.5**: lost 8/8 times (0% win) across 8 match(es)
+- **Correct Score [0:0] | 2:0 @ 6.5**: lost 8/8 times (0% win) across 8 match(es)
+- **Correct Score [0:0] | 2:2 @ 15.5**: lost 8/8 times (0% win) across 8 match(es)
 - **Correct Score [0:0] | 4:2 @ 44**: lost 8/8 times (0% win) across 8 match(es)
 - **Correct Score [0:0] | 3:3 @ 75**: lost 8/8 times (0% win) across 8 match(es)
 - **Correct Score [0:0] | 0:0 @ 16**: lost 7/7 times (0% win) across 7 match(es)
@@ -112,10 +115,7 @@ Total outcome/odds combinations: 9532
 - **Correct Score [0:0] | 0:3 @ 100**: lost 7/7 times (0% win) across 7 match(es)
 - **Correct Score [0:0] | 1:3 @ 100**: lost 7/7 times (0% win) across 7 match(es)
 - **Correct Score [0:0] | 7:0 @ 100**: lost 7/7 times (0% win) across 7 match(es)
-- **Correct Score [0:0] | 3:5 @ 100**: lost 7/7 times (0% win) across 7 match(es)
-- **1X2 / O/U | Under 1.5 @ 4.1**: lost 7/7 times (0% win) across 7 match(es)
-- **Correct Score [0:0] | 1:0 @ 10.5**: lost 7/7 times (0% win) across 7 match(es)
-- **Correct Score [0:0] | 2:3 @ 25**: lost 7/7 times (0% win) across 7 match(es)
+- **Correct Score [0:0] | 1:2 @ 16.5**: lost 7/7 times (0% win) across 7 match(es)
 
 ## Mixed Odds (some won, some lost)
 
@@ -130,6 +130,7 @@ Total outcome/odds combinations: 9532
 - **1X2 / O/U | Under 5 @ 1.07**: 6/11 won (55%) across 11 match(es)
 - **1X2 / O/U | Under 5.5 @ 1.06**: 9/11 won (82%) across 11 match(es)
 - **Multigoals | 2-6 @ 1.14**: 10/11 won (91%) across 11 match(es)
+- **1X2 / O/U | Under 5.5 @ 1.07**: 9/10 won (90%) across 10 match(es)
 - **Multigoals | 1-4 @ 1.15**: 6/10 won (60%) across 10 match(es)
 - **Multigoals | 2-5 @ 1.18**: 8/10 won (80%) across 10 match(es)
 - **Multigoals | 2-6 @ 1.13**: 9/10 won (90%) across 10 match(es)
@@ -138,39 +139,38 @@ Total outcome/odds combinations: 9532
 - **1X2 / O/U | Over 3 @ 2.1**: 6/10 won (60%) across 10 match(es)
 - **Multigoals | 1-4 @ 1.14**: 4/10 won (40%) across 10 match(es)
 - **Correct Score [0:0] | 3:2 @ 25**: 1/10 won (10%) across 10 match(es)
-- **1X2 / O/U | Under 5.5 @ 1.07**: 8/9 won (89%) across 9 match(es)
 - **Multigoals | 1-4 @ 1.13**: 6/9 won (67%) across 9 match(es)
+- **1X2 / O/U | Over 3.5 @ 2.6**: 7/9 won (78%) across 9 match(es)
 - **1X2 / O/U | Over 5.5 @ 8.5**: 1/9 won (11%) across 9 match(es)
+- **Multigoals | 3-4 @ 1.75**: 3/9 won (33%) across 9 match(es)
 - **Multigoals | 4-5 @ 2.25**: 6/9 won (67%) across 9 match(es)
 - **1X2 / O/U | Over 1 @ 1.03**: 7/8 won (88%) across 8 match(es)
 - **Correct Score [0:0] | 3:2 @ 28**: 1/8 won (13%) across 8 match(es)
 - **Multigoals | 4-5 @ 2.15**: 5/8 won (63%) across 8 match(es)
 - **1X2 / O/U | Under 2.5 @ 2.1**: 1/8 won (13%) across 8 match(es)
-- **1X2 / O/U | Over 3.5 @ 2.6**: 6/8 won (75%) across 8 match(es)
+- **Multigoals | 2-5 @ 1.2**: 7/8 won (88%) across 8 match(es)
 - **1X2 / O/U | Over 4 @ 4**: 5/8 won (63%) across 8 match(es)
 - **1X2 / O/U | Under 4 @ 1.21**: 2/8 won (25%) across 8 match(es)
 - **Correct Score [0:0] | 3:2 @ 26**: 1/8 won (13%) across 8 match(es)
 - **Multigoals | 1-3 @ 1.32**: 2/8 won (25%) across 8 match(es)
-- **Multigoals | 3-4 @ 1.75**: 2/8 won (25%) across 8 match(es)
+- **Multigoals | 3-4 @ 1.73**: 3/8 won (38%) across 8 match(es)
 - **Multigoals | 3-5 @ 1.5**: 5/8 won (63%) across 8 match(es)
 - **1X2 / O/U | Under 2.5 @ 2.4**: 1/8 won (13%) across 8 match(es)
 - **Multigoals | 2-3 @ 1.58**: 3/8 won (38%) across 8 match(es)
 - **Multigoals | 2-4 @ 1.32**: 7/8 won (88%) across 8 match(es)
 - **1X2 / O/U | Under 1 @ 11**: 0/7 won (0%) across 7 match(es)
 - **Correct Score [0:0] | 1:0 @ 6.9**: 1/7 won (14%) across 7 match(es)
+- **Correct Score [0:0] | 2:1 @ 8.25**: 1/7 won (14%) across 7 match(es)
 - **Multigoals | 2-3 @ 1.59**: 2/7 won (29%) across 7 match(es)
 - **Multigoals | 4-5 @ 2.2**: 4/7 won (57%) across 7 match(es)
 - **Correct Score [0:0] | 1:3 @ 24**: 2/7 won (29%) across 7 match(es)
 - **Multigoals | 2-3 @ 1.56**: 3/7 won (43%) across 7 match(es)
 - **1X2 / O/U | Under 2.5 @ 2.05**: 2/7 won (29%) across 7 match(es)
 - **1X2 / O/U | Under 4.5 @ 1.16**: 4/7 won (57%) across 7 match(es)
-- **Multigoals | 2-5 @ 1.2**: 6/7 won (86%) across 7 match(es)
 - **Multigoals | 3-4 @ 1.76**: 2/7 won (29%) across 7 match(es)
 - **Multigoals | 4-6 @ 2.1**: 3/7 won (43%) across 7 match(es)
-- **1X2 / O/U | Under 1.5 @ 4**: 1/7 won (14%) across 7 match(es)
-- **1X2 / O/U | Over 2 @ 1.31**: 6/7 won (86%) across 7 match(es)
 
-## Unsettled (3740)
+## Unsettled (3629)
 
 These were recorded but their matches have not finished yet:
 
