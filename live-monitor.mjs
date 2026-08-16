@@ -86,8 +86,14 @@ function delta(a, b) {
   return d;
 }
 
+// Event ids contain colons (sr:match:123) which are invalid in artifact
+// filenames; sanitize before building the log path.
+function safeEventId(eventId) {
+  return String(eventId).replace(/[^a-zA-Z0-9._-]/g, '-');
+}
+
 async function loadLog(eventId) {
-  const file = path.join('data', `live-1x2-${eventId}.json`);
+  const file = path.join('data', `live-1x2-${safeEventId(eventId)}.json`);
   try {
     return JSON.parse(await fs.readFile(file, 'utf8'));
   } catch {
@@ -117,7 +123,7 @@ async function main() {
   console.log('Changes only are saved. Ctrl+C to stop.\n');
 
   const flush = async () => {
-    const file = path.join('data', `live-1x2-${eventId}.json`);
+    const file = path.join('data', `live-1x2-${safeEventId(eventId)}.json`);
     await fs.mkdir(path.dirname(file), { recursive: true });
     await fs.writeFile(file, JSON.stringify(log, null, 2), 'utf8');
   };
@@ -148,7 +154,7 @@ async function main() {
   const timer = setInterval(async () => {
     if (poll >= opts.max) {
       clearInterval(timer);
-      console.log(`\nStopped after ${poll} polls. Log: data/live-1x2-${eventId}.json`);
+      console.log(`\nStopped after ${poll} polls. Log: data/live-1x2-${safeEventId(eventId)}.json`);
       process.exit(0);
     }
     await tick();
@@ -157,7 +163,7 @@ async function main() {
   process.on('SIGINT', async () => {
     clearInterval(timer);
     await flush();
-    console.log(`\nSaved ${log.changes.length} change(s) to data/live-1x2-${eventId}.json`);
+    console.log(`\nSaved ${log.changes.length} change(s) to data/live-1x2-${safeEventId(eventId)}.json`);
     process.exit(0);
   });
 }

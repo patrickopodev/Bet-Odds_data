@@ -68,9 +68,15 @@ function sectionFingerprint(market) {
   return JSON.stringify((market?.outcomes ?? []).map((o) => `${o.name}:${o.odds}:${o.active ? 1 : 0}`));
 }
 
+// Event ids contain colons (sr:match:123) which are invalid in artifact
+// filenames; sanitize before building the log path.
+function safeEventId(eventId) {
+  return String(eventId).replace(/[^a-zA-Z0-9._-]/g, '-');
+}
+
 // Load a match's existing change log, or seed a fresh one.
 async function loadLog(eventId, ev) {
-  const file = path.join(DATA_DIR, `prematch-${eventId}.json`);
+  const file = path.join(DATA_DIR, `prematch-${safeEventId(eventId)}.json`);
   try {
     return JSON.parse(await fs.readFile(file, 'utf8'));
   } catch {
@@ -89,7 +95,7 @@ async function loadLog(eventId, ev) {
 }
 
 async function saveLog(log) {
-  const file = path.join(DATA_DIR, `prematch-${log.eventId}.json`);
+  const file = path.join(DATA_DIR, `prematch-${safeEventId(log.eventId)}.json`);
   await fs.mkdir(DATA_DIR, { recursive: true });
   await fs.writeFile(file, JSON.stringify(log, null, 2), 'utf8');
 }
@@ -220,7 +226,7 @@ async function monitor() {
   console.log('');
   for (const t of targets) {
     const log = logs.get(t.eventId);
-    console.log(`  ${t.homeTeam ?? ''} vs ${t.awayTeam ?? ''} -> ${log.changes.length} change(s) saved (data/prematch-${t.eventId}.json)`);
+    console.log(`  ${t.homeTeam ?? ''} vs ${t.awayTeam ?? ''} -> ${log.changes.length} change(s) saved (data/prematch-${safeEventId(t.eventId)}.json)`);
   }
 }
 
