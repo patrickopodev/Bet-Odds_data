@@ -1,0 +1,88 @@
+{
+  "eventId": "sr:match:72281254",
+  "productId": "3",
+  "markets": [
+    "1 (1X2)",
+    "18 (O/U)",
+    "41 (Correct Score)",
+    "548 (Multigoals)",
+    "551 (Multiscores)"
+  ],
+  "homeTeam": "Nd Dravinja",
+  "awayTeam": "NK Bilje",
+  "kickoff": 1786894200000,
+  "startedAt": "2026-08-16T15:17:25.349Z",
+  "wentLiveAt": "2026-08-16T15:30:08.896Z",
+  "changes": [
+    {
+      "at": "2026-08-16T15:17:29.258Z",
+      "sections": {
+        "1X2 / O/U": {
+          "marketId": "1+18",
+          "name": "1X2 / O/U",
+          "group": null,
+          "outcomes": [
+            {
+              "name": "Home",
+              "odds": 2.05,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Draw",
+              "odds": 3.2,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Away",
+              "odds": 3.33,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Over 1.5",
+              "odds": 1.32,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 1.5",
+              "odds": 3,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Over 2.5",
+              "odds": 1.99,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 2.5",
+              "odds": 1.7,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Over 3.5",
+              "odds": 3.4,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 3.5",
+              "odds": 1.26,
+              "active": true,
+              "marketId": "18"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "at": "2026-08-16T15:30:08.896Z",
+      "live": true
+    }
+  ]
+}
