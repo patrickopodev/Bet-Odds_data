@@ -1,0 +1,94 @@
+{
+  "eventId": "sr:match:72679118",
+  "productId": "3",
+  "markets": [
+    "1 (1X2)",
+    "18 (O/U)",
+    "41 (Correct Score)",
+    "548 (Multigoals)",
+    "551 (Multiscores)"
+  ],
+  "homeTeam": "Dynamo Vladivostok",
+  "awayTeam": "FC Sokol Saratov",
+  "kickoff": 1786867200000,
+  "startedAt": "2026-08-16T07:56:35.025Z",
+  "wentLiveAt": "2026-08-16T08:00:12.178Z",
+  "changes": [
+    {
+      "at": "2026-08-16T07:56:36.294Z",
+      "sections": {
+        "1X2 / O/U": {
+          "marketId": "1+18",
+          "name": "1X2 / O/U",
+          "group": null,
+          "outcomes": [
+            {
+              "name": "Home",
+              "odds": 3.5,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Draw",
+              "odds": 3.33,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Away",
+              "odds": 1.96,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Over 1.5",
+              "odds": 1.3,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 1.5",
+              "odds": 3.1,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Over 2.5",
+              "odds": 1.94,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 2.5",
+              "odds": 1.74,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Over 3.5",
+              "odds": 3.25,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 3.5",
+              "odds": 1.27,
+              "active": true,
+              "marketId": "18"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "at": "2026-08-16T07:59:51.093Z",
+      "sections": {
+        "1X2 / O/U": null
+      }
+    },
+    {
+      "at": "2026-08-16T08:00:12.178Z",
+      "live": true
+    }
+  ]
+}
