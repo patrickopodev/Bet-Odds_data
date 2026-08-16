@@ -14,12 +14,23 @@
     "prematch": "node prematch-monitor.mjs",
     "live": "node live-monitor.mjs",
     "share-code": "node share-code.mjs",
-    "test": "node --test test/"
+    "build:agent": "tsc -p agent/tsconfig.json",
+    "agent": "npm run build:agent && node dist/cli.js",
+    "agent:confirm": "node dist/confirm.js",
+    "agent:monitor": "node dist/monitor.js",
+    "stake": "node stake.mjs",
+    "stake-placement": "node stake-placement.mjs",
+    "stake-autoplace": "node stake-autoplace.mjs",
+    "test": "npm run build:agent && node --test test/"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
     "playwright-core": "^1.62.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "typescript": "^7.0.2"
   }
 }

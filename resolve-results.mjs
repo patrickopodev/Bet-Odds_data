@@ -29,7 +29,7 @@ export function extractFeedEvents(html, feedName) {
 
 // Resolve a team's Flashscore page URL + id via the Livesport search API.
 // Returns { id, url, name } or null.
-async function resolveTeam(name) {
+export async function resolveTeam(name) {
   const q = encodeURIComponent(queryTeam(name));
   const data = await fetchJson(`https://s.livesport.services/api/v2/search?q=${q}&sport=football&lang=en`, {
     headers: { 'Accept': 'application/json' },
@@ -56,7 +56,7 @@ async function resolveTeam(name) {
 // (FT) fixtures; the fixtures/upcoming feed can show interrupted or abandoned
 // matches with AB=3 and a note (e.g. "Interrupted due to rain.") that must NOT
 // be settled as a final score.
-async function getTeamEvents(team) {
+export async function getTeamEvents(team) {
   const base = `https://www.flashscore.com/team/${team.url}/${team.id}`;
   let all = [];
   for (const [pathname, feedName, isResults] of [

@@ -9,7 +9,7 @@ Runs every 30 minutes via `.github/workflows/scrape.yml` and commits fresh `data
 ## Quick start
 
 ```bash
-npm install          # only dependency is playwright-core (used by compare)
+npm install          # only dependency is playwright-core (used by compare + agent)
 npm test             # run the test suite (node --test)
 npm run scrape       # 1. scrape today's SportyBet odds -> data/snapshot-*.json + latest.json + report-*.md
 npm run build-db     # 2. merge snapshots into the persistent data/odds-db.json
@@ -17,6 +17,12 @@ npm run resolve      # 3. settle finished matches against Flashscore
 npm run analyze      # 4. good/bad odds report -> data/performance.md
 npm run compare      # 5. verify today's coverage vs Flashscore -> data/comparison.json
 npm run winners      # 6. per-match winning odds in the 4 sections -> data/winners-YYYY-MM-DD.md
+npm run agent        # 7. TypeScript decision agent -> data/agent-recommendations.json
+npm run stake        # 8. pick bets -> data/stake-slip.json
+npm run stake-placement # 9. build a SportyBet share code -> data/stake-code.md
+npm run stake-autoplace  # 10. log in and place the stake on SportyBet (optional; needs SB_USER/SB_PASS)
+npm run agent:confirm    # 11. TypeScript confirms staked selections -> data/confirm-report.json
+npm run agent:monitor    # 12. TypeScript monitors until matches end -> data/stake-results.md
 ```
 
 Requirements: **Node >= 20** (uses `fetch`, `node --test`, `AbortController`). No API keys.
@@ -119,6 +125,44 @@ Los Angeles FC 2:1 Queretaro FC
 
 Cross-checks SportyBet's today list against Flashscore's full today list (captured via headless Chromium + the site's feed endpoint). Reports `matched / missing` and flags matches present on one site but not the other. Uses `CHROMIUM_PATH` env if provided (CI installs Chromium via `npx playwright-core install chromium --with-deps`). Writes `data/comparison.json`; exits non-zero if the check itself fails.
 
+### 7. Decision agent — `npm run agent`
+
+The **TypeScript** decision-maker (`agent/*.ts`, compiled to `dist/` with `tsc`). For every upcoming scraped match it:
+
+1. Resolves both teams on Flashscore (Livesport search API).
+2. Reads each team's recent form (last 5 results from the team page feed) and its **current league-table position** (standings feed, cached in `data/standings-cache.json`).
+3. Pulls web-search snippets (`preview`, recent form) for context.
+4. Compares today's SportyBet odds against the DB's **historical win rate at a matching odds band** (current odds × [0.75, 1.30]) to compute edge and confidence.
+5. Concludes the **"perfect odds"**: per candidate it sets `recommended`, `confidence`, and `recommendedMinOdds` — the price the JS staker must respect.
+
+Writes `data/agent-recommendations.json`.
+
+### 8. Select — `node stake.mjs`
+
+Reads the agent report and builds the bet slip (`data/stake-slip.json`): skips friendlies, takes the single best candidate per market type, filters out trivial/long-shot lines, ranks by confidence, and caps the total with `MAX_BETS`.
+
+### 9. Share code — `node stake-placement.mjs`
+
+Turns each slip bet into a SportyBet selection (`eventId, marketId, outcomeId[, specifier]`) by resolving the outcome name to its numeric id via the event API, and — **only if the current odds are still at or above the agent's `recommendedMinOdds`** — creates a **share code** (`/api/gh/orders/share`). No login, no UI automation, no money moves automatically: the code is meant to be loaded in the SportyBet app, where you stake and confirm yourself. Writes `data/stake-code.md` with the code + URL.
+
+### 10. Auto-stake on SportyBet — `node stake-autoplace.mjs`
+
+When `SB_USER`/`SB_PASS` are set (GitHub secrets `SB_USER`, `SB_PASS`), this logs into the SportyBet mobile web with Playwright, loads the share code, switches the slip to **REAL** money (never the SIM/virtual mode), types the stake, and places the bet — then marks the slip bet `placed` only when SportyBet shows **Bet Successful**. Set `STAKE_DRY_RUN=true` to log in and fill the slip but skip the actual payment. Without credentials it does nothing and the code is left for manual staking.
+
+### 11. Confirm — `npm run agent:confirm`
+
+The TypeScript agent verifies each staked selection before kickoff:
+
+1. The share code still resolves server-side and contains the staked event.
+2. The live odds are still at/above the agent's `recommendedMinOdds` (odds moved down → the bet is cancelled, not placed).
+3. The fixture is confirmed on Flashscore for the staked kickoff (team ids + kickoff).
+
+Only bets that pass all three get `status: confirmed`; anything else is cancelled with the reason. Writes `data/confirm-report.json`.
+
+### 12. Monitor until the match ends — `npm run agent:monitor`
+
+The TypeScript agent keeps every confirmed bet open until the fixture finishes on Flashscore (same team-id + kickoff verification as `resolve-results.mjs`), then settles it WON/LOST/VOID, computes payout + net, and writes `data/stake-results.md` with the running P&L. Runs every 30 minutes; open bets stay open until settled.
+
 ---
 
 ## The database schema
@@ -199,8 +243,14 @@ npm test        # node --test test/
 | `DATA_DIR` | `data` | all scripts |
 | `DB_FILE` | `data/odds-db.json` | build-db, resolve, analyze, winners |
 | `USER_AGENT` | mobile UA string | all scrapers |
-| `CHROMIUM_PATH` | auto | compare-coverage |
+| `CHROMIUM_PATH` | auto | compare-coverage, agent standings |
 | `OUT` | `data/comparison.json` | compare-coverage |
+| `AGENT_OUT` | `data/agent-recommendations.json` | agent |
+| `MAX_BETS` | `3` | stake |
+| `STAKE_PER_BET` | `10` | stake |
+| `MIN_CONFIDENCE` | `0.6` | stake |
+| `ALLOW_FRIENDLIES` | `false` | stake |
+| `STAKE_SLIP` | `data/stake-slip.json` | stake, placement, monitor |
 
 ---
 
@@ -210,15 +260,21 @@ npm test        # node --test test/
 .
 ├── .github/workflows/scrape.yml   # 30-min scheduled pipeline
 ├── lib/common.mjs                 # shared HTTP, API clients, normalization, DB IO
+├── agent/                         # TypeScript decision agent (research, confirm, monitor)
+├── dist/                          # compiled agent output (build artifact, gitignored)
 ├── scraper.js                     # SportyBet API scrape -> snapshots + report
 ├── build-db.mjs                   # snapshots -> persistent odds-db.json
 ├── resolve-results.mjs            # Flashscore settlement of finished matches
 ├── analyze-odds.mjs               # good/bad odds analysis (--db) + interactive lookups
 ├── winners.mjs                    # per-match winning odds in the 4 sections
 ├── compare-coverage.mjs           # SportyBet vs Flashscore coverage check
+├── stake.mjs                      # select bets from agent recommendations
+├── stake-placement.mjs            # build a SportyBet share code for the slip
+├── stake-autoplace.mjs            # log in and place the stake (REAL mode) with Playwright
+├── share-code.mjs                 # SportyBet share-code API client
 ├── test/                          # node --test suite
 ├── SCRAPING-WORKFLOW.md           # endpoint/flow notes for the single API method
-└── data/                          # snapshots, odds-db.json, reports (committed)
+└── data/                          # snapshots, odds-db.json, reports, slip (committed)
 ```
 
 ## Notes & limitations

@@ -18,6 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
 
+    env:
+      MAX_BETS: 3
+      STAKE_PER_BET: 10
+      MIN_CONFIDENCE: 0.6
+      ALLOW_FRIENDLIES: "false"
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -53,6 +59,30 @@ jobs:
 
       - name: Verify SportyBet coverage vs Flashscore
         run: node compare-coverage.mjs
+
+      - name: Run TypeScript decision agent (deep research)
+        run: |
+          npm run build:agent
+          node dist/cli.js
+
+      - name: Select bets from agent recommendations
+        run: node stake.mjs
+
+      - name: Generate staking share code
+        run: node stake-placement.mjs
+
+      - name: Auto-stake the slip on SportyBet (optional)
+        env:
+          SB_USER: ${{ secrets.SB_USER }}
+          SB_PASS: ${{ secrets.SB_PASS }}
+          STAKE_DRY_RUN: ${{ secrets.STAKE_DRY_RUN }}
+        run: node stake-autoplace.mjs
+
+      - name: Agent confirms staked selections
+        run: node dist/confirm.js
+
+      - name: Agent monitors staked matches until they end
+        run: node dist/monitor.js
 
       - name: Upload scraped data as artifact
         uses: actions/upload-artifact@v4
