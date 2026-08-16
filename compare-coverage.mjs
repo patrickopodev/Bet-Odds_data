@@ -8,25 +8,37 @@ const CHROMIUM_PATH = process.env.CHROMIUM_PATH || null;
 const OUT = process.env.OUT || 'data/comparison.json';
 
 // ---- Flashscore: full list of today's football ----
-async function fetchFlashscoreToday() {
+// Returns the raw feed text, or '' if the feed never fired (geo/captcha-gated
+// pages, transient network issues). One reload retry is attempted since some
+// gated pages only serve the feed after a second navigation.
+async function captureFlashscoreFeed() {
   const browser = await chromium.launch({
     executablePath: CHROMIUM_PATH || undefined,
     headless: true,
     args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
   });
-  const page = await browser.newPage({ userAgent: UA });
-  let feedText = '';
-  page.on('response', async (res) => {
-    if (res.url().includes('f_1_0_-4_en_1')) {
-      try { feedText = await res.text(); } catch {}
+  try {
+    const page = await browser.newPage({ userAgent: UA });
+    let feedText = '';
+    page.on('response', async (res) => {
+      if (res.url().includes('f_1_0_-4_en_1')) {
+        try { feedText = await res.text(); } catch {}
+      }
+    });
+    const load = () => page.goto('https://www.flashscore.com/football/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await load();
+    await page.waitForTimeout(10000);
+    if (!feedText) {
+      await load();
+      await page.waitForTimeout(10000);
     }
-  });
-  await page.goto('https://www.flashscore.com/football/', { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.waitForTimeout(8000);
-  await browser.close();
+    return feedText;
+  } finally {
+    await browser.close();
+  }
+}
 
-  if (!feedText) throw new Error('Flashscore feed not captured');
-
+function parseFlashscoreFeed(feedText) {
   const blocks = feedText.split('~');
   const matches = [];
   let league = null;
@@ -47,6 +59,12 @@ async function fetchFlashscoreToday() {
     }
   }
   return matches;
+}
+
+async function fetchFlashscoreToday() {
+  const feedText = await captureFlashscoreFeed();
+  if (!feedText) throw new Error('Flashscore feed not captured');
+  return parseFlashscoreFeed(feedText);
 }
 
 // ---- SportyBet: today's matches via the full-catalog API (same method the
@@ -87,8 +105,53 @@ export function covers(sb, fsMatch, toleranceMs = 6 * 60 * 60 * 1000) {
 async function main() {
   console.log('=== SportyBet coverage vs Flashscore (today) ===');
   console.log('Fetching Flashscore today list...');
-  const fsMatches = await fetchFlashscoreToday();
-  console.log(`  Flashscore: ${fsMatches.length} football matches today`);
+  let fsMatches = [];
+  let fsError = null;
+  try {
+    fsMatches = await fetchFlashscoreToday();
+  } catch (e) {
+    fsError = e.message;
+  }
+  if (fsError) {
+    // Coverage check is diagnostic, not part of the data pipeline. If
+    // Flashscore is unreachable/gated (common on cloud runner IPs), write a
+    // degraded report and exit 0 so the scrape results still commit.
+    console.warn(`  WARNING: Flashscore capture failed (${fsError}); writing degraded report.`);
+    const degraded = {
+      generatedAt: new Date().toISOString(),
+      source: 'sportybet.com/gh/m/ vs flashscore.com/football/',
+      error: fsError,
+      flashscoreTotal: 0,
+      sportybetTotal: null,
+      matched: null,
+      missing: null,
+      missingMatches: [],
+      sportybetNotOnFlashscore: null,
+      notOnFlashscore: [],
+      complete: false,
+    };
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    await fs.writeFile(OUT, JSON.stringify(degraded, null, 2), 'utf8');
+    console.log(`  COVERAGE: INCOMPLETE (Flashscore unavailable) (${OUT})`);
+    return;
+  }
+  console.log(`  Flashscore feed: ${fsMatches.length} matches (raw feed)`);
+
+  // Flashscore's /football/ feed is a rolling ~day-anchored window (it leans
+  // towards the previous day early in the UTC day), so it is NOT a clean
+  // "today" list. Compare against the same UTC-day window SportyBet uses, and
+  // flag when the snapshot is clearly partial.
+  const now = new Date();
+  const dayStart = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const dayEnd = dayStart + 24 * 60 * 60 * 1000;
+  const fsToday = fsMatches.filter((m) => {
+    const k = m.kickoff ? new Date(m.kickoff).getTime() : null;
+    return k && k >= dayStart && k < dayEnd;
+  });
+  console.log(`  Flashscore in UTC-today window: ${fsToday.length} matches`);
+  if (fsToday.length === 0 || fsToday.length < fsMatches.length / 4) {
+    console.warn('  WARNING: Flashscore snapshot is partial for today (rolling feed); coverage numbers are best-effort.');
+  }
 
   console.log('Scraping SportyBet TODAY\'S FOOTBALL...');
   const sbMatches = await fetchSportyBetToday();
@@ -96,7 +159,7 @@ async function main() {
 
   const matched = [];
   const missing = [];
-  for (const m of fsMatches) {
+  for (const m of fsToday) {
     const hit = sbMatches.find((sb) => covers(sb, m));
     if (hit) matched.push({ fs: m, sb: hit });
     else missing.push(m);
@@ -105,13 +168,14 @@ async function main() {
   // Reverse check: SportyBet matches that matched nothing on Flashscore.
   const coveredFs = new Set(matched.map((x) => x.fs.id));
   const notOnFlash = sbMatches.filter((sb) =>
-    !fsMatches.some((m) => coveredFs.has(m.id) && covers(sb, m))
+    !fsToday.some((m) => coveredFs.has(m.id) && covers(sb, m))
   );
 
   const report = {
     generatedAt: new Date().toISOString(),
     source: 'sportybet.com/gh/m/ vs flashscore.com/football/',
-    flashscoreTotal: fsMatches.length,
+    flashscoreTotal: fsToday.length,
+    flashscoreRawFeed: fsMatches.length,
     sportybetTotal: sbMatches.length,
     matched: matched.length,
     missing: missing.length,
@@ -139,20 +203,20 @@ async function main() {
   console.log(`  SportyBet total:     ${report.sportybetTotal}`);
   console.log(`  Matched:             ${report.matched}`);
   console.log(`  MISSING on SportyBet: ${report.missing}`);
-  console.log(`  SportyBet not on Flashscore: ${report.notOnFlashscore}`);
+  console.log(`  SportyBet not on Flashscore: ${report.sportybetNotOnFlashscore}`);
   console.log(`  COVERAGE: ${report.complete ? 'COMPLETE' : 'INCOMPLETE'} (${OUT})`);
 
   if (missing.length) {
     console.log('');
-    console.log('Missing on SportyBet (not scraped):');
-    for (const m of report.missingMatches) {
+    console.log(`Missing on SportyBet (not scraped): ${missing.length} (showing first 15)`);
+    for (const m of report.missingMatches.slice(0, 15)) {
       console.log(`  ${m.homeTeam} vs ${m.awayTeam} [${m.league}] ${m.kickoff}`);
     }
   }
   if (notOnFlash.length) {
     console.log('');
-    console.log('On SportyBet but NOT in Flashscore today list:');
-    for (const m of report.notOnFlashscore) {
+    console.log(`On SportyBet but NOT in Flashscore today window: ${notOnFlash.length} (showing first 15)`);
+    for (const m of report.notOnFlashscore.slice(0, 15)) {
       console.log(`  ${m.homeTeam} vs ${m.awayTeam} [${m.league}] ${m.kickoff}`);
     }
   }
