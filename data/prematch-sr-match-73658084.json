@@ -1,0 +1,192 @@
+{
+  "eventId": "sr:match:73658084",
+  "productId": "3",
+  "markets": [
+    "1 (1X2)",
+    "18 (O/U)",
+    "41 (Correct Score)",
+    "548 (Multigoals)",
+    "551 (Multiscores)"
+  ],
+  "homeTeam": "AD Taubate SP",
+  "awayTeam": "CR Vasco da Gama RJ",
+  "kickoff": 1786903200000,
+  "startedAt": "2026-08-16T17:45:11.669Z",
+  "wentLiveAt": null,
+  "changes": [
+    {
+      "at": "2026-08-16T17:45:15.734Z",
+      "sections": {
+        "1X2 / O/U": {
+          "marketId": "1+18",
+          "name": "1X2 / O/U",
+          "group": null,
+          "outcomes": [
+            {
+              "name": "Home",
+              "odds": 3.5,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Draw",
+              "odds": 3.1,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Away",
+              "odds": 1.9,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Over 2.5",
+              "odds": 1.98,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 2.5",
+              "odds": 1.71,
+              "active": true,
+              "marketId": "18"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "at": "2026-08-16T17:55:55.746Z",
+      "sections": {
+        "1X2 / O/U": {
+          "marketId": "1+18",
+          "name": "1X2 / O/U",
+          "group": null,
+          "outcomes": [
+            {
+              "name": "Home",
+              "odds": 3.7,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Draw",
+              "odds": 3.1,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Away",
+              "odds": 1.85,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Over 2.5",
+              "odds": 1.98,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 2.5",
+              "odds": 1.71,
+              "active": true,
+              "marketId": "18"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "at": "2026-08-16T17:56:34.145Z",
+      "sections": {
+        "1X2 / O/U": {
+          "marketId": "1+18",
+          "name": "1X2 / O/U",
+          "group": null,
+          "outcomes": [
+            {
+              "name": "Home",
+              "odds": 3.8,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Draw",
+              "odds": 3.2,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Away",
+              "odds": 1.8,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Over 2.5",
+              "odds": 1.98,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 2.5",
+              "odds": 1.71,
+              "active": true,
+              "marketId": "18"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "at": "2026-08-16T17:57:52.453Z",
+      "sections": {
+        "1X2 / O/U": {
+          "marketId": "1+18",
+          "name": "1X2 / O/U",
+          "group": null,
+          "outcomes": [
+            {
+              "name": "Home",
+              "odds": 4,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Draw",
+              "odds": 3.2,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Away",
+              "odds": 1.75,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Over 2.5",
+              "odds": 1.98,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 2.5",
+              "odds": 1.71,
+              "active": true,
+              "marketId": "18"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "at": "2026-08-16T18:00:20.401Z",
+      "sections": {
+        "1X2 / O/U": null
+      }
+    }
+  ]
+}
