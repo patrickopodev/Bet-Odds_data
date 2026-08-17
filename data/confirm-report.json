@@ -1,20 +1,8 @@
 {
-  "generatedAt": "2026-08-17T18:44:18.894Z",
-  "checked": 3,
-  "confirmed": 2,
+  "generatedAt": "2026-08-17T20:04:09.301Z",
+  "checked": 2,
+  "confirmed": 1,
   "bets": [
-    {
-      "eventId": "sr:match:70894600",
-      "homeTeam": "Fram Reykjavik",
-      "awayTeam": "Stjarnan Gardabae",
-      "ok": true,
-      "checks": [
-        "share code resolves 1 selection(s)",
-        "odds 1.48 >= min 1.28",
-        "flashscore fixture rwTura5D @ 2026-08-17T19:15:00.000Z"
-      ],
-      "errors": []
-    },
     {
       "eventId": "sr:match:68098040",
       "homeTeam": "CD Santa Cruz",
@@ -22,21 +10,21 @@
       "ok": false,
       "checks": [
         "share code resolves 1 selection(s)",
-        "odds 1.99 >= min 1.56"
+        "odds 1.99 >= min 1.57"
       ],
       "errors": [
         "flashscore fixture not found (notfound)"
       ]
     },
     {
-      "eventId": "sr:match:72336430",
-      "homeTeam": "Palermo FC",
-      "awayTeam": "US Lecce",
+      "eventId": "sr:match:73415976",
+      "homeTeam": "Club General Caballero JLM",
+      "awayTeam": "Tacuary Asuncion",
       "ok": true,
       "checks": [
         "share code resolves 1 selection(s)",
-        "odds 2 >= min 1.57",
-        "flashscore fixture faE489oT @ 2026-08-17T19:15:00.000Z"
+        "odds 2.05 >= min 1.82",
+        "flashscore fixture r1K9v4hL @ 2026-08-17T22:00:00.000Z"
       ],
       "errors": []
     }
