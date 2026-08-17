@@ -1,8 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DATA_DIR, loadDb, MARKET_ORDER } from './lib/common.mjs';
-import { evaluateOutcome } from './analyze-odds.mjs';
+import { DATA_DIR, loadDb, MARKET_ORDER, evaluateOutcome } from './lib/common.mjs';
 
 // Section name per market id. 1X2 (1) and O/U (18) merge into one section, and
 // the multiscores/multigoals ids map to their display names.

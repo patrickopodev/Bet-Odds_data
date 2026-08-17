@@ -2,13 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { evaluateOutcome as tsEvaluate, historicalStats, outcomeHistory } from '../dist/db.js';
-import { evaluateOutcome as jsEvaluate } from '../analyze-odds.mjs';
+import { evaluateOutcome as jsEvaluate } from '../lib/common.mjs';
 import { analyzeCandidate, candidateSources, buildRecommendations } from '../dist/analysis.js';
 import { selectBets, isFriendly } from '../stake.mjs';
 import { resolveOutcome } from '../dist/sporty.js';
 import { writeReport } from '../dist/monitor.js';
 
-test('TS evaluateOutcome agrees with the JS analyzer (1X2 + O/U)', () => {
+test('compiled agent shares the lib evaluator (dist/db.js wired to lib/common.mjs)', () => {
   const cases = [
     ['1', 'Home', { home: 2, away: 1 }],
     ['1', 'Draw', { home: 1, away: 1 }],
@@ -130,6 +130,42 @@ test('buildRecommendations keeps today matches and fills market names', () => {
   const recs = buildRecommendations(researched, matches, { events: {} }, (mid) => (mid === '1' ? '1X2' : mid));
   assert.equal(recs.length, 1);
   assert.ok(recs[0].candidates.some((c) => c.market === '1X2'));
+});
+
+test('analyzeCandidate scales the historical edge by sample size', () => {
+  const mkStats = (n) => {
+    const events = {};
+    for (let i = 0; i < n; i++) {
+      events['e' + i] = {
+        eventId: 'e' + i,
+        homeTeam: 'A',
+        awayTeam: 'B',
+        startTime: '',
+        finalScore: '2:1',
+        outcomes: { o: { marketId: '1', name: 'Home', plays: [{ odds: 1.9 }] } },
+      };
+    }
+    return historicalStats({ events });
+  };
+  const mkMatch = () => ({
+    eventId: 'x',
+    homeTeam: 'A',
+    awayTeam: 'B',
+    tournament: 'T',
+    startTime: '',
+    venue: null,
+    h2h: null,
+    home: { name: 'A', flashscoreId: null, flashscoreUrl: null, position: null, played: null, points: null, form: 'WWWW', formScore: 12, lastResults: [], venue: null, research: [] },
+    away: { name: 'B', flashscoreId: null, flashscoreUrl: null, position: null, played: null, points: null, form: 'LLLL', formScore: 0, lastResults: [], venue: null, research: [] },
+  });
+  const src = { marketId: '1', name: '1X2', outcome: 'Home', odds: 1.9, active: true };
+  const small = analyzeCandidate(mkMatch(), src, mkStats(4)); // 4/4 won at ~1.9 → boost scaled by 0.4
+  const large = analyzeCandidate(mkMatch(), src, mkStats(30)); // 30/30 won → boost at full strength
+  assert.ok(small.reason.includes('LOW SAMPLE'));
+  assert.ok(!large.reason.includes('LOW SAMPLE'));
+  assert.ok(large.confidence > small.confidence);
+  assert.equal(small.historicalSettled, 4);
+  assert.equal(large.historicalSettled, 30);
 });
 
 test('selectBets skips friendlies unless allowed and caps at MAX_BETS', () => {

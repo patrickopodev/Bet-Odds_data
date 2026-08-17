@@ -70,14 +70,19 @@ export function analyzeCandidate(
     reason = `avg last-5 total ${avg.toFixed(1)}`;
   }
 
-  // Historical record at a matched odds band is a strong signal.
+  // Historical record at a matched odds band is a strong signal, but only to
+  // the extent the sample is big enough to trust it. Scale its influence by
+  // the settled count so a 100% record over 4 matches can't swing a bet the
+  // way the same record over 40 matches would.
   if (hist.winRate != null) {
+    const sampleFactor = Math.min(1, hist.settled / 10);
+    const sampleNote = hist.settled < 10 ? ' LOW SAMPLE' : '';
     if (edge != null && edge > 0) {
-      confidence = Math.min(1, confidence + Math.min(0.25, edge));
-      reason += `, hist ${(hist.winRate * 100).toFixed(0)}% @~${c.odds.toFixed(2)} (${hist.settled})`;
+      confidence = Math.min(1, confidence + Math.min(0.25, edge) * sampleFactor);
+      reason += `, hist ${(hist.winRate * 100).toFixed(0)}% @~${c.odds.toFixed(2)} (${hist.settled} settled${sampleNote})`;
     } else if (edge != null && edge < 0) {
-      confidence -= Math.min(0.2, Math.abs(edge));
-      reason += `, hist below implied (${(hist.winRate * 100).toFixed(0)}%)`;
+      confidence -= Math.min(0.2, Math.abs(edge)) * sampleFactor;
+      reason += `, hist below implied ${(hist.winRate * 100).toFixed(0)}% (${hist.settled} settled${sampleNote})`;
     }
   }
 

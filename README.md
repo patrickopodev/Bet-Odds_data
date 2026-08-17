@@ -139,15 +139,17 @@ Writes `data/agent-recommendations.json`.
 
 ### 8. Select — `node stake.mjs`
 
-Reads the agent report and builds the bet slip (`data/stake-slip.json`): skips friendlies, takes the single best candidate per market type, filters out trivial/long-shot lines, ranks by confidence, and caps the total with `MAX_BETS`.
+Reads the agent report and builds the bet slip (`data/stake-slip.json`): skips friendlies, takes the single best candidate per market type, filters out trivial/long-shot lines, ranks by confidence, and caps the total with `MAX_BETS`. `node stake.mjs --refill` re-fills a slip's skipped slots from the pipeline instead of hand-picking: it keeps placed/slip-ready bets, never re-picks an already-attempted combination, respects the friendly gate, and caps at `MAX_BETS`.
 
 ### 9. Share code — `node stake-placement.mjs`
 
 Turns each slip bet into a SportyBet selection (`eventId, marketId, outcomeId[, specifier]`) by resolving the outcome name to its numeric id via the event API, and — **only if the current odds are still at or above the agent's `recommendedMinOdds`** — creates a **share code** (`/api/gh/orders/share`). No login, no UI automation, no money moves automatically: the code is meant to be loaded in the SportyBet app, where you stake and confirm yourself. Writes `data/stake-code.md` with the code + URL.
 
+This step is the **money boundary for selection**: a friendly bet is refused a share code unless `ALLOW_FRIENDLIES=true` — even in a stale or hand-edited slip. And whenever a bet is skipped (odds drifted below `recommendedMinOdds`, market/outcome gone, friendly), it is **automatically replaced from the agent report** (the same logic as `stake.mjs --refill`, looped a few rounds), so the slip is always the pipeline's ranking — never a manual substitute.
+
 ### 10. Auto-stake on SportyBet — `node stake-autoplace.mjs`
 
-When `SB_USER`/`SB_PASS` are set (GitHub secrets `SB_USER`, `SB_PASS`), this logs into the SportyBet mobile web with Playwright, loads the share code, switches the slip to **REAL** money (never the SIM/virtual mode), types the stake, and places the bet — then marks the slip bet `placed` only when SportyBet shows **Bet Successful**. Set `STAKE_DRY_RUN=true` to log in and fill the slip but skip the actual payment. Without credentials it does nothing and the code is left for manual staking.
+When `SB_USER`/`SB_PASS` are set (GitHub secrets `SB_USER`, `SB_PASS`), this logs into the SportyBet mobile web with Playwright, loads the share code, switches the slip to **REAL** money (never the SIM/virtual mode), types the stake, and places the bet — then marks the slip bet `placed` only when SportyBet shows **Bet Successful**. Set `STAKE_DRY_RUN=true` to log in and fill the slip but skip the actual payment. Without credentials it does nothing and the code is left for manual staking. The friendly gate also applies here: no money moves on a friendly bet unless `ALLOW_FRIENDLIES=true`, even from a stale slip.
 
 ### 11. Confirm — `npm run agent:confirm`
 
@@ -216,7 +218,8 @@ The single source of truth both modules rely on:
 | `mapWithConcurrency` | parallel worker pool with error capture |
 | `fetchTodayFootballEvents`, `fetchEventMarkets`, `fetchAllFootballEvents` | SportyBet API clients |
 | `loadDb`, `saveDb` | DB read/write |
-| `decodeFeedBlock`, `normTeam`, `queryTeam`, `sameTeam`, `kickoffDeltaMs` | Flashscore feed decoding + team-name normalization shared by `resolve-results` and `compare-coverage` |
+| `evaluateOutcome`, `parseScore` | WON/LOST/VOID settlement of any market/outcome + safe score parse (single source of truth for `analyze-odds`, `winners`, and the TS agent) |
+| `decodeFeedBlock`, `normTeam`, `queryTeam`, `sameTeam`, `kickoffDeltaMs` | Flashscore feed decoding + team-name normalization shared by `resolve-results`, `compare-coverage`, and the TS agent |
 
 ---
 

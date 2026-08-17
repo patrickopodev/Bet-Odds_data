@@ -1,4 +1,5 @@
 import { chromium } from 'playwright-core';
+import { normTeam, queryTeam, decodeFeedBlock } from '../lib/common.mjs';
 import type { TeamInfo } from './types.js';
 
 const UA =
@@ -9,49 +10,6 @@ export interface FsTeam {
   id: string;
   url: string;
   name: string;
-}
-
-// ---- team-name normalization (mirrors lib/common.mjs) ----
-
-const CLUB_TOKENS = new Set([
-  'fc', 'fk', 'ac', 'sc', 'cf', 'ec', 'kc', 'bk', 'kf', 'nk', 'cd', 'ud',
-  'rc', 'il', 'clube', 'club', 'ca', 'afc', 'rcd', 'sd', 'udl',
-  'al', 'ap', 'am', 'ba', 'ce', 'df', 'es', 'go', 'ma', 'mt', 'ms',
-  'mg', 'pa', 'pb', 'pr', 'pe', 'pi', 'rn', 'rs', 'rj', 'ro', 'rr', 'sp',
-  'se', 'to',
-]);
-const TEAM_PARTICLES = new Set(['de', 'la', 'do', 'dos', 'da', 'das', 'di', 'du', 'del']);
-const TEAM_ALIASES: Record<string, string> = {
-  manutd: 'manchesterunited',
-  manchesterutd: 'manchesterunited',
-  heartofmidlothian: 'hearts',
-};
-
-export function normTeam(s: string | null | undefined): string {
-  const stripped = (s || '').replace(/\([^)]*\)/g, ' ');
-  let tokens = stripped.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
-  while (tokens.length > 1 && CLUB_TOKENS.has(tokens[0])) tokens.shift();
-  while (tokens.length > 1 && CLUB_TOKENS.has(tokens[tokens.length - 1])) tokens.pop();
-  tokens = tokens.filter((t) => !TEAM_PARTICLES.has(t));
-  const core = tokens.join('');
-  return TEAM_ALIASES[core] || core;
-}
-
-export function queryTeam(s: string): string {
-  let tokens = (s || '').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
-  while (tokens.length > 1 && CLUB_TOKENS.has(tokens[0])) tokens.shift();
-  while (tokens.length > 1 && CLUB_TOKENS.has(tokens[tokens.length - 1])) tokens.pop();
-  tokens = tokens.filter((t) => !TEAM_PARTICLES.has(t));
-  return tokens.join(' ');
-}
-
-function decodeFeedBlock(block: string): Record<string, string> {
-  const fields: Record<string, string> = {};
-  for (const p of block.split('¬')) {
-    const x = p.indexOf('÷');
-    if (x > 0) fields[p.slice(0, x)] = p.slice(x + 1);
-  }
-  return fields;
 }
 
 async function fetchJson(url: string, headers: Record<string, string> = {}): Promise<any> {

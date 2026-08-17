@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { evaluateOutcome } from '../analyze-odds.mjs';
+import { evaluateOutcome } from '../lib/common.mjs';
 
 const homeWin = { home: 2, away: 1 };
 const awayWin = { home: 1, away: 3 };

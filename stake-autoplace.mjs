@@ -2,9 +2,11 @@ import { chromium } from 'playwright-core';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isFriendly } from './stake.mjs';
 
 const DATA_DIR = process.env.DATA_DIR ?? 'data';
 const SLIP_FILE = process.env.STAKE_SLIP ?? path.join(DATA_DIR, 'stake-slip.json');
+const ALLOW_FRIENDLIES = process.env.ALLOW_FRIENDLIES === 'true';
 
 const UA = 'Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36';
 
@@ -16,7 +18,21 @@ async function run() {
     console.error(`stake-autoplace: cannot read ${SLIP_FILE}: ${e.message}`);
     process.exit(0);
   }
-  const bets = (slip.bets ?? []).filter((b) => b.status === 'slip-ready' && b.shareCode);
+  let allReady = (slip.bets ?? []).filter((b) => b.status === 'slip-ready' && b.shareCode);
+  // Money-boundary friendly gate: even a stale/hand-edited slip can't place a
+  // friendly bet unless explicitly allowed.
+  let changed = false;
+  for (const b of allReady) {
+    if (isFriendly(b.tournament) && !ALLOW_FRIENDLIES) {
+      b.status = 'skipped';
+      b.skippedAt = new Date().toISOString();
+      b.error = 'friendly filtered (ALLOW_FRIENDLIES=false)';
+      changed = true;
+      console.warn(`[stake-autoplace] skipping friendly ${b.homeTeam} vs ${b.awayTeam}`);
+    }
+  }
+  const bets = allReady.filter((b) => b.status === 'slip-ready');
+  if (changed) fs.writeFileSync(SLIP_FILE, JSON.stringify(slip, null, 2));
   if (!bets.length) {
     console.log('[stake-autoplace] no slip-ready bets to place');
     return;

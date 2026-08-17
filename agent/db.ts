@@ -1,5 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { evaluateOutcome, parseScore } from '../lib/common.mjs';
+
+export { evaluateOutcome, parseScore };
 
 export interface DbEvent {
   eventId: string;
@@ -42,76 +45,7 @@ export function loadLatest(file = path.join('data', 'latest.json')): Latest {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
 
-export function parseScore(s: string): { home: number; away: number } | null {
-  const m = s.split(':').map(Number);
-  if (m.length !== 2 || Number.isNaN(m[0]) || Number.isNaN(m[1])) return null;
-  return { home: m[0], away: m[1] };
-}
-
-export function totalGoals(h: number, a: number): number {
-  return h + a;
-}
-
-// Reimplemented outcome evaluators so the TS agent can score historical bets
-// against the same rules the JS analyzer uses (analyze-odds.mjs).
-export type Result = 'WON' | 'LOST' | 'VOID' | null;
-
-export function evaluateOutcome(marketId: string, name: string, score: { home: number; away: number }, siblingNames: string[] = []): Result {
-  const h = score.home;
-  const a = score.away;
-  const total = h + a;
-
-  if (marketId === '1') {
-    if (name === 'Home') return h > a ? 'WON' : 'LOST';
-    if (name === 'Draw') return h === a ? 'WON' : 'LOST';
-    if (name === 'Away') return a > h ? 'WON' : 'LOST';
-    return null;
-  }
-  if (marketId === '18') {
-    const m = name.match(/^(Over|Under)\s+(\d+(?:\.\d+)?)$/);
-    if (!m) return null;
-    const line = parseFloat(m[2]);
-    if (Number.isInteger(line) && total === line) return 'VOID';
-    return m[1] === 'Over' ? (total > line ? 'WON' : 'LOST') : total < line ? 'WON' : 'LOST';
-  }
-  if (marketId === '41') {
-    const m = name.match(/^(\d+):(\d+)$/);
-    if (!m) return null;
-    return h === Number(m[1]) && a === Number(m[2]) ? 'WON' : 'LOST';
-  }
-  if (marketId === '548') {
-    if (name === 'No goal') return total === 0 ? 'WON' : 'LOST';
-    const range = name.match(/^(\d+)-(\d+)$/);
-    if (range) {
-      const lo = Number(range[1]);
-      const hi = Number(range[2]);
-      return total >= lo && total <= hi ? 'WON' : 'LOST';
-    }
-    const plus = name.match(/^(\d+)\+$/);
-    if (plus) return total >= Number(plus[1]) ? 'WON' : 'LOST';
-    return null;
-  }
-  if (marketId === '551') {
-    if (name === 'Draw') return h === a ? 'WON' : 'LOST';
-    const extractScores = (s: string): string[] =>
-      s
-        .split(/[,|]|\s+or\s+/i)
-        .map((x) => x.trim())
-        .filter((x) => /^\d+:\d+$/.test(x));
-    const final = `${h}:${a}`;
-    const isHome = h > a;
-    const isAway = a > h;
-    const listed = new Set<string>();
-    for (const sib of siblingNames) {
-      if (sib === 'Draw' || sib === 'Other Homewin' || sib === 'Other Awaywin') continue;
-      for (const sc of extractScores(sib)) listed.add(sc);
-    }
-    if (name === 'Other Homewin') return isHome && !listed.has(final) ? 'WON' : 'LOST';
-    if (name === 'Other Awaywin') return isAway && !listed.has(final) ? 'WON' : 'LOST';
-    return extractScores(name).includes(final) ? 'WON' : 'LOST';
-  }
-  return null;
-}
+type Settlement = 'WON' | 'LOST' | 'VOID' | null;
 
 export interface HistoricalStats {
   marketId: string;
@@ -137,7 +71,7 @@ export function historicalStats(db: Db): HistoricalStats[] {
       if (!byMarket.has(out.marketId)) byMarket.set(out.marketId, []);
       byMarket.get(out.marketId)!.push(out.name);
     }
-    const evaluated = new Map<string, Result>();
+    const evaluated = new Map<string, Settlement>();
     if (score) {
       for (const out of Object.values(ev.outcomes ?? {})) {
         const r = evaluateOutcome(out.marketId, out.name, score, byMarket.get(out.marketId));

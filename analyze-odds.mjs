@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DATA_DIR, DB_FILE, loadDb, MARKET_ORDER } from './lib/common.mjs';
+import { DATA_DIR, loadDb, MARKET_ORDER, evaluateOutcome, parseScore } from './lib/common.mjs';
 
 // ---------------------------------------------------------------------------
 // Repeated-odds analysis (current snapshot, data/latest.json)
@@ -60,116 +60,8 @@ export function findExactOdds(data, market, outcome, odds) {
 }
 
 // ---------------------------------------------------------------------------
-// Outcome evaluators: given a final score (home:away), decide WON / LOST / VOID.
-// ---------------------------------------------------------------------------
-
-function totalGoals(score) {
-  return score.home + score.away;
-}
-
-// O/U market (id 18): "Over 2.5" / "Under 2.5". Whole lines (e.g. "Over 2")
-// push when the total equals the line -> VOID.
-function evaluateOverUnder(name, score) {
-  const m = name.match(/^(Over|Under)\s+(\d+(?:\.\d+)?)$/);
-  if (!m) return null;
-  const [, dir, lineStr] = m;
-  const line = parseFloat(lineStr);
-  const total = totalGoals(score);
-  if (Number.isInteger(line) && total === line) return 'VOID';
-  if (dir === 'Over') return total > line ? 'WON' : 'LOST';
-  return total < line ? 'WON' : 'LOST';
-}
-
-// Correct Score market (id 41): "2:1" matches the exact final score.
-function evaluateCorrectScore(name, score) {
-  const m = name.match(/^(\d+):(\d+)$/);
-  if (!m) return null;
-  return score.home === Number(m[1]) && score.away === Number(m[2]) ? 'WON' : 'LOST';
-}
-
-// Extract concrete "H:A" score combos from a market/outcome name. Names are
-// like "1:0, 2:0 or 3:0" or "2:1, 3:1 or 4:1" (separators: comma, pipe, "or").
-function extractScores(name) {
-  return name
-    .split(/[,|]|\s+or\s+/i)
-    .map((s) => s.trim())
-    .filter((s) => /^\d+:\d+$/.test(s))
-    .map((s) => `${s.split(':')[0]}:${s.split(':')[1]}`);
-}
-
-// Multiscores market (id 551):
-//   - "1:0, 2:0 or 3:0"  -> the final score must be one of the listed scores
-//   - "Other Homewin"     -> a home win NOT covered by any listed combo
-//   - "Other Awaywin"     -> an away win NOT covered by any listed combo
-//   - "Draw"              -> any draw
-// siblingNames = all outcome names in the same market, so "Other Homewin" can
-// tell whether the final score already falls under a listed home-win combo.
-function evaluateMultiscores(name, score, siblingNames = []) {
-  if (name === 'Draw') return score.home === score.away ? 'WON' : 'LOST';
-
-  const finalScore = `${score.home}:${score.away}`;
-  const isHomeWin = score.home > score.away;
-  const isAwayWin = score.away > score.home;
-
-  // All concrete score combos listed in this market (e.g. "1:0, 2:0 or 3:0").
-  const listed = [];
-  for (const sib of siblingNames) {
-    if (sib === 'Draw' || sib === 'Other Homewin' || sib === 'Other Awaywin') continue;
-    listed.push(...extractScores(sib));
-  }
-
-  if (name === 'Other Homewin') return isHomeWin && !listed.includes(finalScore) ? 'WON' : 'LOST';
-  if (name === 'Other Awaywin') return isAwayWin && !listed.includes(finalScore) ? 'WON' : 'LOST';
-
-  const scores = extractScores(name);
-  return scores.includes(finalScore) ? 'WON' : 'LOST';
-}
-
-// Multigoals market (id 548): "1-2" (range of total goals), "7+" (seven or more),
-// "No goal" (zero total goals).
-function evaluateMultigoals(name, score) {
-  const total = totalGoals(score);
-  if (name === 'No goal') return total === 0 ? 'WON' : 'LOST';
-  const range = name.match(/^(\d+)-(\d+)$/);
-  if (range) {
-    const [lo, hi] = [Number(range[1]), Number(range[2])];
-    return total >= lo && total <= hi ? 'WON' : 'LOST';
-  }
-  const plus = name.match(/^(\d+)\+$/);
-  if (plus) return total >= Number(plus[1]) ? 'WON' : 'LOST';
-  return null;
-}
-
-// 1X2 market (id 1): "Home" / "Draw" / "Away" outcomes.
-function evaluateOneXTwo(name, score) {
-  if (name === 'Home') return score.home > score.away ? 'WON' : 'LOST';
-  if (name === 'Draw') return score.home === score.away ? 'WON' : 'LOST';
-  if (name === 'Away') return score.away > score.home ? 'WON' : 'LOST';
-  return null;
-}
-
-export const MARKET_EVALUATORS = {
-  '1': evaluateOneXTwo,
-  '18': evaluateOverUnder,
-  '41': evaluateCorrectScore,
-  '551': evaluateMultiscores,
-  '548': evaluateMultigoals,
-};
-
-export function evaluateOutcome(marketId, name, score, siblingNames) {
-  const fn = MARKET_EVALUATORS[String(marketId)];
-  if (!fn) return null;
-  return fn(name, score, siblingNames);
-}
-
-// ---------------------------------------------------------------------------
 // Performance database (data/odds-db.json) helpers
 // ---------------------------------------------------------------------------
-
-function parseFinalScore(s) {
-  const [h, a] = s.split(':').map(Number);
-  return { home: h, away: a };
-}
 
 // Aggregate historical plays for one (market, outcome) into per-odds stats.
 // Every unique odds value recorded for an outcome counts as one "play" of
@@ -177,7 +69,7 @@ function parseFinalScore(s) {
 export function aggregateDb(db) {
   const stats = new Map(); // `${marketId}|${outcomeName}|${odds}` -> aggregate
   for (const ev of Object.values(db.events ?? {})) {
-    const score = ev.finalScore ? parseFinalScore(ev.finalScore) : null;
+    const score = ev.finalScore ? parseScore(ev.finalScore) : null;
     const evaluated = new Map(); // `${marketId}|${name}` -> WON/LOST/VOID per match
     // Group sibling outcome names per market so combo-aware evaluators (e.g.
     // Multiscores "Other Homewin") can see whether a final score is covered.
@@ -237,10 +129,11 @@ export function aggregateDb(db) {
   }));
 }
 
-function oddsReport(list) {
+export function oddsReport(list) {
   const lines = ['# SportyBet Odds Performance', '', `_Generated ${new Date().toISOString()} UTC_`, ''];
   const settled = list.filter((s) => s.settled > 0);
   const pending = list.filter((s) => s.settled === 0);
+  const LOW_SAMPLE = 10;
 
   if (!settled.length) {
     lines.push('No settled outcomes yet. The resolver settles matches once they finish (FT), so check back after matches complete.', '');
@@ -251,20 +144,30 @@ function oddsReport(list) {
   const good = settled.filter((s) => s.settled >= 3 && s.won / s.settled === 1);
   const bad = settled.filter((s) => s.settled >= 3 && s.lost / s.settled === 1);
   const mixed = settled.filter((s) => s.settled >= 3 && s.won / s.settled < 1 && s.lost / s.settled < 1);
+  const thin = settled.filter((s) => s.settled < 3);
+  const enough = settled.filter((s) => s.settled >= LOW_SAMPLE);
 
   lines.push(`Total outcome/odds combinations: ${list.length}`, '');
   lines.push(`**Good odds** (settled >=3, always won): ${good.length}`, '');
   lines.push(`**Bad odds** (settled >=3, always lost): ${bad.length}`, '');
   lines.push(`**Mixed** (settled >=3, some won some lost): ${mixed.length}`, '');
+  lines.push(`**Insufficient data** (1-2 settled, no verdict): ${thin.length}`, '');
+  lines.push('');
+  lines.push(
+    `> **Sample-size caveat:** ${enough.length} of ${settled.length} settled combinations have >=${LOW_SAMPLE} results. ` +
+      `Anything marked **⚠️ low sample** has fewer than ${LOW_SAMPLE} settled results — a 100% (or 0%) record over a handful of matches is most likely variance, not signal.`,
+    ''
+  );
   lines.push('');
 
   const marketNames = { '1': '1X2 / O/U', '18': '1X2 / O/U', '41': 'Correct Score [0:0]', '551': 'Multiscores', '548': 'Multigoals' };
+  const flag = (s) => (s.settled < LOW_SAMPLE ? ' ⚠️ low sample' : '');
 
   if (good.length) {
     lines.push('## Good Odds (historically play)', '');
     for (const s of good.sort((a, b) => b.settled - a.settled).slice(0, 50)) {
       lines.push(
-        `- **${marketNames[s.marketId] ?? s.marketId} | ${s.name} @ ${s.odds}**: won ${s.won}/${s.settled} times (100%) across ${s.matchedEvents} match(es)`
+        `- **${marketNames[s.marketId] ?? s.marketId} | ${s.name} @ ${s.odds}**: won ${s.won}/${s.settled} times (100%) across ${s.matchedEvents} match(es)${flag(s)}`
       );
     }
     lines.push('');
@@ -274,7 +177,7 @@ function oddsReport(list) {
     lines.push('## Bad Odds (historically lose)', '');
     for (const s of bad.sort((a, b) => b.settled - a.settled).slice(0, 50)) {
       lines.push(
-        `- **${marketNames[s.marketId] ?? s.marketId} | ${s.name} @ ${s.odds}**: lost ${s.lost}/${s.settled} times (0% win) across ${s.matchedEvents} match(es)`
+        `- **${marketNames[s.marketId] ?? s.marketId} | ${s.name} @ ${s.odds}**: lost ${s.lost}/${s.settled} times (0% win) across ${s.matchedEvents} match(es)${flag(s)}`
       );
     }
     lines.push('');
@@ -285,8 +188,17 @@ function oddsReport(list) {
     for (const s of mixed.sort((a, b) => b.settled - a.settled).slice(0, 50)) {
       const pct = ((s.won / s.settled) * 100).toFixed(0);
       lines.push(
-        `- **${marketNames[s.marketId] ?? s.marketId} | ${s.name} @ ${s.odds}**: ${s.won}/${s.settled} won (${pct}%) across ${s.matchedEvents} match(es)`
+        `- **${marketNames[s.marketId] ?? s.marketId} | ${s.name} @ ${s.odds}**: ${s.won}/${s.settled} won (${pct}%) across ${s.matchedEvents} match(es)${flag(s)}`
       );
+    }
+    lines.push('');
+  }
+
+  if (thin.length) {
+    lines.push(`## Insufficient data (1-2 settled, no verdict) (${thin.length})`, '');
+    lines.push('These settled too few times to call a pattern:', '');
+    for (const s of thin.sort((a, b) => b.settled - a.settled).slice(0, 30)) {
+      lines.push(`- ${marketNames[s.marketId] ?? s.marketId} | ${s.name} @ ${s.odds}: ${s.settled} result(s)`);
     }
     lines.push('');
   }
