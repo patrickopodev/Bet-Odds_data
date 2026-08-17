@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-17T15:19:30.484Z",
+  "generatedAt": "2026-08-17T15:49:36.532Z",
   "checked": 3,
   "confirmed": 0,
   "bets": [
@@ -10,7 +10,7 @@
       "ok": false,
       "checks": [
         "share code resolves 1 selection(s)",
-        "odds 1.43 >= min 1.04"
+        "odds 1.43 >= min 1.06"
       ],
       "errors": [
         "flashscore fixture not found (notfound)"
@@ -23,20 +23,20 @@
       "ok": false,
       "checks": [
         "share code resolves 1 selection(s)",
-        "odds 1.68 >= min 1.29"
+        "odds 1.77 >= min 1.21"
       ],
       "errors": [
         "flashscore fixture not found (notfound)"
       ]
     },
     {
-      "eventId": "sr:match:67921214",
-      "homeTeam": "Fram IF",
-      "awayTeam": "Sarpsborg 08 2",
+      "eventId": "sr:match:67920566",
+      "homeTeam": "Staal Joerpeland IL",
+      "awayTeam": "FK Haugesund 2",
       "ok": false,
       "checks": [
         "share code resolves 1 selection(s)",
-        "odds 1.7 >= min 1.33"
+        "odds 1.37 >= min 1.07"
       ],
       "errors": [
         "flashscore fixture not found (notfound)"

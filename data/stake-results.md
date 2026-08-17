@@ -1,6 +1,6 @@
 # Stake results
 
-Updated: 2026-08-17T15:19:33.341Z
+Updated: 2026-08-17T15:49:39.031Z
 
 | Metric | Value |
 | --- | --- |
@@ -15,6 +15,6 @@ Updated: 2026-08-17T15:19:33.341Z
 
 | Fixture | Market | Outcome | Odds | Stake | Result | Payout | Net |
 | --- | --- | --- | ---: | ---: | --- | ---: | ---: |
-| SK Brann 2 vs Os | Over/Under | Under 5.5 | 1.4 | 10 | cancelled | - | - |
-| Lillehammer FK vs Lyn 1896 FK II | Over/Under | Under 5.5 | 1.59 | 10 | cancelled | - | - |
-| Fram IF vs Sarpsborg 08 2 | Over/Under | Under 4.5 | 1.6 | 10 | cancelled | - | - |
+| SK Brann 2 vs Os | Over/Under | Under 5.5 | 1.43 | 10 | cancelled | - | - |
+| Lillehammer FK vs Lyn 1896 FK II | Over/Under | Under 5.5 | 1.68 | 10 | cancelled | - | - |
+| Staal Joerpeland IL vs FK Haugesund 2 | Over/Under | Under 5.5 | 1.45 | 10 | cancelled | - | - |
