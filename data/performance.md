@@ -1,12 +1,12 @@
 # SportyBet Odds Performance
 
-_Generated 2026-08-17T05:10:59.250Z UTC_
+_Generated 2026-08-17T06:03:18.303Z UTC_
 
-Total outcome/odds combinations: 17999
+Total outcome/odds combinations: 18066
 
 **Good odds** (settled >=3, always won): 97
 
-**Bad odds** (settled >=3, always lost): 2119
+**Bad odds** (settled >=3, always lost): 2122
 
 **Mixed** (settled >=3, some won some lost): 2499
 
@@ -16,8 +16,8 @@ Total outcome/odds combinations: 17999
 - **1X2 / O/U | Over 0.5 @ 1.03**: won 54/54 times (100%) across 54 match(es)
 - **1X2 / O/U | Over 0.5 @ 1.04**: won 32/32 times (100%) across 32 match(es)
 - **1X2 / O/U | Over 0.5 @ 1.06**: won 31/31 times (100%) across 31 match(es)
+- **1X2 / O/U | Over 0.5 @ 1.05**: won 31/31 times (100%) across 31 match(es)
 - **1X2 / O/U | Over 0.5 @ 1.02**: won 31/31 times (100%) across 31 match(es)
-- **1X2 / O/U | Over 0.5 @ 1.05**: won 30/30 times (100%) across 30 match(es)
 - **Multigoals | 2-6 @ 1.19**: won 20/20 times (100%) across 20 match(es)
 - **1X2 / O/U | Under 5.5 @ 1.1**: won 18/18 times (100%) across 18 match(es)
 - **1X2 / O/U | Under 5.5 @ 1.11**: won 18/18 times (100%) across 18 match(es)
@@ -66,17 +66,17 @@ Total outcome/odds combinations: 17999
 
 ## Bad Odds (historically lose)
 
-- **Multiscores | Other Awaywin @ 100**: lost 166/166 times (0% win) across 166 match(es)
+- **Multiscores | Other Awaywin @ 100**: lost 167/167 times (0% win) across 167 match(es)
 - **Multiscores | 0:4, 0:5 or 0:6 @ 100**: lost 125/125 times (0% win) across 125 match(es)
-- **Multiscores | Other Homewin @ 100**: lost 117/117 times (0% win) across 117 match(es)
-- **Correct Score [0:0] | 0:6 @ 250**: lost 110/110 times (0% win) across 110 match(es)
+- **Multiscores | Other Homewin @ 100**: lost 118/118 times (0% win) across 118 match(es)
+- **Correct Score [0:0] | 0:6 @ 250**: lost 111/111 times (0% win) across 111 match(es)
 - **Correct Score [0:0] | 0:5 @ 250**: lost 89/89 times (0% win) across 89 match(es)
-- **Correct Score [0:0] | 6:0 @ 250**: lost 86/86 times (0% win) across 86 match(es)
+- **Correct Score [0:0] | 6:0 @ 250**: lost 87/87 times (0% win) across 87 match(es)
 - **Correct Score [0:0] | 1:5 @ 250**: lost 81/81 times (0% win) across 81 match(es)
 - **Multiscores | 4:0, 5:0 or 6:0 @ 100**: lost 58/58 times (0% win) across 58 match(es)
-- **Correct Score [0:0] | 5:0 @ 250**: lost 51/51 times (0% win) across 51 match(es)
+- **Correct Score [0:0] | 5:0 @ 250**: lost 52/52 times (0% win) across 52 match(es)
 - **Correct Score [0:0] | 0:4 @ 250**: lost 49/49 times (0% win) across 49 match(es)
-- **Correct Score [0:0] | 5:1 @ 250**: lost 46/46 times (0% win) across 46 match(es)
+- **Correct Score [0:0] | 5:1 @ 250**: lost 47/47 times (0% win) across 47 match(es)
 - **Correct Score [0:0] | 2:4 @ 250**: lost 41/41 times (0% win) across 41 match(es)
 - **Correct Score [0:0] | 1:4 @ 250**: lost 37/37 times (0% win) across 37 match(es)
 - **1X2 / O/U | Under 0.5 @ 10.5**: lost 26/26 times (0% win) across 26 match(es)
@@ -119,9 +119,9 @@ Total outcome/odds combinations: 17999
 
 ## Mixed Odds (some won, some lost)
 
-- **Multigoals | 1-6 @ 1.05**: 120/127 won (94%) across 127 match(es)
+- **Multigoals | 1-6 @ 1.05**: 121/128 won (95%) across 128 match(es)
 - **Multigoals | 1-5 @ 1.08**: 86/101 won (85%) across 101 match(es)
-- **Multigoals | 1-5 @ 1.07**: 85/98 won (87%) across 98 match(es)
+- **Multigoals | 1-5 @ 1.07**: 86/99 won (87%) across 99 match(es)
 - **Multigoals | 1-4 @ 1.12**: 42/55 won (76%) across 55 match(es)
 - **Multigoals | 1-6 @ 1.04**: 50/54 won (93%) across 54 match(es)
 - **Multigoals | 2-5 @ 1.18**: 35/51 won (69%) across 51 match(es)
@@ -132,17 +132,17 @@ Total outcome/odds combinations: 17999
 - **Multigoals | 2-4 @ 1.29**: 32/47 won (68%) across 47 match(es)
 - **Multigoals | 2-5 @ 1.19**: 36/47 won (77%) across 47 match(es)
 - **1X2 / O/U | Draw @ 3.1**: 14/47 won (30%) across 47 match(es)
-- **Multigoals | 1-4 @ 1.13**: 31/45 won (69%) across 45 match(es)
+- **Multigoals | 1-4 @ 1.13**: 32/46 won (70%) across 46 match(es)
 - **Multigoals | 2-6 @ 1.14**: 31/44 won (70%) across 44 match(es)
+- **Multigoals | 2-4 @ 1.3**: 22/44 won (50%) across 44 match(es)
 - **1X2 / O/U | Draw @ 3.5**: 12/43 won (28%) across 43 match(es)
-- **Multigoals | 2-4 @ 1.3**: 21/43 won (49%) across 43 match(es)
 - **1X2 / O/U | Draw @ 3.2**: 8/43 won (19%) across 43 match(es)
 - **Multigoals | 1-6 @ 1.06**: 39/42 won (93%) across 42 match(es)
+- **1X2 / O/U | Draw @ 3.4**: 9/41 won (22%) across 41 match(es)
 - **Multigoals | 2-5 @ 1.2**: 30/41 won (73%) across 41 match(es)
-- **1X2 / O/U | Draw @ 3.4**: 9/40 won (23%) across 40 match(es)
 - **Multigoals | 1-4 @ 1.14**: 28/40 won (70%) across 40 match(es)
 - **Multigoals | 1-4 @ 1.15**: 25/39 won (64%) across 39 match(es)
-- **Multigoals | 2-3 @ 1.55**: 18/37 won (49%) across 37 match(es)
+- **Multigoals | 2-3 @ 1.55**: 19/38 won (50%) across 38 match(es)
 - **Multigoals | 2-4 @ 1.28**: 21/37 won (57%) across 37 match(es)
 - **Multigoals | 2-6 @ 1.12**: 32/37 won (86%) across 37 match(es)
 - **1X2 / O/U | Draw @ 3.6**: 14/37 won (38%) across 37 match(es)
@@ -155,12 +155,12 @@ Total outcome/odds combinations: 17999
 - **1X2 / O/U | Over 1 @ 1.05**: 27/33 won (82%) across 33 match(es)
 - **1X2 / O/U | Over 3.5 @ 2.35**: 14/33 won (42%) across 33 match(es)
 - **1X2 / O/U | Under 4.5 @ 1.22**: 24/33 won (73%) across 33 match(es)
+- **Multigoals | 2-5 @ 1.21**: 27/32 won (84%) across 32 match(es)
 - **Multigoals | 2-5 @ 1.22**: 28/32 won (88%) across 32 match(es)
 - **1X2 / O/U | Under 2.5 @ 2.15**: 13/32 won (41%) across 32 match(es)
 - **1X2 / O/U | Over 1.5 @ 1.18**: 24/32 won (75%) across 32 match(es)
 - **Multigoals | 1-4 @ 1.16**: 20/32 won (63%) across 32 match(es)
 - **1X2 / O/U | Draw @ 3.7**: 8/32 won (25%) across 32 match(es)
-- **Multigoals | 2-5 @ 1.21**: 26/31 won (84%) across 31 match(es)
 - **Multigoals | 2-3 @ 1.58**: 17/31 won (55%) across 31 match(es)
 - **Multigoals | 4-5 @ 2.2**: 8/30 won (27%) across 30 match(es)
 - **1X2 / O/U | Over 3.5 @ 2.4**: 14/30 won (47%) across 30 match(es)
@@ -170,7 +170,7 @@ Total outcome/odds combinations: 17999
 - **1X2 / O/U | Under 2.5 @ 2.1**: 9/29 won (31%) across 29 match(es)
 - **Multigoals | 2-6 @ 1.15**: 24/29 won (83%) across 29 match(es)
 
-## Unsettled (3875)
+## Unsettled (3933)
 
 These were recorded but their matches have not finished yet:
 
