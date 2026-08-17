@@ -1,6 +1,6 @@
 # Stake results
 
-Updated: 2026-08-17T17:05:11.226Z
+Updated: 2026-08-17T17:48:49.194Z
 
 | Metric | Value |
 | --- | --- |
@@ -15,6 +15,6 @@ Updated: 2026-08-17T17:05:11.226Z
 
 | Fixture | Market | Outcome | Odds | Stake | Result | Payout | Net |
 | --- | --- | --- | ---: | ---: | --- | ---: | ---: |
-| Vanersborgs IF vs Vanersborgs FK | Over/Under | Over 3.5 | 2.2 | 10 | confirmed | - | - |
-| CD Santa Cruz vs San Luis de Quillota | Over/Under | Over 2.5 | 1.99 | 10 | cancelled | - | - |
 | Fram Reykjavik vs Stjarnan Gardabae | Over/Under | Under 4.5 | 1.48 | 10 | confirmed | - | - |
+| CD Santa Cruz vs San Luis de Quillota | Over/Under | Over 2.5 | 1.99 | 10 | cancelled | - | - |
+| Palermo FC vs US Lecce | Over/Under | Over 2.5 | 2 | 10 | confirmed | - | - |

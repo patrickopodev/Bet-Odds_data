@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-08-17T17:05:05.268Z",
+  "generatedAt": "2026-08-17T17:48:45.035Z",
   "checked": 3,
   "confirmed": 2,
   "bets": [
     {
-      "eventId": "sr:match:68320306",
-      "homeTeam": "Vanersborgs IF",
-      "awayTeam": "Vanersborgs FK",
+      "eventId": "sr:match:70894600",
+      "homeTeam": "Fram Reykjavik",
+      "awayTeam": "Stjarnan Gardabae",
       "ok": true,
       "checks": [
         "share code resolves 1 selection(s)",
-        "odds 2.2 >= min 1.83",
-        "flashscore fixture KnCPGJFq @ 2026-08-17T17:30:00.000Z"
+        "odds 1.48 >= min 1.28",
+        "flashscore fixture rwTura5D @ 2026-08-17T19:15:00.000Z"
       ],
       "errors": []
     },
@@ -22,21 +22,21 @@
       "ok": false,
       "checks": [
         "share code resolves 1 selection(s)",
-        "odds 1.99 >= min 1.54"
+        "odds 1.99 >= min 1.56"
       ],
       "errors": [
         "flashscore fixture not found (notfound)"
       ]
     },
     {
-      "eventId": "sr:match:70894600",
-      "homeTeam": "Fram Reykjavik",
-      "awayTeam": "Stjarnan Gardabae",
+      "eventId": "sr:match:72336430",
+      "homeTeam": "Palermo FC",
+      "awayTeam": "US Lecce",
       "ok": true,
       "checks": [
         "share code resolves 1 selection(s)",
-        "odds 1.48 >= min 1.29",
-        "flashscore fixture rwTura5D @ 2026-08-17T19:15:00.000Z"
+        "odds 2 >= min 1.57",
+        "flashscore fixture faE489oT @ 2026-08-17T19:15:00.000Z"
       ],
       "errors": []
     }
