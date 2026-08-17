@@ -1,0 +1,88 @@
+{
+  "eventId": "sr:match:73700664",
+  "productId": "3",
+  "markets": [
+    "1 (1X2)",
+    "18 (O/U)",
+    "41 (Correct Score)",
+    "548 (Multigoals)",
+    "551 (Multiscores)"
+  ],
+  "homeTeam": "Albion FC",
+  "awayTeam": "CA River Plate (URU)",
+  "kickoff": 1786971600000,
+  "startedAt": "2026-08-17T12:36:30.923Z",
+  "wentLiveAt": "2026-08-17T13:00:17.452Z",
+  "changes": [
+    {
+      "at": "2026-08-17T12:36:32.552Z",
+      "sections": {
+        "1X2 / O/U": {
+          "marketId": "1+18",
+          "name": "1X2 / O/U",
+          "group": null,
+          "outcomes": [
+            {
+              "name": "Home",
+              "odds": 2.65,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Draw",
+              "odds": 3.2,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Away",
+              "odds": 2.45,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Over 1.5",
+              "odds": 1.25,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 1.5",
+              "odds": 3.5,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Over 2.5",
+              "odds": 1.79,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 2.5",
+              "odds": 1.88,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Over 3.5",
+              "odds": 2.9,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 3.5",
+              "odds": 1.34,
+              "active": true,
+              "marketId": "18"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "at": "2026-08-17T13:00:17.452Z",
+      "live": true
+    }
+  ]
+}
