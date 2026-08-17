@@ -1,29 +1,16 @@
 {
-  "generatedAt": "2026-08-17T14:42:00.900Z",
+  "generatedAt": "2026-08-17T15:19:30.484Z",
   "checked": 3,
   "confirmed": 0,
   "bets": [
     {
-      "eventId": "sr:match:67921214",
-      "homeTeam": "Fram IF",
-      "awayTeam": "Sarpsborg 08 2",
+      "eventId": "sr:match:67920122",
+      "homeTeam": "SK Brann 2",
+      "awayTeam": "Os",
       "ok": false,
       "checks": [
         "share code resolves 1 selection(s)",
-        "odds 1.53 >= min 1.32"
-      ],
-      "errors": [
-        "flashscore fixture not found (notfound)"
-      ]
-    },
-    {
-      "eventId": "sr:match:67920124",
-      "homeTeam": "Stord FK",
-      "awayTeam": "Aasane Fotball 2",
-      "ok": false,
-      "checks": [
-        "share code resolves 1 selection(s)",
-        "odds 1.59 >= min 1.34"
+        "odds 1.43 >= min 1.04"
       ],
       "errors": [
         "flashscore fixture not found (notfound)"
@@ -36,7 +23,20 @@
       "ok": false,
       "checks": [
         "share code resolves 1 selection(s)",
-        "odds 1.55 >= min 1.33"
+        "odds 1.68 >= min 1.29"
+      ],
+      "errors": [
+        "flashscore fixture not found (notfound)"
+      ]
+    },
+    {
+      "eventId": "sr:match:67921214",
+      "homeTeam": "Fram IF",
+      "awayTeam": "Sarpsborg 08 2",
+      "ok": false,
+      "checks": [
+        "share code resolves 1 selection(s)",
+        "odds 1.7 >= min 1.33"
       ],
       "errors": [
         "flashscore fixture not found (notfound)"

@@ -1,6 +1,6 @@
 # Stake results
 
-Updated: 2026-08-17T14:42:04.656Z
+Updated: 2026-08-17T15:19:33.341Z
 
 | Metric | Value |
 | --- | --- |
@@ -15,6 +15,6 @@ Updated: 2026-08-17T14:42:04.656Z
 
 | Fixture | Market | Outcome | Odds | Stake | Result | Payout | Net |
 | --- | --- | --- | ---: | ---: | --- | ---: | ---: |
-| Fram IF vs Sarpsborg 08 2 | Over/Under | Under 4.5 | 1.53 | 10 | cancelled | - | - |
-| Stord FK vs Aasane Fotball 2 | Over/Under | Under 4.5 | 1.59 | 10 | cancelled | - | - |
-| Lillehammer FK vs Lyn 1896 FK II | Over/Under | Under 5.5 | 1.54 | 10 | cancelled | - | - |
+| SK Brann 2 vs Os | Over/Under | Under 5.5 | 1.4 | 10 | cancelled | - | - |
+| Lillehammer FK vs Lyn 1896 FK II | Over/Under | Under 5.5 | 1.59 | 10 | cancelled | - | - |
+| Fram IF vs Sarpsborg 08 2 | Over/Under | Under 4.5 | 1.6 | 10 | cancelled | - | - |
