@@ -1,18 +1,20 @@
 # Stake results
 
-Updated: 2026-08-16T19:09:17.790Z
+Updated: 2026-08-17T14:42:04.656Z
 
 | Metric | Value |
 | --- | --- |
-| Bets | 1 |
-| Settled | 1 |
+| Bets | 3 |
+| Settled | 0 |
 | Won | 0 |
-| Lost | 1 |
+| Lost | 0 |
 | Void | 0 |
-| Open | 0 |
-| Staked | 1 |
-| Net P&L | -1 |
+| Open | 3 |
+| Staked | 30 |
+| Net P&L | 0 |
 
 | Fixture | Market | Outcome | Odds | Stake | Result | Payout | Net |
 | --- | --- | --- | ---: | ---: | --- | ---: | ---: |
-| Liverpool vs Como 1907 | Over/Under | Over 3.5 | 2.05 | 1 | LOST | 0 | -1 |
+| Fram IF vs Sarpsborg 08 2 | Over/Under | Under 4.5 | 1.53 | 10 | cancelled | - | - |
+| Stord FK vs Aasane Fotball 2 | Over/Under | Under 4.5 | 1.59 | 10 | cancelled | - | - |
+| Lillehammer FK vs Lyn 1896 FK II | Over/Under | Under 5.5 | 1.54 | 10 | cancelled | - | - |

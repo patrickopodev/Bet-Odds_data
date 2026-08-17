@@ -1,6 +1,46 @@
 {
-  "generatedAt": "2026-08-16T17:15:31.442Z",
-  "checked": 0,
+  "generatedAt": "2026-08-17T14:42:00.900Z",
+  "checked": 3,
   "confirmed": 0,
-  "bets": []
+  "bets": [
+    {
+      "eventId": "sr:match:67921214",
+      "homeTeam": "Fram IF",
+      "awayTeam": "Sarpsborg 08 2",
+      "ok": false,
+      "checks": [
+        "share code resolves 1 selection(s)",
+        "odds 1.53 >= min 1.32"
+      ],
+      "errors": [
+        "flashscore fixture not found (notfound)"
+      ]
+    },
+    {
+      "eventId": "sr:match:67920124",
+      "homeTeam": "Stord FK",
+      "awayTeam": "Aasane Fotball 2",
+      "ok": false,
+      "checks": [
+        "share code resolves 1 selection(s)",
+        "odds 1.59 >= min 1.34"
+      ],
+      "errors": [
+        "flashscore fixture not found (notfound)"
+      ]
+    },
+    {
+      "eventId": "sr:match:67921216",
+      "homeTeam": "Lillehammer FK",
+      "awayTeam": "Lyn 1896 FK II",
+      "ok": false,
+      "checks": [
+        "share code resolves 1 selection(s)",
+        "odds 1.55 >= min 1.33"
+      ],
+      "errors": [
+        "flashscore fixture not found (notfound)"
+      ]
+    }
+  ]
 }

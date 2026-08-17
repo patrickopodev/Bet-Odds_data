@@ -1,14 +1,14 @@
 # Stake share code
 
-Generated: 2026-08-16T16:11:42.986Z
+Generated: 2026-08-17T14:42:00.150Z
 
-Open in the SportyBet app to fill your bet slip (stake per bet: 1):
+Open in the SportyBet app to fill your bet slip (stake per bet: 10):
 
-- Share code: `926U0U`
-- URL: https://www.sportybet.com/gh/?shareCode=926U0U
+- Share code: `BS9L9T`
+- URL: https://www.sportybet.com/gh/?shareCode=BS9L9T
 
 ```
 Selections: 1
-  Liverpool vs Como 1907 | Over/Under | Over 3.5 @ 2.05
-Code valid until: 2026-08-26T17:00:00.000Z
+  Lillehammer FK vs Lyn 1896 FK II | Over/Under | Under 5.5 @ 1.55
+Code valid until: 2026-08-27T16:00:00.000Z
 ```
