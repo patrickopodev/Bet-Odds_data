@@ -1,32 +1,6 @@
 {
-  "generatedAt": "2026-08-17T20:26:15.164Z",
-  "checked": 2,
-  "confirmed": 1,
-  "bets": [
-    {
-      "eventId": "sr:match:68098040",
-      "homeTeam": "CD Santa Cruz",
-      "awayTeam": "San Luis de Quillota",
-      "ok": false,
-      "checks": [
-        "share code resolves 1 selection(s)",
-        "odds 1.99 >= min 1.56"
-      ],
-      "errors": [
-        "flashscore fixture not found (notfound)"
-      ]
-    },
-    {
-      "eventId": "sr:match:73415976",
-      "homeTeam": "Club General Caballero JLM",
-      "awayTeam": "Tacuary Asuncion",
-      "ok": true,
-      "checks": [
-        "share code resolves 1 selection(s)",
-        "odds 2.05 >= min 1.85",
-        "flashscore fixture r1K9v4hL @ 2026-08-17T22:00:00.000Z"
-      ],
-      "errors": []
-    }
-  ]
+  "generatedAt": "2026-08-17T21:03:51.632Z",
+  "checked": 0,
+  "confirmed": 0,
+  "bets": []
 }
