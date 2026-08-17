@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-08-17T20:04:06.022Z",
+  "createdAt": "2026-08-17T20:26:12.164Z",
   "stakePerBet": 10,
   "currency": "GHS",
   "source": "agent-recommendations.json",
@@ -14,8 +14,8 @@
       "market": "Over/Under",
       "outcome": "Over 2.5",
       "odds": 1.99,
-      "minOdds": 1.57,
-      "confidence": 0.6591541038525963,
+      "minOdds": 1.56,
+      "confidence": 0.6608779385051908,
       "stake": 10,
       "status": "cancelled",
       "result": null,
@@ -29,8 +29,8 @@
       "specifier": "total=2.5",
       "shareCode": "FHUAGW",
       "shareUrl": "https://www.sportybet.com/gh/?shareCode=FHUAGW",
-      "codeReadyAt": "2026-08-17T20:04:08.359Z",
-      "cancelledAt": "2026-08-17T20:04:10.841Z"
+      "codeReadyAt": "2026-08-17T20:26:14.231Z",
+      "cancelledAt": "2026-08-17T20:26:18.745Z"
     },
     {
       "eventId": "sr:match:73415976",
@@ -42,8 +42,8 @@
       "market": "1X2",
       "outcome": "Home",
       "odds": 2.05,
-      "minOdds": 1.82,
-      "confidence": 0.6167963489450845,
+      "minOdds": 1.85,
+      "confidence": 0.6107025846377866,
       "stake": 10,
       "status": "confirmed",
       "result": null,
@@ -56,9 +56,9 @@
       "outcomeId": "1",
       "shareCode": "FHUAGW",
       "shareUrl": "https://www.sportybet.com/gh/?shareCode=FHUAGW",
-      "codeReadyAt": "2026-08-17T20:04:08.359Z",
+      "codeReadyAt": "2026-08-17T20:26:14.231Z",
       "flashscoreId": "r1K9v4hL",
-      "confirmedAt": "2026-08-17T20:04:11.956Z"
+      "confirmedAt": "2026-08-17T20:26:19.899Z"
     }
   ]
 }

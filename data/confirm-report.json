@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-17T20:04:09.301Z",
+  "generatedAt": "2026-08-17T20:26:15.164Z",
   "checked": 2,
   "confirmed": 1,
   "bets": [
@@ -10,7 +10,7 @@
       "ok": false,
       "checks": [
         "share code resolves 1 selection(s)",
-        "odds 1.99 >= min 1.57"
+        "odds 1.99 >= min 1.56"
       ],
       "errors": [
         "flashscore fixture not found (notfound)"
@@ -23,7 +23,7 @@
       "ok": true,
       "checks": [
         "share code resolves 1 selection(s)",
-        "odds 2.05 >= min 1.82",
+        "odds 2.05 >= min 1.85",
         "flashscore fixture r1K9v4hL @ 2026-08-17T22:00:00.000Z"
       ],
       "errors": []
