@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { refillSlip, selectBets, isFriendly } from '../stake.mjs';
+import { refillSlip, selectBets, isFriendly, nextSlip, keepableBets } from '../stake.mjs';
 
 function mkCand(marketId, outcome, odds, conf) {
   return { marketId, market: '1X2', outcome, odds, recommendedMinOdds: 1.2, recommended: true, confidence: conf };
@@ -97,4 +97,96 @@ test('refillSlip stops at zero capacity', () => {
 test('isFriendly shared by refill path', () => {
   assert.equal(isFriendly('WORLD: Club Friendly'), true);
   assert.equal(isFriendly('Premier League'), false);
+});
+
+test('nextSlip preserves confirmed bets and never re-picks their matches', () => {
+  const report = {
+    matches: [
+      mkMatch('m1', 'Premier League', [mkCand('1', 'Home', 2.0, 0.9)]),
+      mkMatch('m2', 'Premier League', [mkCand('1', 'Home', 2.1, 0.85)]),
+      mkMatch('m3', 'Premier League', [mkCand('1', 'Home', 2.2, 0.8)]),
+    ],
+  };
+  const existing = { stakePerBet: 10, bets: [mkBet('m1', 'Home', { status: 'confirmed' })] };
+  const slip = nextSlip(existing, report);
+  assert.equal(slip.preservedCount, 1);
+  assert.equal(slip.bets.length, 3); // 1 preserved + 2 new (MAX_BETS=3, confirmed counts toward capacity)
+  assert.equal(slip.bets[0].status, 'confirmed');
+  assert.deepEqual(slip.bets.slice(1).map((b) => b.status), ['pending', 'pending']);
+  // m1 was already picked -> never re-selected
+  assert.ok(!slip.bets.slice(1).some((b) => b.eventId === 'm1'));
+  assert.deepEqual(slip.bets.slice(1).map((b) => b.eventId).sort(), ['m2', 'm3']);
+});
+
+test('nextSlip keeps the settled ledger without consuming capacity', () => {
+  const report = {
+    matches: [
+      mkMatch('m4', 'Premier League', [mkCand('1', 'Home', 2.0, 0.9)]),
+      mkMatch('m5', 'Premier League', [mkCand('1', 'Home', 2.1, 0.85)]),
+    ],
+  };
+  const existing = {
+    stakePerBet: 10,
+    bets: [
+      mkBet('m1', 'Home', { status: 'settled', result: 'WON' }),
+      mkBet('m2', 'Home', { status: 'confirmed' }),
+      mkBet('m3', 'Home', { status: 'placed' }),
+    ],
+  };
+  const slip = nextSlip(existing, report);
+  assert.equal(slip.preservedCount, 3);
+  assert.equal(slip.bets.length, 4); // settled is ledger-only, doesn't block the one remaining slot
+  assert.equal(slip.bets[0].status, 'settled');
+  assert.equal(slip.bets[1].status, 'confirmed');
+  assert.equal(slip.bets[2].status, 'placed');
+  assert.equal(slip.bets[3].status, 'pending');
+  assert.equal(slip.bets[3].eventId, 'm4');
+});
+
+test('nextSlip with no existing slip builds a fresh slip', () => {
+  const report = {
+    matches: [
+      mkMatch('m1', 'Premier League', [mkCand('1', 'Home', 2.0, 0.9)]),
+      mkMatch('m2', 'Premier League', [mkCand('1', 'Home', 2.1, 0.8)]),
+    ],
+  };
+  const slip = nextSlip(null, report);
+  assert.equal(slip.preservedCount, 0);
+  assert.equal(slip.bets.length, 2);
+  assert.ok(slip.bets.every((b) => b.status === 'pending'));
+});
+
+test('keepableBets drops only pending and skipped', () => {
+  const slip = {
+    bets: [
+      mkBet('m1', 'Home', { status: 'pending' }),
+      mkBet('m2', 'Home', { status: 'skipped' }),
+      mkBet('m3', 'Home', { status: 'slip-ready', shareCode: 'ABC' }),
+      mkBet('m4', 'Home', { status: 'placed' }),
+      mkBet('m5', 'Home', { status: 'settled', result: 'LOST' }),
+      mkBet('m6', 'Home', { status: 'cancelled' }),
+      mkBet('m7', 'Home', { status: 'failed' }),
+    ],
+  };
+  assert.deepEqual(keepableBets(slip).map((b) => b.eventId), ['m3', 'm4', 'm5', 'm6', 'm7']);
+});
+
+test('refillSlip ignores the settled ledger when computing capacity', () => {
+  const report = {
+    matches: [
+      mkMatch('m3', 'Premier League', [mkCand('1', 'Home', 2.0, 0.9)]),
+      mkMatch('m4', 'Premier League', [mkCand('1', 'Home', 2.1, 0.85)]),
+      mkMatch('m5', 'Premier League', [mkCand('1', 'Home', 2.2, 0.8)]),
+    ],
+  };
+  const slip = {
+    stakePerBet: 10,
+    bets: [mkBet('m1', 'Home', { status: 'settled', result: 'WON' }), mkBet('m2', 'Home', { status: 'skipped' })],
+  };
+  const { added, exhausted } = refillSlip(slip, report);
+  assert.equal(added, 3); // settled ledger counts for nothing; MAX_BETS=3 all free
+  assert.equal(exhausted, false);
+  assert.equal(slip.bets.length, 4);
+  assert.equal(slip.bets[0].status, 'settled'); // ledger untouched
+  assert.deepEqual(slip.bets.slice(1).map((b) => b.status), ['pending', 'pending', 'pending']);
 });

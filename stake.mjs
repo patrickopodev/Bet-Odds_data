@@ -17,6 +17,19 @@ function isFriendly(tournament) {
 
 export { isFriendly };
 
+// Statuses that count toward the MAX_BETS cap: money is at risk, is about to
+// be placed, or a replacement still needs to be selected. Terminal ledger
+// entries (settled/cancelled/failed) never consume capacity.
+export const ACTIVE_BET_STATUSES = ['pending', 'skipped', 'slip-ready', 'confirmed', 'placed'];
+
+// Bets that must survive a slip regeneration: anything past plain selection
+// (share code out, placed, confirmed, settled...) stays on the ledger so the
+// monitor can still settle it and results are never wiped between runs.
+export function keepableBets(slip) {
+  const all = slip?.bets ?? [];
+  return all.filter((b) => b.status !== 'pending' && b.status !== 'skipped');
+}
+
 // Pick at most one bet per market per match, then rank matches by the best
 // candidate's confidence and cap the total number of bets. `opts.exclude`
 // lets a refill skip matches/outcomes already attempted; `opts.limit` caps the
@@ -92,15 +105,38 @@ function toBet(match, candidate) {
   };
 }
 
-function buildSlip(bets) {
+function buildSlip(bets, existing) {
   const now = new Date().toISOString();
   return {
     createdAt: now,
-    stakePerBet: STAKE_PER_BET,
-    currency: 'GHS',
-    source: 'agent-recommendations.json',
+    stakePerBet: existing?.stakePerBet ?? STAKE_PER_BET,
+    currency: existing?.currency ?? 'GHS',
+    source: existing?.source ?? 'agent-recommendations.json',
     bets: bets.map(({ match, candidate }) => toBet(match, candidate)),
   };
+}
+
+// Build the next slip without losing the money ledger: carry over every bet
+// that has left the selection stage (share codes out, confirmed, placed,
+// settled, ...), never re-pick a match or combination already on the ledger,
+// and select fresh bets only for the remaining MAX_BETS capacity. Pending and
+// skipped bets are dropped and replaced by this cycle's recommendations.
+export function nextSlip(existing, report, opts = {}) {
+  const maxBets = opts.maxBets ?? MAX_BETS;
+  const preserved = keepableBets(existing);
+  const activeKept = preserved.filter((b) => ACTIVE_BET_STATUSES.includes(b.status)).length;
+  const capacity = Math.max(0, maxBets - activeKept);
+  const excludedMatches = new Set(preserved.map((b) => b.eventId));
+  const attemptedCombos = new Set(preserved.map((b) => `${b.eventId}|${b.marketId}|${b.outcome}`));
+  const bets = selectBets(report, {
+    limit: capacity,
+    exclude: ({ match, candidate }) =>
+      excludedMatches.has(match.eventId) || attemptedCombos.has(`${match.eventId}|${candidate.marketId}|${candidate.outcome}`),
+  });
+  const slip = buildSlip(bets, existing);
+  slip.bets = [...preserved, ...slip.bets];
+  slip.preservedCount = preserved.length;
+  return slip;
 }
 
 // Re-fill a slip's skipped slots from the agent report — the pipeline's own
@@ -115,7 +151,9 @@ export function refillSlip(slip, report, opts = {}) {
   const keep = all.filter((b) => b.status !== 'skipped');
   const attempted = new Set(all.map((b) => `${b.eventId}|${b.marketId}|${b.outcome}`));
   const pickedMatch = new Set(keep.map((b) => b.eventId));
-  const capacity = maxBets - keep.length;
+  // Only open/at-risk bets consume capacity; the settled ledger never blocks a refill.
+  const activeKept = keep.filter((b) => ACTIVE_BET_STATUSES.includes(b.status)).length;
+  const capacity = maxBets - activeKept;
   if (capacity <= 0) return { added: 0, exhausted: true, bets: [] };
 
   const picks = selectBets(report, {
@@ -163,18 +201,24 @@ function main() {
     return;
   }
 
-  const bets = selectBets(report);
-  const slip = buildSlip(bets);
+  let existing = null;
+  try {
+    existing = JSON.parse(fs.readFileSync(SLIP_FILE, 'utf8'));
+  } catch {
+    existing = null;
+  }
+  const slip = nextSlip(existing, report);
   fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.writeFileSync(SLIP_FILE, JSON.stringify(slip, null, 2));
 
-  console.log(`[stake] selected ${slip.bets.length} bet(s)`);
-  for (const b of slip.bets) {
+  const newBets = slip.bets.slice(slip.preservedCount);
+  console.log(`[stake] slip: ${slip.preservedCount} preserved from previous runs, ${newBets.length} new bet(s)`);
+  for (const b of newBets) {
     console.log(
       `  ${b.homeTeam} vs ${b.awayTeam} (${b.tournament}) — ${b.market} ${b.outcome} @${b.odds} conf ${(b.confidence * 100).toFixed(0)}%`
     );
   }
-  if (!slip.bets.length) console.log('[stake] no bets selected this cycle');
+  if (!newBets.length) console.log('[stake] no new bets selected this cycle');
 }
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);

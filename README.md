@@ -139,7 +139,7 @@ Writes `data/agent-recommendations.json`.
 
 ### 8. Select — `node stake.mjs`
 
-Reads the agent report and builds the bet slip (`data/stake-slip.json`): skips friendlies, takes the single best candidate per market type, filters out trivial/long-shot lines, ranks by confidence, and caps the total with `MAX_BETS`. `node stake.mjs --refill` re-fills a slip's skipped slots from the pipeline instead of hand-picking: it keeps placed/slip-ready bets, never re-picks an already-attempted combination, respects the friendly gate, and caps at `MAX_BETS`.
+Reads the agent report and builds the bet slip (`data/stake-slip.json`): skips friendlies, takes the single best candidate per market type, filters out trivial/long-shot lines, ranks by confidence, and caps the total with `MAX_BETS`. Regeneration is **ledger-safe**: any bet that has left selection (`slip-ready`, `confirmed`, `placed`, `settled`, ...) is carried into the new slip unchanged — never dropped mid-settlement — and only `pending`/`skipped` slots are re-picked, up to the remaining `MAX_BETS` capacity. `node stake.mjs --refill` re-fills a slip's skipped slots from the pipeline instead of hand-picking: it keeps placed/slip-ready bets, never re-picks an already-attempted combination, respects the friendly gate, and caps at `MAX_BETS` (settled/cancelled history never blocks a refill).
 
 ### 9. Share code — `node stake-placement.mjs`
 
