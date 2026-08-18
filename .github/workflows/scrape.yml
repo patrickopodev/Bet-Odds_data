@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 120
 
     env:
-      MAX_BETS: 3
+      MAX_BETS: 2
       STAKE_PER_BET: 10
       MIN_CONFIDENCE: 0.6
       ALLOW_FRIENDLIES: "false"

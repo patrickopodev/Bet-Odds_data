@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-08-18T19:33:34.052Z",
+  "createdAt": "2026-08-18T16:22:06.883Z",
   "stakePerBet": 10,
   "currency": "GHS",
   "source": "agent-recommendations.json",
@@ -187,11 +187,11 @@
       "minOdds": 1.79,
       "confidence": 0.6919507982745172,
       "stake": 10,
-      "status": "settled",
-      "result": "LOST",
-      "payout": 0,
-      "net": -10,
-      "error": null,
+      "status": "cancelled",
+      "result": null,
+      "payout": null,
+      "net": null,
+      "error": "confirmed but never placed; match already started",
       "placedAt": null,
       "betReference": null,
       "currentOdds": 2.15,
@@ -201,9 +201,7 @@
       "shareUrl": "https://www.sportybet.com/gh/?shareCode=C9PESU",
       "codeReadyAt": "2026-08-18T02:30:43.535Z",
       "flashscoreId": "xYavyVlo",
-      "confirmedAt": "2026-08-18T02:30:47.109Z",
-      "finalScore": "0:3",
-      "settledAt": "2026-08-18T19:33:36.301Z"
+      "confirmedAt": "2026-08-18T02:30:47.109Z"
     },
     {
       "eventId": "sr:match:72532786",
@@ -302,11 +300,11 @@
       "minOdds": 1.66,
       "confidence": 0.6601181837030893,
       "stake": 10,
-      "status": "confirmed",
+      "status": "slip-ready",
       "result": null,
       "payout": null,
       "net": null,
-      "error": null,
+      "error": "resurrected for real placement (creds now available)",
       "placedAt": null,
       "betReference": null,
       "currentOdds": 2.1,
@@ -418,11 +416,11 @@
       "minOdds": 1.13,
       "confidence": 0.8105230386052305,
       "stake": 10,
-      "status": "settled",
-      "result": "WON",
-      "payout": 14.6,
-      "net": 4.6,
-      "error": null,
+      "status": "cancelled",
+      "result": null,
+      "payout": null,
+      "net": null,
+      "error": "confirmed but never placed; match already started",
       "placedAt": null,
       "betReference": null,
       "currentOdds": 1.48,
@@ -432,10 +430,9 @@
       "shareUrl": "https://www.sportybet.com/gh/?shareCode=99ZG17",
       "codeReadyAt": "2026-08-18T14:09:22.559Z",
       "flashscoreId": "UqwAGfTg",
-      "confirmedAt": "2026-08-18T14:09:24.952Z",
-      "finalScore": "0:5",
-      "settledAt": "2026-08-18T19:33:36.764Z"
+      "confirmedAt": "2026-08-18T14:09:24.952Z"
     }
   ],
-  "preservedCount": 15
+  "preservedCount": 15,
+  "updatedAt": "2026-08-18T19:25:36.400240+00:00"
 }
