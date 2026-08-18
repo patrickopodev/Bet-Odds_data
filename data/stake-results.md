@@ -1,17 +1,17 @@
 # Stake results
 
-Updated: 2026-08-18T11:10:00.424Z
+Updated: 2026-08-18T11:46:43.952Z
 
 | Metric | Value |
 | --- | --- |
 | Bets | 12 |
-| Settled | 1 |
+| Settled | 2 |
 | Won | 1 |
-| Lost | 0 |
+| Lost | 1 |
 | Void | 0 |
-| Open | 11 |
+| Open | 10 |
 | Staked | 120 |
-| Net P&L | 10.5 |
+| Net P&L | 0.5 |
 
 | Fixture | Market | Outcome | Odds | Stake | Result | Payout | Net |
 | --- | --- | --- | ---: | ---: | --- | ---: | ---: |
@@ -26,4 +26,4 @@ Updated: 2026-08-18T11:10:00.424Z
 | Falcon SE vs AD Atletico Gloriense SE | Over/Under | Over 2.5 | 2.2 | 10 | cancelled | - | - |
 | FC Haka J vs Tampereen Peli-Toverit | Over/Under | Under 4.5 | 1.62 | 10 | cancelled | - | - |
 | Recoleta FC vs Boca Juniors | Over/Under | Over 2.5 | 2.1 | 10 | confirmed | - | - |
-| SD Raiders FC vs Sydney FC | Over/Under | Over 3.5 | 2.15 | 10 | confirmed | - | - |
+| SD Raiders FC vs Sydney FC | Over/Under | Over 3.5 | 2.15 | 10 | LOST | 0 | -10 |

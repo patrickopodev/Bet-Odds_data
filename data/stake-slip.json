@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-08-18T11:09:58.111Z",
+  "createdAt": "2026-08-18T11:46:41.668Z",
   "stakePerBet": 10,
   "currency": "GHS",
   "source": "agent-recommendations.json",
@@ -329,10 +329,10 @@
       "minOdds": 1.79,
       "confidence": 0.658617464941184,
       "stake": 10,
-      "status": "confirmed",
-      "result": null,
-      "payout": null,
-      "net": null,
+      "status": "settled",
+      "result": "LOST",
+      "payout": 0,
+      "net": -10,
       "error": null,
       "placedAt": null,
       "betReference": null,
@@ -343,7 +343,9 @@
       "shareUrl": "https://www.sportybet.com/gh/?shareCode=AEL9X0",
       "codeReadyAt": "2026-08-18T05:13:39.967Z",
       "flashscoreId": "MTpbEPpB",
-      "confirmedAt": "2026-08-18T05:13:42.209Z"
+      "confirmedAt": "2026-08-18T05:13:42.209Z",
+      "finalScore": "0:1",
+      "settledAt": "2026-08-18T11:46:43.952Z"
     }
   ],
   "preservedCount": 12
