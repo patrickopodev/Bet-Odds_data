@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-08-18T21:44:08.601Z",
+  "createdAt": "2026-08-18T22:44:30.392Z",
   "stakePerBet": 10,
   "currency": "GHS",
   "source": "agent-recommendations.json",
@@ -460,7 +460,5 @@
       "codeReadyAt": "2026-08-18T21:45:25.989Z"
     }
   ],
-  "preservedCount": 15,
-  "refilledAt": "2026-08-18T21:45:26.262Z",
-  "refilledCount": 4
+  "preservedCount": 16
 }
