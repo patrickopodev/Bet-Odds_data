@@ -11,25 +11,28 @@ import {
 } from './lib/common.mjs';
 
 // Pre-match monitor: every scheduled scrape finds matches within the final
-// N minutes before kickoff and records their odds in near-real-time until the
-// match goes LIVE. Only the four odds sections are tracked:
+// N minutes before kickoff and records their odds until the match goes LIVE.
+// Poll cadence is 5 minutes (the user-specified cadence for the final pre-match
+// window); a poll only saves a section when its odds actually changed, so
+// unchanged 5-min polls never double-record. Only the four odds sections are
+// tracked:
 //   1X2 / O/U (ids 1 + 18), Correct Score [0:0] (41), Multigoals (548), Multiscores (551)
 //
 // Usage:
-//   node prematch-monitor.mjs                     # monitor final 30 min, poll every 15s
+//   node prematch-monitor.mjs                     # monitor final 30 min, poll every 5 min
 //   node prematch-monitor.mjs --window 45         # wider window (minutes before kickoff)
-//   node prematch-monitor.mjs --interval 10       # poll every 10s
+//   node prematch-monitor.mjs --interval 10       # poll every 10s (override)
 //   node prematch-monitor.mjs --max 25            # stop after 25 min even if still pre-match
 //   node prematch-monitor.mjs --event <eventId>   # monitor a single match regardless of window
 //
 // Output: data/prematch-<eventId>.json — full change log, one file per match.
 // A match is "LIVE" (and removed from monitoring) when its eventId shows up in
-// the live catalog (productId 1) or the match clock starts.
+// the live catalog (productId 1) or its scheduled kickoff passes.
 
 const LIVE_PRODUCT = '1';
 const PREMATCH_PRODUCT = '3';
 const DEFAULT_WINDOW_MIN = 30;
-const DEFAULT_INTERVAL_SECONDS = 15;
+const DEFAULT_INTERVAL_SECONDS = 300;
 const DEFAULT_MAX_MINUTES = 40;
 const LIVE_START_STATUSES = new Set(['H1', 'H2', 'HT', 'AET', 'FT']);
 
@@ -202,9 +205,11 @@ async function monitor() {
       if (!active.get(t.eventId)) continue;
       const log = logs.get(t.eventId);
 
-      // Stop when the match has gone LIVE (present in live catalog, or the
-      // kickoff time has passed AND the clock/status shows a live state).
-      if (liveIds.has(t.eventId)) {
+      // Stop when the match has gone LIVE (present in live catalog) or its
+      // scheduled kickoff time has passed. Either way, recording ends for that
+      // match the moment it starts.
+      const kickedOff = kickoffMs(t) !== null && Date.now() >= kickoffMs(t);
+      if (liveIds.has(t.eventId) || kickedOff) {
         log.wentLiveAt = nowIso;
         log.changes.push({ at: nowIso, live: true });
         await saveLog(log);

@@ -1,6 +1,8 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { chromium } from 'playwright-core';
 import { normTeam, queryTeam, decodeFeedBlock } from '../lib/common.mjs';
-import type { TeamInfo } from './types.js';
+import type { PlayerStat, TeamInfo } from './types.js';
 
 const UA =
   process.env.USER_AGENT ??
@@ -55,7 +57,7 @@ export interface LeagueRef {
 
 export interface TeamForm {
   form: string;
-  lastResults: { opp: string; score: string; result: 'W' | 'D' | 'L' }[];
+  lastResults: { opp: string; score: string; result: 'W' | 'D' | 'L'; eventId?: string; side?: 'home' | 'away' }[];
   league: LeagueRef | null;
 }
 
@@ -147,7 +149,7 @@ export async function fetchTeamForm(team: FsTeam): Promise<TeamForm> {
     const oppGoals = Number(my ? e.AH : e.AG);
     const opp = my ? e.AF : e.CX;
     const result = myGoals > oppGoals ? 'W' : myGoals === oppGoals ? 'D' : 'L';
-    lastResults.push({ opp, score: `${myGoals}-${oppGoals}`, result });
+    lastResults.push({ opp, score: `${myGoals}-${oppGoals}`, result, eventId: e.AA, side: my ? 'home' : 'away' });
   }
   const form = lastResults.map((r) => r.result).join('');
   return { form, lastResults, league };
@@ -200,13 +202,289 @@ export async function fetchStandings(leagueUrl: string): Promise<StandingsRow[]>
   }
 }
 
+// ---------------------------------------------------------------------------
+// Per-match "summary events" feed (df_sui_1_<id>): goal scorers, assists,
+// cards and substitutions for one finished match, plus the match-officials
+// block (referee, venue, attendance, capacity). This is the data source for
+// the last-5 scorers/assists per team and the referee of today's fixture.
+// Like the standings feed it is only emitted by the browser, so the same
+// Playwright response-capture pattern is used.
+// ---------------------------------------------------------------------------
+
+export interface FsFeedEvent {
+  minute: string;
+  type: 'goal' | 'assist' | 'card' | 'sub' | 'penalty' | 'other';
+  player: string;
+  side: 'home' | 'away';
+  detail: string;
+}
+
+export interface FsFeedOfficials {
+  referee: string | null;
+  venue: string | null;
+  town: string | null;
+  capacity: string | null;
+  attendance: string | null;
+}
+
+export interface FsMatchFeed {
+  officials: FsFeedOfficials;
+  events: FsFeedEvent[];
+}
+
+// Parse the df_sui match feed into officials + player events. The feed mixes
+// event blocks (goal/card/sub) and a trailing officials block of repeated
+// MIT/MIV pairs (e.g. MIT÷REF¬MIV÷Scott C. for referee, MIT÷VEN¬MIV÷Tynecastle
+// Park for venue). The MIT/MIV pairs must be consumed as an ordered stream
+// (decodeFeedBlock would collapse them to the last pair). Event blocks are
+// walked field-by-field too: a goal and its assist share one block, so each
+// `IK÷<type>` marker completes the event whose fields preceded it.
+export function parseMatchFeed(text: string): FsMatchFeed {
+  const officials: FsFeedOfficials = { referee: null, venue: null, town: null, capacity: null, attendance: null };
+  const events: FsFeedEvent[] = [];
+  for (const block of text.split('~')) {
+    const parts = block.split('¬');
+    // Officials block: ordered MIT (label) / MIV (value) pairs.
+    if (block.includes('MIT÷')) {
+      let mit: string | null = null;
+      for (const p of parts) {
+        const x = p.indexOf('÷');
+        if (x <= 0) continue;
+        const k = p.slice(0, x);
+        const v = p.slice(x + 1);
+        if (k === 'MIT') mit = v;
+        else if (k === 'MIV' && mit) {
+          switch (mit) {
+            case 'REF':
+              officials.referee = v;
+              break;
+            case 'VEN':
+              officials.venue = v;
+              break;
+            case 'TWN':
+              officials.town = v;
+              break;
+            case 'CAP':
+              officials.capacity = v;
+              break;
+            case 'ATT':
+              officials.attendance = v;
+              break;
+          }
+          mit = null;
+        }
+      }
+      continue;
+    }
+    // Event block: walk fields in order; `IK÷<type>` completes the current
+    // event (its fields were accumulated before it, e.g. IF÷name, IA÷side).
+    // IA/IB sit at the block level and apply to every sub-event in the block
+    // (a goal and its assist share one block), so carry them forward.
+    let cur: Record<string, string> = {};
+    let blockSide: 'home' | 'away' = 'home';
+    let blockMinute = '';
+    for (const p of parts) {
+      const x = p.indexOf('÷');
+      if (x <= 0) continue;
+      const k = p.slice(0, x);
+      const v = p.slice(x + 1);
+      if (k === 'IK') {
+        cur.ik = v;
+        if (cur.ik && cur.IF) {
+          const side = cur.IA === '2' ? 'away' : blockSide;
+          const minute = cur.IB || blockMinute;
+          const ik = cur.ik.toLowerCase();
+          const type: FsFeedEvent['type'] = /goal/.test(ik)
+            ? 'goal'
+            : /assist/.test(ik)
+              ? 'assist'
+              : /card/.test(ik)
+                ? 'card'
+                : /substitution/.test(ik)
+                  ? 'sub'
+                  : /penalty/.test(ik)
+                    ? 'penalty'
+                    : 'other';
+          events.push({ minute, type, player: cur.IF, side, detail: cur.ik });
+        }
+        cur = {};
+      } else {
+        if (k === 'IA') blockSide = v === '2' ? 'away' : 'home';
+        if (k === 'IB') blockMinute = v;
+        cur[k] = v;
+      }
+    }
+  }
+  return { officials, events };
+}
+
+const FEED_CACHE_FILE = path.join(process.env.DATA_DIR ?? 'data', 'flashscore-feed-cache.json');
+
+// Persist captured feeds keyed by event id so a 30-minute workflow does not
+// re-fetch the same finished matches' feeds every run. Refreshed on write.
+export function loadFeedCache(): Map<string, FsMatchFeed> {
+  const cache = new Map<string, FsMatchFeed>();
+  try {
+    const raw = JSON.parse(fs.readFileSync(FEED_CACHE_FILE, 'utf8'));
+    for (const [k, v] of Object.entries(raw)) cache.set(k, v as FsMatchFeed);
+  } catch {
+    /* no cache yet */
+  }
+  return cache;
+}
+
+function saveFeedCache(cache: Map<string, FsMatchFeed>) {
+  try {
+    fs.mkdirSync(path.dirname(FEED_CACHE_FILE), { recursive: true });
+    fs.writeFileSync(FEED_CACHE_FILE, JSON.stringify(Object.fromEntries(cache)));
+  } catch {
+    /* non-fatal */
+  }
+}
+
+// Capture the df_sui summary feed for one or more match ids in a single
+// browser session. `onDone` lets the caller pull per-id feeds out of the run
+// cache as they arrive (matches can repeat across teams/matches).
+export async function captureMatchFeeds(
+  eventIds: string[],
+  runCache: Map<string, FsMatchFeed>,
+  onDone?: (eventId: string) => void
+): Promise<Map<string, FsMatchFeed>> {
+  const ids = [...new Set(eventIds)].filter((id) => !runCache.has(id));
+  if (ids.length === 0) return runCache;
+  const browser = await chromium.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+  });
+  try {
+    for (const id of ids) {
+      const page = await browser.newPage({ userAgent: UA });
+      let feed = '';
+      page.on('response', async (res) => {
+        const u = res.url();
+        if (new RegExp(`/feed/df_sui_1_${id}`).test(u)) {
+          try {
+            feed = await res.text();
+          } catch {
+            /* ignore */
+          }
+        }
+      });
+      try {
+        await page.goto(`https://www.flashscore.com/match/${id}/`, {
+          waitUntil: 'domcontentloaded',
+          timeout: 60000,
+        });
+        await page.waitForTimeout(8000);
+        if (!feed) {
+          await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 });
+          await page.waitForTimeout(8000);
+        }
+        if (feed) {
+          runCache.set(id, parseMatchFeed(feed));
+          onDone?.(id);
+        }
+      } catch {
+        /* skip unresponsive match pages */
+      } finally {
+        await page.close().catch(() => {});
+      }
+    }
+  } finally {
+    await browser.close();
+  }
+  return runCache;
+}
+
+export interface TeamPlayerStats {
+  scorers: PlayerStat[];
+  assists: PlayerStat[];
+  cards: PlayerStat[];
+}
+
+// Capture the last-5 finished matches' feeds for a team (from researchTeam's
+// lastResults, which now carry eventId+side) and aggregate its scorer/assist/
+// card stats. Returns null when nothing could be captured.
+export async function fetchTeamPlayerStats(
+  team: TeamInfo,
+  runCache: Map<string, FsMatchFeed>
+): Promise<TeamPlayerStats | null> {
+  const ids = ((team.lastResults ?? []) as TeamForm['lastResults'])
+    .map((r) => r.eventId)
+    .filter((id): id is string => Boolean(id));
+  if (ids.length === 0) return null;
+  await captureMatchFeeds(ids, runCache);
+  const stats = aggregatePlayerStats(runCache, team.lastResults as TeamForm['lastResults']);
+  if (stats.scorers.length === 0 && stats.assists.length === 0 && stats.cards.length === 0) return null;
+  return stats;
+}
+
+// Fetch the match-officials block (referee, venue, attendance, capacity) for a
+// fixture, resolved via findMatchWithTeams then the df_sui feed of that match.
+export async function fetchMatchOfficials(
+  home: FsTeam,
+  away: FsTeam,
+  kickoffMs: number,
+  runCache: Map<string, FsMatchFeed>
+): Promise<FsFeedOfficials | null> {
+  try {
+    const fm = await findMatchWithTeams(home, away, kickoffMs, { requireFinished: false });
+    if (fm.status !== 'upcoming' || !fm.flashscoreId) return null;
+    await captureMatchFeeds([fm.flashscoreId], runCache);
+    const feed = runCache.get(fm.flashscoreId);
+    if (!feed) return null;
+    const { referee, venue, town, capacity, attendance } = feed.officials;
+    if (!referee && !venue && !attendance) return null;
+    return { referee, venue, town, capacity, attendance };
+  } catch {
+    return null;
+  }
+}
+
+// Save the run feed cache to disk (idempotent; the workflow runs every 30 min
+// and finished matches' feeds barely change, so reusing them is a big win).
+export function persistFeedCache(runCache: Map<string, FsMatchFeed>) {
+  saveFeedCache(runCache);
+}
+
+// Aggregate a team's goal scorers / assist providers / card offenders across
+// the last-5 finished matches (by event id). Attribution is side-aware: each
+// feed event says home/away, and a team only takes credit for its own side in
+// that finished match (captured at fetchTeamForm time as lastResults[].side).
+export function aggregatePlayerStats(
+  feeds: Map<string, FsMatchFeed>,
+  lastResults: TeamForm['lastResults']
+): TeamPlayerStats {
+  const goals = new Map<string, number>();
+  const assists = new Map<string, number>();
+  const cards = new Map<string, number>();
+  const bump = (m: Map<string, number>, p: string) => m.set(p, (m.get(p) ?? 0) + 1);
+  for (const r of lastResults) {
+    if (!r.eventId) continue;
+    const feed = feeds.get(r.eventId);
+    if (!feed) continue;
+    for (const ev of feed.events) {
+      if (ev.side !== r.side) continue;
+      if (ev.type === 'goal') bump(goals, ev.player);
+      else if (ev.type === 'assist') bump(assists, ev.player);
+      else if (ev.type === 'card') bump(cards, ev.player);
+    }
+  }
+  const top = (m: Map<string, number>) =>
+    [...m.entries()]
+      .map(([player, count]) => ({ player, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8);
+  return { scorers: top(goals), assists: top(assists), cards: top(cards) };
+}
+
 // Deep research for one team: form + league position (via standings) + web
 // research snippets.
 export async function researchTeam(
   name: string,
   standingsCache: Map<string, StandingsRow[]>
 ): Promise<TeamInfo> {
-  const info: TeamInfo = { name, flashscoreId: null, flashscoreUrl: null, position: null, played: null, points: null, form: '', formScore: 0, lastResults: [], venue: null, research: [] };
+  const info: TeamInfo = { name, flashscoreId: null, flashscoreUrl: null, position: null, played: null, points: null, form: '', formScore: 0, lastResults: [], research: [], researchAt: null, injuries: [], keyPlayers: [], scorers: [], assists: [], cards: [] };
   try {
     const team = await resolveTeam(name);
     if (!team) {
@@ -263,14 +541,24 @@ export async function findMatch(
 ): Promise<MatchFindResult> {
   const [home, away] = await Promise.all([resolveTeam(homeName), resolveTeam(awayName)]);
   if (!home || !away) return { status: 'notfound' };
+  return findMatchWithTeams(home, away, kickoffMs, opts);
+}
 
+// Same lookup with both teams already resolved (spares the search-API calls
+// when the caller already ran researchTeam on both sides).
+export async function findMatchWithTeams(
+  home: FsTeam,
+  away: FsTeam,
+  kickoffMs: number,
+  opts: { requireFinished: boolean }
+): Promise<MatchFindResult> {
   const html = await fetchText(`https://www.flashscore.com/team/${home.url}/${home.id}/`, {
     Accept: 'text/html,application/xhtml+xml',
     Referer: 'https://www.flashscore.com/',
   });
   const kickoff = Math.floor(kickoffMs / 1000);
-  const homeToken = normTeam(homeName);
-  const awayToken = normTeam(awayName);
+  const homeToken = normTeam(home.name);
+  const awayToken = normTeam(away.name);
 
   const isPair = (e: Record<string, string>): boolean => {
     const ad = Number(e.AD);

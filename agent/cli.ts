@@ -1,6 +1,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { researchTeam } from './flashscore.js';
+import {
+  researchTeam,
+  captureMatchFeeds,
+  fetchTeamPlayerStats,
+  fetchMatchOfficials,
+  loadFeedCache,
+  persistFeedCache,
+  type FsMatchFeed,
+  type FsTeam,
+} from './flashscore.js';
 import { webResearch } from './research.js';
 import { buildRecommendations } from './analysis.js';
 import { loadDb, loadLatest, type LatestMatch } from './db.js';
@@ -53,6 +62,7 @@ function saveStandingsCache(cache: Map<string, any[]>) {
 
 async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[]; researched: number }> {
   const standingsCache = loadStandingsCache();
+  const feedCache = loadFeedCache();
   const out: MatchResearch[] = [];
   let researched = 0;
 
@@ -75,12 +85,52 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
     }
     researched++;
 
-    const research =
-      home.form || away.form || home.position || away.position
-        ? await webResearch(m.homeTeam, m.awayTeam, m.tournament).catch(() => [])
-        : [];
-    home.research = research;
-    away.research = research;
+    // Web research is fetched once and split per side (match preview goes to
+    // both, each team's own form/news to its own bucket) so both teams get a
+    // symmetric signal. researchAt lets downstream consumers see how fresh it
+    // is; it stays null when no web search was needed (no form/position).
+    if (home.form || away.form || home.position || away.position) {
+      const nowIso = new Date().toISOString();
+      const r = await webResearch(m.homeTeam, m.awayTeam, m.tournament).catch(
+        () => ({ match: [], home: [], away: [], homeInjuries: [], awayInjuries: [], homePlayers: [], awayPlayers: [] })
+      );
+      home.research = [...r.match, ...r.home];
+      away.research = [...r.match, ...r.away];
+      home.injuries = r.homeInjuries;
+      away.injuries = r.awayInjuries;
+      home.keyPlayers = r.homePlayers;
+      away.keyPlayers = r.awayPlayers;
+      home.researchAt = nowIso;
+      away.researchAt = nowIso;
+    }
+
+    // Deep dig: referee/venue for this fixture and last-5 scorer/assist/card
+    // stats for both teams from Flashscore match feeds. Best-effort — a feed
+    // miss must never kill the whole match.
+    let officials = null;
+    try {
+      if (home.flashscoreId && away.flashscoreId) {
+        const homeFs: FsTeam = { id: home.flashscoreId, url: home.flashscoreUrl ?? '', name: home.name };
+        const awayFs: FsTeam = { id: away.flashscoreId, url: away.flashscoreUrl ?? '', name: away.name };
+        officials = await fetchMatchOfficials(homeFs, awayFs, started, feedCache);
+        const [hs, as] = await Promise.all([
+          fetchTeamPlayerStats(home, feedCache),
+          fetchTeamPlayerStats(away, feedCache),
+        ]);
+        if (hs) {
+          home.scorers = hs.scorers;
+          home.assists = hs.assists;
+          home.cards = hs.cards;
+        }
+        if (as) {
+          away.scorers = as.scorers;
+          away.assists = as.assists;
+          away.cards = as.cards;
+        }
+      }
+    } catch {
+      /* best-effort deep dig */
+    }
 
     return {
       eventId: m.eventId,
@@ -88,15 +138,15 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
       awayTeam: m.awayTeam,
       tournament: m.tournament,
       startTime: m.startTime,
-      venue: null,
-      h2h: null,
       home,
       away,
+      officials,
     };
   };
 
   const researchedMatches = await mapWithConcurrency(matches, worker, 2);
   saveStandingsCache(standingsCache);
+  persistFeedCache(feedCache);
   for (const r of researchedMatches) {
     if (r) out.push(r);
   }

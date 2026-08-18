@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import { evaluateOutcome as tsEvaluate, historicalStats, outcomeHistory } from '../dist/db.js';
 import { evaluateOutcome as jsEvaluate } from '../lib/common.mjs';
 import { analyzeCandidate, candidateSources, buildRecommendations } from '../dist/analysis.js';
+import { extractSnippets, webResearch } from '../dist/research.js';
+import { parseMatchFeed, aggregatePlayerStats } from '../dist/flashscore.js';
 import { selectBets, isFriendly } from '../stake.mjs';
 import { resolveOutcome } from '../dist/sporty.js';
 import { writeReport } from '../dist/monitor.js';
@@ -166,6 +168,150 @@ test('analyzeCandidate scales the historical edge by sample size', () => {
   assert.ok(large.confidence > small.confidence);
   assert.equal(small.historicalSettled, 4);
   assert.equal(large.historicalSettled, 30);
+});
+
+test('parseMatchFeed extracts officials (referee/venue) and goal/assist events', () => {
+  // Real df_sui feed shape captured from a finished match: goal + assistance in
+  // one block (IE=8 after the scorer), a card block, and the MIT/MIV officials
+  // block (repeated pairs — must be consumed as an ordered stream).
+  const feed =
+    'AC÷1st Half¬IG÷1¬IH÷0¬~' +
+    'III÷dSFWQ1oT¬IA÷1¬IB÷16\'¬IE÷3¬INX÷1¬IOX÷0¬IF÷Borchgrevink C.¬IU÷/player/x/¬ICT÷¬IK÷Goal¬IM÷n3Y0L49e¬~' +
+    'III÷KxHnam8j¬IA÷2¬IB÷54\'¬IE÷3¬INX÷1¬IOX÷1¬IF÷Duncan R.¬IU÷/player/y/¬ICT÷¬IK÷Goal¬IM÷MacOdskI¬IE÷8¬IF÷Devine D.¬IU÷/player/z/¬ICT÷¬IK÷Assistance¬IM÷0rsrbaLI¬~' +
+    'III÷I9lgfoyp¬IA÷2¬IB÷39\'¬IE÷1¬IF÷Duncan R.¬IU÷/player/y/¬ICT÷¬IK÷Yellow Card¬IM÷MacOdskI¬~' +
+    'MIT÷REF¬MIV÷Scott C.¬MIT÷RCO¬MIV÷199¬MIT÷VEN¬MIV÷Tynecastle Park¬MIT÷TWN¬MIV÷Edinburgh¬MIT÷ATT¬MIV÷15 327¬MIT÷CAP¬MIV÷19 852¬A1÷¬';
+  const parsed = parseMatchFeed(feed);
+  assert.equal(parsed.officials.referee, 'Scott C.');
+  assert.equal(parsed.officials.venue, 'Tynecastle Park');
+  assert.equal(parsed.officials.town, 'Edinburgh');
+  assert.equal(parsed.officials.capacity, '19 852');
+  assert.equal(parsed.officials.attendance, '15 327');
+  const goals = parsed.events.filter((e) => e.type === 'goal');
+  assert.equal(goals.length, 2);
+  assert.equal(goals[0].player, 'Borchgrevink C.');
+  assert.equal(goals[0].side, 'home');
+  assert.equal(goals[1].player, 'Duncan R.');
+  assert.equal(goals[1].side, 'away');
+  const assists = parsed.events.filter((e) => e.type === 'assist');
+  assert.equal(assists.length, 1);
+  assert.equal(assists[0].player, 'Devine D.');
+  const cards = parsed.events.filter((e) => e.type === 'card');
+  assert.equal(cards.length, 1);
+  assert.equal(cards[0].player, 'Duncan R.');
+});
+
+test('aggregatePlayerStats credits a team only its own side of each finished match', () => {
+  const feeds = new Map([
+    [
+      'm1',
+      {
+        officials: { referee: null, venue: null, town: null, capacity: null, attendance: null },
+        events: [
+          { minute: "10'", type: 'goal', player: 'Ace', side: 'home', detail: 'Goal' },
+          { minute: "20'", type: 'goal', player: 'Opp', side: 'away', detail: 'Goal' },
+          { minute: "30'", type: 'assist', player: 'Helper', side: 'home', detail: 'Assistance' },
+        ],
+      },
+    ],
+  ]);
+  const lastResults = [
+    { opp: 'Rival', score: '1-1', result: 'D', eventId: 'm1', side: 'home' },
+  ];
+  const stats = aggregatePlayerStats(feeds, lastResults);
+  assert.equal(stats.scorers.length, 1);
+  assert.equal(stats.scorers[0].player, 'Ace');
+  assert.equal(stats.scorers[0].count, 1);
+  assert.equal(stats.assists.length, 1);
+  assert.equal(stats.assists[0].player, 'Helper');
+  assert.equal(stats.cards.length, 0);
+});
+
+test('injury news + missing key players lower 1X2 confidence; officials enter reason', () => {
+  const stats = historicalStats({ events: {} });
+  const match = {
+    eventId: 'x',
+    homeTeam: 'A',
+    awayTeam: 'B',
+    tournament: 'T',
+    startTime: '',
+    home: { name: 'A', flashscoreId: null, flashscoreUrl: null, position: 1, played: 20, points: null, form: 'WWWWW', formScore: 15, lastResults: [], research: [], researchAt: null, injuries: ['Star striker ruled out with hamstring injury'], keyPlayers: [], scorers: [], assists: [], cards: [] },
+    away: { name: 'B', flashscoreId: null, flashscoreUrl: null, position: 18, played: 20, points: null, form: 'LLLLL', formScore: 0, lastResults: [], research: [], researchAt: null, injuries: [], keyPlayers: [], scorers: [], assists: [], cards: [] },
+    officials: { referee: 'Scott C.', venue: 'Tynecastle Park', town: null, capacity: null, attendance: null },
+  };
+  const src = { marketId: '1', name: '1X2', outcome: 'Home', odds: 1.6, active: true };
+  const c = analyzeCandidate(match, src, stats);
+  assert.ok(c.reason.includes('ref Scott C.'), 'reason names the referee');
+  assert.ok(c.reason.includes('@Tynecastle Park'), 'reason names the venue');
+  assert.ok(c.reason.includes('injury note'), 'reason surfaces injury research');
+});
+
+test('research snippets feed confidence (injury news lowers it)', () => {
+  const stats = historicalStats({ events: {} });
+  const mk = (formScore, position, research) => ({
+    eventId: 'x',
+    homeTeam: 'A',
+    awayTeam: 'B',
+    tournament: 'T',
+    startTime: '',
+    home: { name: 'A', flashscoreId: null, flashscoreUrl: null, position, played: 20, points: null, form: 'WWWDW', formScore, lastResults: [], research, researchAt: null },
+    away: { name: 'B', flashscoreId: null, flashscoreUrl: null, position: null, played: null, points: null, form: '', formScore: 0, lastResults: [], research: [], researchAt: null },
+  });
+  const src = { marketId: '1', name: '1X2', outcome: 'Home', odds: 1.8, active: true };
+  const clean = analyzeCandidate(mk(15, 1, []), src, stats);
+  const injured = analyzeCandidate(mk(15, 1, ['Key striker ruled out with a hamstring injury, suspended defender']), src, stats);
+  assert.ok(injured.confidence < clean.confidence, 'negative news must reduce confidence');
+  assert.ok(clean.reason.includes('form'), 'reason mentions team form');
+});
+
+test('O/U confidence is line-aware (gap vs the market line)', () => {
+  const stats = historicalStats({ events: {} });
+  const mk = (homeRes, awayRes) => ({
+    eventId: 'x',
+    homeTeam: 'A',
+    awayTeam: 'B',
+    tournament: 'T',
+    startTime: '',
+    home: { name: 'A', flashscoreId: null, flashscoreUrl: null, position: null, played: null, points: null, form: '', formScore: 0, lastResults: homeRes, research: [], researchAt: null },
+    away: { name: 'B', flashscoreId: null, flashscoreUrl: null, position: null, played: null, points: null, form: '', formScore: 0, lastResults: awayRes, research: [], researchAt: null },
+  });
+  const highScoring = mk(
+    [{ opp: 'x', score: '3-1', result: 'W' }, { opp: 'x', score: '2-2', result: 'D' }, { opp: 'x', score: '4-0', result: 'W' }],
+    [{ opp: 'x', score: '2-2', result: 'D' }, { opp: 'x', score: '3-1', result: 'W' }, { opp: 'x', score: '2-3', result: 'L' }],
+  ); // avg total = 4.0
+  const lowScoring = mk(
+    [{ opp: 'x', score: '1-0', result: 'W' }, { opp: 'x', score: '0-0', result: 'D' }, { opp: 'x', score: '1-1', result: 'D' }],
+    [{ opp: 'x', score: '0-0', result: 'D' }, { opp: 'x', score: '1-0', result: 'W' }, { opp: 'x', score: '0-1', result: 'L' }],
+  ); // avg total = 1.0
+  const overHigh = analyzeCandidate(highScoring, { marketId: '18', name: 'O/U', outcome: 'Over 2.5', odds: 1.9, active: true }, stats);
+  const overLow = analyzeCandidate(lowScoring, { marketId: '18', name: 'O/U', outcome: 'Over 2.5', odds: 1.9, active: true }, stats);
+  const underHigh = analyzeCandidate(highScoring, { marketId: '18', name: 'O/U', outcome: 'Under 2.5', odds: 1.9, active: true }, stats);
+  assert.ok(overHigh.confidence > overLow.confidence, 'higher avg goals → more confident Over');
+  assert.ok(overHigh.reason.includes('vs Over 2.5'), 'reason names the line');
+  assert.ok(underHigh.confidence < overHigh.confidence, 'same team, Under should be less confident than Over');
+});
+
+test('extractSnippets parses DDG html and dedupes', () => {
+  const html =
+    '<a class="result__a" href="/x">Hearts news</a>' +
+    '<a class="result__snippet">Striker back in training</a>' +
+    '<a class="result__a" href="/x">Hearts news</a>' +
+    '<a class="result__snippet">Striker back in training</a>' +
+    '<a class="result__a" href="/y">Other</a>';
+  const out = extractSnippets(html, 3);
+  assert.equal(out.length, 2);
+  assert.ok(out[0].includes('Hearts news'));
+});
+
+test('webResearch returns per-side buckets (symmetric research)', async () => {
+  const r = await webResearch('Fake Team Alpha', 'Fake Team Beta', 'Test League');
+  assert.ok(Array.isArray(r.match));
+  assert.ok(Array.isArray(r.home));
+  assert.ok(Array.isArray(r.away));
+  assert.ok(Array.isArray(r.homeInjuries));
+  assert.ok(Array.isArray(r.awayInjuries));
+  assert.ok(Array.isArray(r.homePlayers));
+  assert.ok(Array.isArray(r.awayPlayers));
+  assert.ok(Object.keys(r).length === 7);
 });
 
 test('selectBets skips friendlies unless allowed and caps at MAX_BETS', () => {

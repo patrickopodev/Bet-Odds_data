@@ -2,7 +2,7 @@ import { chromium } from 'playwright-core';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DATA_DIR, UA, decodeFeedBlock, fetchTodayFootballEvents, kickoffDeltaMs, normTeam, sameTeam } from './lib/common.mjs';
+import { DATA_DIR, SPORTYBET_TODAY_ROLLOVER_HOUR, UA, decodeFeedBlock, fetchTodayFootballEvents, kickoffDeltaMs, normTeam, sameTeam } from './lib/common.mjs';
 
 const CHROMIUM_PATH = process.env.CHROMIUM_PATH || null;
 const OUT = process.env.OUT || 'data/comparison.json';
@@ -143,7 +143,7 @@ async function main() {
   // flag when the snapshot is clearly partial.
   const now = new Date();
   const dayStart = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-  const dayEnd = dayStart + 24 * 60 * 60 * 1000;
+  const dayEnd = dayStart + (24 + SPORTYBET_TODAY_ROLLOVER_HOUR) * 60 * 60 * 1000;
   const fsToday = fsMatches.filter((m) => {
     const k = m.kickoff ? new Date(m.kickoff).getTime() : null;
     return k && k >= dayStart && k < dayEnd;

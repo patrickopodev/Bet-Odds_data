@@ -1,5 +1,21 @@
 // Shared types for the TypeScript decision agent.
 
+// A Flashscore match-feed player contribution: goals/assists/cards counted
+// over a team's recent finished matches.
+export interface PlayerStat {
+  player: string;
+  count: number;
+}
+
+// Match officials + venue pulled from the Flashscore match feed.
+export interface MatchOfficials {
+  referee: string | null;
+  venue: string | null;
+  town: string | null;
+  capacity: string | null;
+  attendance: string | null;
+}
+
 export interface TeamInfo {
   name: string;
   flashscoreId: string | null;
@@ -10,8 +26,13 @@ export interface TeamInfo {
   form: string; // last 5 results as "WDDLW"
   formScore: number; // W=3, D=1, L=0 summed over form
   lastResults: { opp: string; score: string; result: 'W' | 'D' | 'L' }[];
-  venue: string | null;
-  research: string[]; // web-search snippets
+  research: string[]; // web-search snippets for this team
+  researchAt: string | null; // ISO timestamp of when research was fetched
+  injuries: string[]; // web-research snippets mentioning injuries/suspensions
+  keyPlayers: string[]; // web-research snippets naming key players/lineups
+  scorers: PlayerStat[]; // goals scored in the team's last-5 finished matches
+  assists: PlayerStat[]; // assists recorded in the team's last-5 finished matches
+  cards: PlayerStat[]; // cards picked up in the team's last-5 finished matches
   league?: { id: string; url: string; name: string } | null;
   error?: string;
 }
@@ -22,10 +43,9 @@ export interface MatchResearch {
   awayTeam: string;
   tournament: string;
   startTime: string;
-  venue: string | null;
-  h2h: string | null;
   home: TeamInfo;
   away: TeamInfo;
+  officials: MatchOfficials | null;
 }
 
 export interface Candidate {

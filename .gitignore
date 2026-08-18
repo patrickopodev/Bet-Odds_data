@@ -6,6 +6,7 @@ data/report-*.json
 data/report-*.md
 data/performance-*.md
 data/winners-*.md
+data/flashscore-feed-cache.json
 
 # Sensitive / dev-only files
 sportybet-page-structure.md
