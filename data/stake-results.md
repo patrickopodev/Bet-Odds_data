@@ -1,16 +1,16 @@
 # Stake results
 
-Updated: 2026-08-18T02:30:47.569Z
+Updated: 2026-08-18T03:34:59.750Z
 
 | Metric | Value |
 | --- | --- |
-| Bets | 7 |
+| Bets | 9 |
 | Settled | 1 |
 | Won | 1 |
 | Lost | 0 |
 | Void | 0 |
-| Open | 6 |
-| Staked | 70 |
+| Open | 8 |
+| Staked | 90 |
 | Net P&L | 10.5 |
 
 | Fixture | Market | Outcome | Odds | Stake | Result | Payout | Net |
@@ -22,3 +22,5 @@ Updated: 2026-08-18T02:30:47.569Z
 | FC Topolcany vs OFK Banik Lehota Pod Vtacnikom | Over/Under | Over 3.5 | 2 | 10 | cancelled | - | - |
 | Cardiff City U21 vs Barnsley U21 | Over/Under | Over 3.5 | 2.1 | 10 | cancelled | - | - |
 | Nosaby IF vs IFK Trelleborg | Over/Under | Over 3.5 | 2.15 | 10 | confirmed | - | - |
+| Keflavik IF vs KR Reykjavik | Over/Under | Over 3.5 | 1.88 | 10 | cancelled | - | - |
+| Falcon SE vs AD Atletico Gloriense SE | Over/Under | Over 2.5 | 2.2 | 10 | cancelled | - | - |
