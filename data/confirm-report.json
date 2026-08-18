@@ -1,25 +1,25 @@
 {
-  "generatedAt": "2026-08-18T01:27:36.294Z",
-  "checked": 2,
-  "confirmed": 0,
+  "generatedAt": "2026-08-18T02:30:44.461Z",
+  "checked": 3,
+  "confirmed": 1,
   "bets": [
     {
-      "eventId": "sr:match:73705286",
-      "homeTeam": "Nykoebing FC",
-      "awayTeam": "Naestved BK",
+      "eventId": "sr:match:73359724",
+      "homeTeam": "FC Topolcany",
+      "awayTeam": "OFK Banik Lehota Pod Vtacnikom",
       "ok": false,
       "checks": [
         "share code resolves 1 selection(s)",
-        "odds 1.89 >= min 1.55"
+        "odds 2 >= min 1.74"
       ],
       "errors": [
         "flashscore fixture not found (notfound)"
       ]
     },
     {
-      "eventId": "sr:match:69924238",
-      "homeTeam": "Nykarleby IK",
-      "awayTeam": "SIF",
+      "eventId": "sr:match:73601682",
+      "homeTeam": "Cardiff City U21",
+      "awayTeam": "Barnsley U21",
       "ok": false,
       "checks": [
         "share code resolves 1 selection(s)",
@@ -28,6 +28,18 @@
       "errors": [
         "flashscore fixture not found (notfound)"
       ]
+    },
+    {
+      "eventId": "sr:match:73797566",
+      "homeTeam": "Nosaby IF",
+      "awayTeam": "IFK Trelleborg",
+      "ok": true,
+      "checks": [
+        "share code resolves 1 selection(s)",
+        "odds 2.15 >= min 1.79",
+        "flashscore fixture xYavyVlo @ 2026-08-18T16:30:00.000Z"
+      ],
+      "errors": []
     }
   ]
 }
