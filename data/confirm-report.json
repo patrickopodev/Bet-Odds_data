@@ -1,19 +1,6 @@
 {
-  "generatedAt": "2026-08-18T05:13:40.898Z",
-  "checked": 1,
-  "confirmed": 1,
-  "bets": [
-    {
-      "eventId": "sr:match:73705882",
-      "homeTeam": "SD Raiders FC",
-      "awayTeam": "Sydney FC",
-      "ok": true,
-      "checks": [
-        "share code resolves 1 selection(s)",
-        "odds 2.15 >= min 1.79",
-        "flashscore fixture MTpbEPpB @ 2026-08-18T09:30:00.000Z"
-      ],
-      "errors": []
-    }
-  ]
+  "generatedAt": "2026-08-18T07:11:21.011Z",
+  "checked": 0,
+  "confirmed": 0,
+  "bets": []
 }
