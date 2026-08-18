@@ -1,0 +1,94 @@
+{
+  "eventId": "sr:match:73601678",
+  "productId": "3",
+  "markets": [
+    "1 (1X2)",
+    "18 (O/U)",
+    "41 (Correct Score)",
+    "548 (Multigoals)",
+    "551 (Multiscores)"
+  ],
+  "homeTeam": "Charlton Athletic U21",
+  "awayTeam": "Bolton Wanderers",
+  "kickoff": 1787058000000,
+  "startedAt": "2026-08-18T12:39:18.807Z",
+  "wentLiveAt": "2026-08-18T13:00:15.976Z",
+  "changes": [
+    {
+      "at": "2026-08-18T12:39:20.899Z",
+      "sections": {
+        "1X2 / O/U": {
+          "marketId": "1+18",
+          "name": "1X2 / O/U",
+          "group": null,
+          "outcomes": [
+            {
+              "name": "Home",
+              "odds": 1.4,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Draw",
+              "odds": 5,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Away",
+              "odds": 5.4,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Over 2.5",
+              "odds": 1.28,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 2.5",
+              "odds": 3.25,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Over 3.5",
+              "odds": 1.71,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 3.5",
+              "odds": 1.97,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Over 4.5",
+              "odds": 2.55,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 4.5",
+              "odds": 1.43,
+              "active": true,
+              "marketId": "18"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "at": "2026-08-18T12:59:37.894Z",
+      "sections": {
+        "1X2 / O/U": null
+      }
+    },
+    {
+      "at": "2026-08-18T13:00:15.976Z",
+      "live": true
+    }
+  ]
+}

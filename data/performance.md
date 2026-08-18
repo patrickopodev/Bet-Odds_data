@@ -1,8 +1,8 @@
 # SportyBet Odds Performance
 
-_Generated 2026-08-18T12:04:26.581Z UTC_
+_Generated 2026-08-18T13:05:07.057Z UTC_
 
-Total outcome/odds combinations: 20621
+Total outcome/odds combinations: 20694
 
 **Good odds** (settled >=3, always won): 111
 
@@ -210,7 +210,7 @@ These settled too few times to call a pattern:
 - 1X2 / O/U | Over 1.5 @ 1.85: 2 result(s)
 - 1X2 / O/U | Under 1.5 @ 1.85: 2 result(s)
 
-## Unsettled (4867)
+## Unsettled (4940)
 
 These were recorded but their matches have not finished yet:
 

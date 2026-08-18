@@ -1,16 +1,16 @@
 # Stake results
 
-Updated: 2026-08-18T12:10:49.774Z
+Updated: 2026-08-18T13:11:56.991Z
 
 | Metric | Value |
 | --- | --- |
-| Bets | 13 |
+| Bets | 14 |
 | Settled | 2 |
 | Won | 1 |
 | Lost | 1 |
 | Void | 0 |
-| Open | 11 |
-| Staked | 130 |
+| Open | 12 |
+| Staked | 140 |
 | Net P&L | 0.5 |
 
 | Fixture | Market | Outcome | Odds | Stake | Result | Payout | Net |
@@ -28,3 +28,4 @@ Updated: 2026-08-18T12:10:49.774Z
 | Recoleta FC vs Boca Juniors | Over/Under | Over 2.5 | 2.1 | 10 | confirmed | - | - |
 | SD Raiders FC vs Sydney FC | Over/Under | Over 3.5 | 2.15 | 10 | LOST | 0 | -10 |
 | UMF Selfoss vs FHL WFC | Over/Under | Over 3.5 | 1.69 | 10 | cancelled | - | - |
+| KA/Dalv/KF/Hott/Ham U19 vs Stjarnan/KFG U19 | Over/Under | Under 5.5 | 1.4 | 10 | cancelled | - | - |

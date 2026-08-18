@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-08-18T12:10:47.701Z",
+  "generatedAt": "2026-08-18T13:11:55.197Z",
   "checked": 1,
   "confirmed": 0,
   "bets": [
     {
-      "eventId": "sr:match:72581146",
-      "homeTeam": "UMF Selfoss",
-      "awayTeam": "FHL WFC",
+      "eventId": "sr:match:111111114218452",
+      "homeTeam": "KA/Dalv/KF/Hott/Ham U19",
+      "awayTeam": "Stjarnan/KFG U19",
       "ok": false,
       "checks": [
         "share code resolves 1 selection(s)",
-        "odds 1.69 >= min 1.57"
+        "odds 1.4 >= min 1.07"
       ],
       "errors": [
         "flashscore fixture not found (notfound)"

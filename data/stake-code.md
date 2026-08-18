@@ -1,14 +1,14 @@
 # Stake share code
 
-Generated: 2026-08-18T12:10:46.768Z
+Generated: 2026-08-18T13:11:54.188Z
 
 Open in the SportyBet app to fill your bet slip (stake per bet: 10):
 
-- Share code: `9Z3ADC`
-- URL: https://www.sportybet.com/gh/?shareCode=9Z3ADC
+- Share code: `CQGHX5`
+- URL: https://www.sportybet.com/gh/?shareCode=CQGHX5
 
 ```
 Selections: 1
-  UMF Selfoss vs FHL WFC | Over/Under | Over 3.5 @ 1.69
-Code valid until: 2026-08-28T13:30:00.000Z
+  KA/Dalv/KF/Hott/Ham U19 vs Stjarnan/KFG U19 | Over/Under | Under 5.5 @ 1.40
+Code valid until: 2026-08-28T18:00:00.000Z
 ```

@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-08-18T12:10:45.972Z",
+  "createdAt": "2026-08-18T13:11:53.305Z",
   "stakePerBet": 10,
   "currency": "GHS",
   "source": "agent-recommendations.json",
@@ -374,7 +374,35 @@
       "shareUrl": "https://www.sportybet.com/gh/?shareCode=9Z3ADC",
       "codeReadyAt": "2026-08-18T12:10:46.768Z",
       "cancelledAt": "2026-08-18T12:10:49.322Z"
+    },
+    {
+      "eventId": "sr:match:111111114218452",
+      "homeTeam": "KA/Dalv/KF/Hott/Ham U19",
+      "awayTeam": "Stjarnan/KFG U19",
+      "tournament": "U19 League",
+      "startTime": "2026-08-18T18:00:00.000Z",
+      "marketId": "18",
+      "market": "Over/Under",
+      "outcome": "Under 5.5",
+      "odds": 1.4,
+      "minOdds": 1.07,
+      "confidence": 0.7780640124902419,
+      "stake": 10,
+      "status": "cancelled",
+      "result": null,
+      "payout": null,
+      "net": null,
+      "error": "flashscore fixture not found (notfound)",
+      "placedAt": null,
+      "betReference": null,
+      "currentOdds": 1.4,
+      "outcomeId": "13",
+      "specifier": "total=5.5",
+      "shareCode": "CQGHX5",
+      "shareUrl": "https://www.sportybet.com/gh/?shareCode=CQGHX5",
+      "codeReadyAt": "2026-08-18T13:11:54.187Z",
+      "cancelledAt": "2026-08-18T13:11:56.502Z"
     }
   ],
-  "preservedCount": 12
+  "preservedCount": 13
 }
