@@ -1,6 +1,33 @@
 {
-  "generatedAt": "2026-08-17T23:03:05.855Z",
-  "checked": 0,
+  "generatedAt": "2026-08-18T01:27:36.294Z",
+  "checked": 2,
   "confirmed": 0,
-  "bets": []
+  "bets": [
+    {
+      "eventId": "sr:match:73705286",
+      "homeTeam": "Nykoebing FC",
+      "awayTeam": "Naestved BK",
+      "ok": false,
+      "checks": [
+        "share code resolves 1 selection(s)",
+        "odds 1.89 >= min 1.55"
+      ],
+      "errors": [
+        "flashscore fixture not found (notfound)"
+      ]
+    },
+    {
+      "eventId": "sr:match:69924238",
+      "homeTeam": "Nykarleby IK",
+      "awayTeam": "SIF",
+      "ok": false,
+      "checks": [
+        "share code resolves 1 selection(s)",
+        "odds 2.1 >= min 1.75"
+      ],
+      "errors": [
+        "flashscore fixture not found (notfound)"
+      ]
+    }
+  ]
 }
