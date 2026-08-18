@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-08-18T13:11:53.305Z",
+  "createdAt": "2026-08-18T14:09:21.632Z",
   "stakePerBet": 10,
   "currency": "GHS",
   "source": "agent-recommendations.json",
@@ -402,7 +402,36 @@
       "shareUrl": "https://www.sportybet.com/gh/?shareCode=CQGHX5",
       "codeReadyAt": "2026-08-18T13:11:54.187Z",
       "cancelledAt": "2026-08-18T13:11:56.502Z"
+    },
+    {
+      "eventId": "sr:match:73359702",
+      "homeTeam": "MSK Spisske Podhradie",
+      "awayTeam": "MFK Ruzomberok",
+      "tournament": "Slovensky Pohar",
+      "startTime": "2026-08-18T15:00:00.000Z",
+      "marketId": "18",
+      "market": "Over/Under",
+      "outcome": "Under 5.5",
+      "odds": 1.46,
+      "minOdds": 1.13,
+      "confidence": 0.8105230386052305,
+      "stake": 10,
+      "status": "confirmed",
+      "result": null,
+      "payout": null,
+      "net": null,
+      "error": null,
+      "placedAt": null,
+      "betReference": null,
+      "currentOdds": 1.48,
+      "outcomeId": "13",
+      "specifier": "total=5.5",
+      "shareCode": "99ZG17",
+      "shareUrl": "https://www.sportybet.com/gh/?shareCode=99ZG17",
+      "codeReadyAt": "2026-08-18T14:09:22.559Z",
+      "flashscoreId": "UqwAGfTg",
+      "confirmedAt": "2026-08-18T14:09:24.952Z"
     }
   ],
-  "preservedCount": 13
+  "preservedCount": 14
 }
