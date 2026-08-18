@@ -1,16 +1,16 @@
 # Stake results
 
-Updated: 2026-08-18T03:34:59.750Z
+Updated: 2026-08-18T04:18:09.519Z
 
 | Metric | Value |
 | --- | --- |
-| Bets | 9 |
+| Bets | 11 |
 | Settled | 1 |
 | Won | 1 |
 | Lost | 0 |
 | Void | 0 |
-| Open | 8 |
-| Staked | 90 |
+| Open | 10 |
+| Staked | 110 |
 | Net P&L | 10.5 |
 
 | Fixture | Market | Outcome | Odds | Stake | Result | Payout | Net |
@@ -24,3 +24,5 @@ Updated: 2026-08-18T03:34:59.750Z
 | Nosaby IF vs IFK Trelleborg | Over/Under | Over 3.5 | 2.15 | 10 | confirmed | - | - |
 | Keflavik IF vs KR Reykjavik | Over/Under | Over 3.5 | 1.88 | 10 | cancelled | - | - |
 | Falcon SE vs AD Atletico Gloriense SE | Over/Under | Over 2.5 | 2.2 | 10 | cancelled | - | - |
+| FC Haka J vs Tampereen Peli-Toverit | Over/Under | Under 4.5 | 1.62 | 10 | cancelled | - | - |
+| Recoleta FC vs Boca Juniors | Over/Under | Over 2.5 | 2.1 | 10 | confirmed | - | - |
