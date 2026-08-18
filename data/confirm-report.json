@@ -1,19 +1,6 @@
 {
-  "generatedAt": "2026-08-18T14:09:23.495Z",
-  "checked": 1,
-  "confirmed": 1,
-  "bets": [
-    {
-      "eventId": "sr:match:73359702",
-      "homeTeam": "MSK Spisske Podhradie",
-      "awayTeam": "MFK Ruzomberok",
-      "ok": true,
-      "checks": [
-        "share code resolves 1 selection(s)",
-        "odds 1.48 >= min 1.13",
-        "flashscore fixture UqwAGfTg @ 2026-08-18T15:00:00.000Z"
-      ],
-      "errors": []
-    }
-  ]
+  "generatedAt": "2026-08-18T16:22:07.925Z",
+  "checked": 0,
+  "confirmed": 0,
+  "bets": []
 }
