@@ -1,30 +1,17 @@
 {
-  "generatedAt": "2026-08-18T04:18:07.210Z",
-  "checked": 2,
+  "generatedAt": "2026-08-18T05:13:40.898Z",
+  "checked": 1,
   "confirmed": 1,
   "bets": [
     {
-      "eventId": "sr:match:69923800",
-      "homeTeam": "FC Haka J",
-      "awayTeam": "Tampereen Peli-Toverit",
-      "ok": false,
-      "checks": [
-        "share code resolves 1 selection(s)",
-        "odds 1.62 >= min 1.36"
-      ],
-      "errors": [
-        "flashscore fixture not found (notfound)"
-      ]
-    },
-    {
-      "eventId": "sr:match:71805348",
-      "homeTeam": "Recoleta FC",
-      "awayTeam": "Boca Juniors",
+      "eventId": "sr:match:73705882",
+      "homeTeam": "SD Raiders FC",
+      "awayTeam": "Sydney FC",
       "ok": true,
       "checks": [
         "share code resolves 1 selection(s)",
-        "odds 2.1 >= min 1.66",
-        "flashscore fixture 4h2j62o9 @ 2026-08-18T22:00:00.000Z"
+        "odds 2.15 >= min 1.79",
+        "flashscore fixture MTpbEPpB @ 2026-08-18T09:30:00.000Z"
       ],
       "errors": []
     }

@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-08-18T04:18:04.789Z",
+  "createdAt": "2026-08-18T05:13:39.155Z",
   "stakePerBet": 10,
   "currency": "GHS",
   "source": "agent-recommendations.json",
@@ -315,7 +315,36 @@
       "codeReadyAt": "2026-08-18T04:18:06.454Z",
       "flashscoreId": "4h2j62o9",
       "confirmedAt": "2026-08-18T04:18:09.147Z"
+    },
+    {
+      "eventId": "sr:match:73705882",
+      "homeTeam": "SD Raiders FC",
+      "awayTeam": "Sydney FC",
+      "tournament": "Australia Cup",
+      "startTime": "2026-08-18T09:30:00.000Z",
+      "marketId": "18",
+      "market": "Over/Under",
+      "outcome": "Over 3.5",
+      "odds": 2.15,
+      "minOdds": 1.79,
+      "confidence": 0.658617464941184,
+      "stake": 10,
+      "status": "confirmed",
+      "result": null,
+      "payout": null,
+      "net": null,
+      "error": null,
+      "placedAt": null,
+      "betReference": null,
+      "currentOdds": 2.15,
+      "outcomeId": "12",
+      "specifier": "total=3.5",
+      "shareCode": "AEL9X0",
+      "shareUrl": "https://www.sportybet.com/gh/?shareCode=AEL9X0",
+      "codeReadyAt": "2026-08-18T05:13:39.967Z",
+      "flashscoreId": "MTpbEPpB",
+      "confirmedAt": "2026-08-18T05:13:42.209Z"
     }
   ],
-  "preservedCount": 9
+  "preservedCount": 11
 }
