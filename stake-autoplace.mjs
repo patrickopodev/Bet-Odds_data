@@ -46,21 +46,31 @@ async function run() {
     return;
   }
 
-  const browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'] });
+  const browser = await chromium.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--disable-blink-features=AutomationControlled'],
+  });
   const page = await browser.newPage({ userAgent: UA, viewport: { width: 390, height: 844 } });
+  // SportyBet blocks Playwright's stock automation: with navigator.webdriver
+  // exposed, the login modal never opens. Mask it before any script runs.
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+  });
   const ck = async (sel) => { try { await page.locator(sel).first().click({ force: true, timeout: 6000 }); return true; } catch { return false; } };
 
   await page.goto('https://sportybet.com/gh/m/', { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForTimeout(6000);
   for (let a = 1; a <= 3; a++) {
     await ck('div.m-btn-login');
-    await page.waitForTimeout(2500);
-    if (await page.locator('input[type="tel"]').first().count()) {
-      await page.locator('input[type="tel"]').first().fill(process.env.SB_USER);
-      await page.locator('input[type="password"]').first().fill(process.env.SB_PASS);
-      await ck('button:has-text("Login")');
-      await page.waitForTimeout(9000);
+    try {
+      await page.locator('input[type="tel"]').first().waitFor({ state: 'visible', timeout: 15000 });
+    } catch {
+      continue; // modal did not open; retry the login click
     }
+    await page.locator('input[type="tel"]').first().fill(process.env.SB_USER);
+    await page.locator('input[type="password"]').first().fill(process.env.SB_PASS);
+    await ck('button:has-text("Login")');
+    await page.waitForTimeout(9000);
     if (await page.evaluate(() => document.body.innerText.includes('GHS'))) { console.log('[stake-autoplace] logged in'); break; }
     if (a === 3) { console.error('[stake-autoplace] login failed'); process.exit(1); }
   }

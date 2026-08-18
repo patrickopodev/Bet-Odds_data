@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-08-18T16:22:06.883Z",
+  "createdAt": "2026-08-18T21:44:08.601Z",
   "stakePerBet": 10,
   "currency": "GHS",
   "source": "agent-recommendations.json",
@@ -431,8 +431,36 @@
       "codeReadyAt": "2026-08-18T14:09:22.559Z",
       "flashscoreId": "UqwAGfTg",
       "confirmedAt": "2026-08-18T14:09:24.952Z"
+    },
+    {
+      "eventId": "sr:match:71805838",
+      "homeTeam": "Independiente Rivadavia",
+      "awayTeam": "Fluminense FC RJ",
+      "tournament": "CONMEBOL Libertadores",
+      "startTime": "2026-08-18T22:00:00.000Z",
+      "marketId": "18",
+      "market": "Over/Under",
+      "outcome": "Over 1.5",
+      "odds": 1.58,
+      "minOdds": 1.22,
+      "confidence": 1,
+      "stake": 10,
+      "status": "placed",
+      "result": null,
+      "payout": null,
+      "net": null,
+      "error": null,
+      "placedAt": "2026-08-18T21:49:40.809Z",
+      "betReference": null,
+      "currentOdds": 1.54,
+      "outcomeId": "12",
+      "specifier": "total=1.5",
+      "shareCode": "B1HVSC",
+      "shareUrl": "https://www.sportybet.com/gh/?shareCode=B1HVSC",
+      "codeReadyAt": "2026-08-18T21:45:25.989Z"
     }
   ],
   "preservedCount": 15,
-  "updatedAt": "2026-08-18T19:25:36.400240+00:00"
+  "refilledAt": "2026-08-18T21:45:26.262Z",
+  "refilledCount": 4
 }
