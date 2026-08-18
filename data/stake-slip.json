@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-08-18T11:46:41.668Z",
+  "createdAt": "2026-08-18T12:10:45.972Z",
   "stakePerBet": 10,
   "currency": "GHS",
   "source": "agent-recommendations.json",
@@ -346,6 +346,34 @@
       "confirmedAt": "2026-08-18T05:13:42.209Z",
       "finalScore": "0:1",
       "settledAt": "2026-08-18T11:46:43.952Z"
+    },
+    {
+      "eventId": "sr:match:72581146",
+      "homeTeam": "UMF Selfoss",
+      "awayTeam": "FHL WFC",
+      "tournament": "1. deild, Women",
+      "startTime": "2026-08-18T13:30:00.000Z",
+      "marketId": "18",
+      "market": "Over/Under",
+      "outcome": "Over 3.5",
+      "odds": 1.69,
+      "minOdds": 1.57,
+      "confidence": 0.7928250864705715,
+      "stake": 10,
+      "status": "cancelled",
+      "result": null,
+      "payout": null,
+      "net": null,
+      "error": "flashscore fixture not found (notfound)",
+      "placedAt": null,
+      "betReference": null,
+      "currentOdds": 1.69,
+      "outcomeId": "12",
+      "specifier": "total=3.5",
+      "shareCode": "9Z3ADC",
+      "shareUrl": "https://www.sportybet.com/gh/?shareCode=9Z3ADC",
+      "codeReadyAt": "2026-08-18T12:10:46.768Z",
+      "cancelledAt": "2026-08-18T12:10:49.322Z"
     }
   ],
   "preservedCount": 12

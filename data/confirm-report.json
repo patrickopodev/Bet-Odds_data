@@ -1,6 +1,20 @@
 {
-  "generatedAt": "2026-08-18T11:46:42.496Z",
-  "checked": 0,
+  "generatedAt": "2026-08-18T12:10:47.701Z",
+  "checked": 1,
   "confirmed": 0,
-  "bets": []
+  "bets": [
+    {
+      "eventId": "sr:match:72581146",
+      "homeTeam": "UMF Selfoss",
+      "awayTeam": "FHL WFC",
+      "ok": false,
+      "checks": [
+        "share code resolves 1 selection(s)",
+        "odds 1.69 >= min 1.57"
+      ],
+      "errors": [
+        "flashscore fixture not found (notfound)"
+      ]
+    }
+  ]
 }

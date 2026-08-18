@@ -1,19 +1,19 @@
 # SportyBet Odds Performance
 
-_Generated 2026-08-18T11:39:31.029Z UTC_
+_Generated 2026-08-18T12:04:26.581Z UTC_
 
-Total outcome/odds combinations: 20576
+Total outcome/odds combinations: 20621
 
-**Good odds** (settled >=3, always won): 112
+**Good odds** (settled >=3, always won): 111
 
 **Bad odds** (settled >=3, always lost): 2323
 
-**Mixed** (settled >=3, some won some lost): 2893
+**Mixed** (settled >=3, some won some lost): 2901
 
-**Insufficient data** (1-2 settled, no verdict): 10418
+**Insufficient data** (1-2 settled, no verdict): 10419
 
 
-> **Sample-size caveat:** 1367 of 15746 settled combinations have >=10 results. Anything marked **⚠️ low sample** has fewer than 10 settled results — a 100% (or 0%) record over a handful of matches is most likely variance, not signal.
+> **Sample-size caveat:** 1369 of 15754 settled combinations have >=10 results. Anything marked **⚠️ low sample** has fewer than 10 settled results — a 100% (or 0%) record over a handful of matches is most likely variance, not signal.
 
 
 ## Good Odds (historically play)
@@ -51,11 +51,12 @@ Total outcome/odds combinations: 20576
 - **1X2 / O/U | Under 6.5 @ 1.02**: won 5/5 times (100%) across 5 match(es) ⚠️ low sample
 - **1X2 / O/U | Under 7 @ 0**: won 5/5 times (100%) across 5 match(es) ⚠️ low sample
 - **1X2 / O/U | Under 3.5 @ 1.09**: won 5/5 times (100%) across 5 match(es) ⚠️ low sample
+- **1X2 / O/U | Over 2.5 @ 1.29**: won 5/5 times (100%) across 5 match(es) ⚠️ low sample
 - **1X2 / O/U | Over 2.5 @ 1.33**: won 5/5 times (100%) across 5 match(es) ⚠️ low sample
 - **1X2 / O/U | Under 4.5 @ 1.34**: won 5/5 times (100%) across 5 match(es) ⚠️ low sample
 - **1X2 / O/U | Over 2 @ 1.11**: won 5/5 times (100%) across 5 match(es) ⚠️ low sample
-- **1X2 / O/U | Away @ 1.12**: won 5/5 times (100%) across 5 match(es) ⚠️ low sample
 - **1X2 / O/U | Under 2.5 @ 1.39**: won 5/5 times (100%) across 5 match(es) ⚠️ low sample
+- **1X2 / O/U | Under 4.5 @ 1.36**: won 5/5 times (100%) across 5 match(es) ⚠️ low sample
 - **1X2 / O/U | Under 3.5 @ 1.02**: won 4/4 times (100%) across 4 match(es) ⚠️ low sample
 - **1X2 / O/U | Under 6.5 @ 1.18**: won 4/4 times (100%) across 4 match(es) ⚠️ low sample
 - **1X2 / O/U | Away @ 1.64**: won 4/4 times (100%) across 4 match(es) ⚠️ low sample
@@ -66,8 +67,7 @@ Total outcome/odds combinations: 20576
 - **1X2 / O/U | Under 2.5 @ 1.4**: won 4/4 times (100%) across 4 match(es) ⚠️ low sample
 - **1X2 / O/U | Under 2.5 @ 1.56**: won 4/4 times (100%) across 4 match(es) ⚠️ low sample
 - **1X2 / O/U | Over 2.5 @ 1.23**: won 4/4 times (100%) across 4 match(es) ⚠️ low sample
-- **1X2 / O/U | Over 2.5 @ 1.29**: won 4/4 times (100%) across 4 match(es) ⚠️ low sample
-- **1X2 / O/U | Over 3.5 @ 1.69**: won 4/4 times (100%) across 4 match(es) ⚠️ low sample
+- **1X2 / O/U | Over 3.5 @ 1.81**: won 4/4 times (100%) across 4 match(es) ⚠️ low sample
 
 ## Bad Odds (historically lose)
 
@@ -175,7 +175,7 @@ Total outcome/odds combinations: 20576
 - **1X2 / O/U | Draw @ 3.9**: 8/36 won (22%) across 36 match(es)
 - **Multigoals | 2-6 @ 1.15**: 29/35 won (83%) across 35 match(es)
 
-## Insufficient data (1-2 settled, no verdict) (10418)
+## Insufficient data (1-2 settled, no verdict) (10419)
 
 These settled too few times to call a pattern:
 
@@ -210,7 +210,7 @@ These settled too few times to call a pattern:
 - 1X2 / O/U | Over 1.5 @ 1.85: 2 result(s)
 - 1X2 / O/U | Under 1.5 @ 1.85: 2 result(s)
 
-## Unsettled (4830)
+## Unsettled (4867)
 
 These were recorded but their matches have not finished yet:
 

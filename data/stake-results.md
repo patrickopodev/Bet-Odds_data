@@ -1,16 +1,16 @@
 # Stake results
 
-Updated: 2026-08-18T11:46:43.952Z
+Updated: 2026-08-18T12:10:49.774Z
 
 | Metric | Value |
 | --- | --- |
-| Bets | 12 |
+| Bets | 13 |
 | Settled | 2 |
 | Won | 1 |
 | Lost | 1 |
 | Void | 0 |
-| Open | 10 |
-| Staked | 120 |
+| Open | 11 |
+| Staked | 130 |
 | Net P&L | 0.5 |
 
 | Fixture | Market | Outcome | Odds | Stake | Result | Payout | Net |
@@ -27,3 +27,4 @@ Updated: 2026-08-18T11:46:43.952Z
 | FC Haka J vs Tampereen Peli-Toverit | Over/Under | Under 4.5 | 1.62 | 10 | cancelled | - | - |
 | Recoleta FC vs Boca Juniors | Over/Under | Over 2.5 | 2.1 | 10 | confirmed | - | - |
 | SD Raiders FC vs Sydney FC | Over/Under | Over 3.5 | 2.15 | 10 | LOST | 0 | -10 |
+| UMF Selfoss vs FHL WFC | Over/Under | Over 3.5 | 1.69 | 10 | cancelled | - | - |
