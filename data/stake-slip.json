@@ -300,10 +300,10 @@
       "minOdds": 1.66,
       "confidence": 0.6601181837030893,
       "stake": 10,
-      "status": "placed",
-      "result": null,
-      "payout": null,
-      "net": null,
+      "status": "settled",
+      "result": "WON",
+      "payout": 21.0,
+      "net": 11.0,
       "error": "resurrected for real placement (creds now available)",
       "placedAt": "2026-08-18T21:17:38.148Z",
       "betReference": null,
@@ -314,7 +314,8 @@
       "shareUrl": "https://www.sportybet.com/gh/?shareCode=E484YP",
       "codeReadyAt": "2026-08-18T04:18:06.454Z",
       "flashscoreId": "4h2j62o9",
-      "confirmedAt": "2026-08-18T04:18:09.147Z"
+      "confirmedAt": "2026-08-18T04:18:09.147Z",
+      "settledAt": "2026-08-19T00:30:00.000Z"
     },
     {
       "eventId": "sr:match:73705882",
@@ -445,10 +446,10 @@
       "minOdds": 1.22,
       "confidence": 1,
       "stake": 10,
-      "status": "placed",
-      "result": null,
-      "payout": null,
-      "net": null,
+      "status": "settled",
+      "result": "WON",
+      "payout": 15.8,
+      "net": 5.8,
       "error": null,
       "placedAt": "2026-08-18T21:49:40.809Z",
       "betReference": null,
@@ -457,7 +458,8 @@
       "specifier": "total=1.5",
       "shareCode": "B1HVSC",
       "shareUrl": "https://www.sportybet.com/gh/?shareCode=B1HVSC",
-      "codeReadyAt": "2026-08-18T21:45:25.989Z"
+      "codeReadyAt": "2026-08-18T21:45:25.989Z",
+      "settledAt": "2026-08-19T00:30:00.000Z"
     }
   ],
   "preservedCount": 16
