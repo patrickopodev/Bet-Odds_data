@@ -1,0 +1,51 @@
+name: Pre-match Odds Monitor
+
+on:
+  schedule:
+    # Every 15 minutes. Matches enter their final-30-minute pre-match window at
+    # different times all day, and each run records up to 30 minutes of 5-min
+    # polls, so overlapping runs keep the odds log continuous across the day.
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: prematch-monitor
+  cancel-in-progress: true
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Record pre-match odds (final 30 min before kickoff, 5-min cadence)
+        run: node prematch-monitor.mjs --window 30 --interval 300 --max 30
+
+      - name: Commit pre-match odds log
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/prematch-*.json
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No odds changes to commit; skipping."
+          else
+            git pull --rebase origin main
+            git commit -m "chore(webscraper): record pre-match odds changes ($(date -u +%Y-%m-%dT%H:%M:%SZ))"
+            git push
+          fi
