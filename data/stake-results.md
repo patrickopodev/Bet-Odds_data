@@ -1,16 +1,16 @@
 # Stake results
 
-Updated: 2026-08-20T18:04:20.060Z
+Updated: 2026-08-20T19:03:22.770Z
 
 | Metric | Value |
 | --- | --- |
-| Slips | 31 |
+| Slips | 21 |
 | Settled | 4 |
 | Won | 3 |
 | Lost | 1 |
 | Void | 0 |
-| Open | 27 |
-| Staked | 310 |
+| Open | 17 |
+| Staked | 210 |
 | Net P&L | 17.3 |
 
 | Slip | Type | Fixture(s) | Combined Odds | Stake | Result | Payout | Net |
@@ -31,18 +31,8 @@ Updated: 2026-08-20T18:04:20.060Z
 | legacy-14 | single | KA/Dalv/KF/Hott/Ham U19 vs Stjarnan/KFG U19 | 1.4 | 10 | cancelled | - | - |
 | legacy-15 | single | MSK Spisske Podhradie vs MFK Ruzomberok | 1.46 | 10 | cancelled | - | - |
 | legacy-16 | single | Independiente Rivadavia vs Fluminense FC RJ | 1.58 | 10 | WON | 15.8 | 5.8 |
-| slip-1 | multi | Rayo Vallecano vs Alaves + KF Egnatia Rrogozhine vs Lillestroem SK + Vendsyssel FF vs Hillerod Fodbold + FC Lasten vs Saaksjaerven Loiske | 9.88 | 10 | skipped | - | - |
-| slip-2 | multi | Hoogee vs Eps Reservi + PAOK vs SK Brann + FC Baltika Kaliningrad vs FC Dynamo-Makhachkala + OFI Crete vs PFC CSKA Sofia | 8.55 | 10 | skipped | - | - |
-| slip-3 | multi | FC Drita vs Inter Club de Escaldes + Azam FC vs TRA United Sports Club + AL Julan vs AL Karkh + Bærum SK U19 vs Haslum U19 | 5.57 | 10 | skipped | - | - |
-| slip-4 | multi | Follo U19 vs Ready Fotball U19 + Lillehammer FK U19 vs Asker U19 + Nordstrand U19 vs Skedsmo U19 + Lugano vs Maccabi Tel Aviv FC | 5.42 | 10 | skipped | - | - |
-| slip-5 | multi | Football Bourg-En-Bresse Peronnas 01 vs Thionville US Lusitanos + La Roche Vendee Football vs AS Cannes + US Concarneau vs FC Villefranche-Beaujolais + FC Dinamo City vs Pafos FC | 14.76 | 10 | skipped | - | - |
-| slip-6 | multi | Shamrock Rovers vs Kuopion Palloseura + Always Ready vs Cdt Real Oruro + IH Hafnarfjordur vs Ellidi + CD Real Santander vs Barranquilla FC | 10.02 | 10 | skipped | - | - |
-| slip-7 | multi | Club Deportivo Cuenca Juniors vs Gualaceo SC + SC Bastia vs FC Versailles 78 + Independiente Medellin vs America de Cali Sa + Vikingur Reykjavik vs FK Borac Banja Luka | 7.22 | 10 | skipped | - | - |
-| slip-8 | multi | Sarpsborg FK U19 vs Gjelleråsen U19 + HNK Hajduk Split vs Rakow Czestochowa + KI Klaksvik vs Riga FC + Nordsjaelland vs FC St. Gallen 1879 | 8.04 | 10 | skipped | - | - |
-| slip-9 | multi | Heart of Midlothian FC vs SK Rapid + Caen vs SC Aubagne Air Bel + Crvena Zvezda vs Viktoria Plzen + FC Sion vs Ajax | 7.14 | 10 | skipped | - | - |
-| slip-10 | multi | Venados  FC vs CSD Dorados Sinaloa + KKS Lech Poznan vs FC Thun + Arborg vs Hamar + Benfica vs AGF Aarhus | 10.9 | 10 | skipped | - | - |
-| slip-11 | multi | Ppj Ruoholahti vs Gilla FC + Al-Fayha FC vs Al Hilal SFC + Sao Paulo FC SP vs SC Paulinense SP + Tacuary Asuncion vs Libertad Asuncion | 6.31 | 10 | skipped | - | - |
-| slip-12 | multi | CA Platense vs Colon de Santa Fe Reserve + CS Universitatea Craiova vs FC Ararat-Armenia + Rangers vs FK Jablonec + FC Fleury 91 vs US Orleans | 5.74 | 10 | skipped | - | - |
-| slip-13 | multi | Independiente Santa Fe vs Fortaleza FC + St. Truidense VV vs AC Omonia Nicosia + FC Twente Enschede vs Qarabag + Defence Force FC vs SV Broki | 4.87 | 10 | skipped | - | - |
-| slip-14 | multi | San Antonio FC vs 9 de Octubre FC + CE Gramadense RS vs CE Lajeadense RS + Tromsoe IL vs Brighton + Itagui Leones FC vs Real Cundinamarca | 5.71 | 10 | skipped | - | - |
-| slip-15 | multi | Club Olimpia vs CR Vasco da Gama RJ + HNK Gorica vs NK Osijek | 2.23 | 10 | skipped | - | - |
+| slip-1 | multi | Rayo Vallecano vs Alaves + FC Dinamo City vs Pafos FC + Shamrock Rovers vs Kuopion Palloseura + Always Ready vs Cdt Real Oruro | 11.51 | 10 | skipped | - | - |
+| slip-2 | multi | IH Hafnarfjordur vs Ellidi + Ulfanir vs KFR + CD Real Santander vs Barranquilla FC + Club Deportivo Cuenca Juniors vs Gualaceo SC | 7.33 | 10 | skipped | - | - |
+| slip-3 | multi | Independiente Medellin vs America de Cali Sa + HNK Hajduk Split vs Rakow Czestochowa + Arborg vs Hamar + Venados  FC vs CSD Dorados Sinaloa | 6.95 | 10 | skipped | - | - |
+| slip-4 | multi | Benfica vs AGF Aarhus + Independiente Santa Fe vs Fortaleza FC + Defence Force FC vs SV Broki + San Antonio FC vs 9 de Octubre FC | 6.18 | 10 | skipped | - | - |
+| slip-5 | multi | Sheffield Wednesday vs Bradford City FC + Itagui Leones FC vs Real Cundinamarca + Club Olimpia vs CR Vasco da Gama RJ | 4.09 | 10 | skipped | - | - |
