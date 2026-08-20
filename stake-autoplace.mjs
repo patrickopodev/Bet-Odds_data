@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isFriendly, normalizeSlip } from './stake.mjs';
 import { computeBankroll, parseBalance } from './bankroll.mjs';
+import { shareUrl } from './share-code.mjs';
 
 const DATA_DIR = process.env.DATA_DIR ?? 'data';
 const SLIP_FILE = process.env.STAKE_SLIP ?? path.join(DATA_DIR, 'stake-slip.json');
@@ -83,8 +84,13 @@ async function run() {
   // stake a fixed 25% of the ACTIVE half per slip. The stake is set once from
   // the first observed balance and stays fixed on later runs (wins/losses
   // recycle into the active half but never change the per-slip stake).
-  const body = await page.evaluate(() => document.body.innerText);
-  const balance = parseBalance(body);
+  // The wallet widget loads async after login, so retry the parse briefly.
+  let balance = null;
+  for (let i = 0; i < 6 && balance == null; i++) {
+    const body = await page.evaluate(() => document.body.innerText);
+    balance = parseBalance(body);
+    if (balance == null) await page.waitForTimeout(2500);
+  }
   const fixedStake = slip.bankroll?.stakePerSlip ?? null;
   const bankroll = computeBankroll(balance, fixedStake);
   if (bankroll) {
@@ -115,35 +121,35 @@ async function run() {
   for (const s of slips) {
     const code = s.shareCode;
     const stake = String(s.stake ?? 1);
-    let txt = '';
-    for (let a = 1; a <= 3; a++) {
-      await ck('a:has-text("Load Code")');
-      await page.waitForTimeout(2000);
-      if (await page.locator('input[placeholder="Booking Code"]').first().isVisible().catch(() => false)) break;
+    // Load the slip via its share URL: the "Load Code" drawer does not expand
+    // in headless Chromium, but navigating to ?shareCode=<code> while logged in
+    // opens the booking-code input directly.
+    await page.goto(shareUrl(code), { waitUntil: 'domcontentloaded', timeout: 60000 });
+    const codeInput = page.locator('input[placeholder="Booking Code"]').first();
+    try {
+      await codeInput.waitFor({ state: 'visible', timeout: 30000 });
+    } catch {
+      s.status = 'skipped';
+      s.skippedAt = new Date().toISOString();
+      s.error = 'booking-code input never appeared';
+      console.error(`[stake-autoplace] ${s.slipId}: booking-code input never appeared (${code})`);
+      continue;
     }
-    for (let attempt = 1; attempt <= 4; attempt++) {
-      await page.locator('input[placeholder="Booking Code"]').first().fill(code);
-      await page.waitForTimeout(400);
-      await ck('div[data-op="load-code-button"]');
-      await page.waitForTimeout(6000);
-      txt = await page.evaluate(() => document.body.innerText);
-      const legsOk = s.legs.every(
-        (l) =>
-          new RegExp(l.homeTeam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i').test(txt) &&
-          new RegExp(l.awayTeam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i').test(txt)
-      );
-      if (legsOk) break;
-      console.log(`[stake-autoplace] load-code attempt ${attempt}: slip not filled`);
-      await ck('a:has-text("Load Code")');
-      await page.waitForTimeout(2000);
-    }
+    const prefilled = await codeInput.inputValue().catch(() => '');
+    if (prefilled !== code) await codeInput.fill(code);
+    await ck('div[data-op="load-code-button"], [data-op="load-code-button"]');
+    await page.waitForTimeout(6000);
+    let txt = await page.evaluate(() => document.body.innerText);
     const legsOk = s.legs.every(
-      (l) => new RegExp(l.homeTeam, 'i').test(txt) && new RegExp(l.awayTeam, 'i').test(txt)
+      (l) =>
+        new RegExp(l.homeTeam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i').test(txt) &&
+        new RegExp(l.awayTeam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i').test(txt)
     );
     console.log(`[stake-autoplace] slip ${s.slipId} (${s.type}) legs present?`, legsOk);
     if (!legsOk) {
       console.error(`[stake-autoplace] ABORT: wrong selection for ${code}`);
       s.status = 'skipped';
+      s.skippedAt = new Date().toISOString();
       s.error = 'share code did not load expected selections';
       continue;
     }
@@ -156,11 +162,22 @@ async function run() {
       await page.waitForTimeout(1200);
     }
 
-    await page.locator('span[data-op="single-union-keyboard"]').first().focus();
-    await page.waitForTimeout(400);
-    for (let i = 0; i < 12; i++) { await page.keyboard.press('Backspace'); await page.waitForTimeout(80); }
+    // Open the stake keypad (tapping the amount), clear the prefilled amount,
+    // then type the bankroll stake.
+    await ck('[data-op="betslip-stake-amount"]');
+    await page.waitForTimeout(1200);
+    for (let i = 0; i < 15; i++) { await page.keyboard.press('Backspace'); await page.waitForTimeout(60); }
     await page.keyboard.type(stake);
     await page.waitForTimeout(800);
+    const shownStake = (await page.evaluate(() => document.querySelector('[data-op="betslip-stake-amount"]')?.textContent ?? ''))
+      .replace(/\s+/g, '');
+    console.log(`[stake-autoplace] slip ${s.slipId} stake typed ${stake} (field shows ${shownStake})`);
+    if (!shownStake.includes(stake)) {
+      s.status = 'failed';
+      s.error = `stake did not register (field shows ${shownStake})`;
+      console.error(`[stake-autoplace] ${s.slipId}: stake did not register`);
+      continue;
+    }
 
     await ck('[data-op="betslip-placebet-button"], [data-op="betslip-placebet"]');
     await page.waitForTimeout(3000);
