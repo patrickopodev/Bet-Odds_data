@@ -139,31 +139,40 @@ Writes `data/agent-recommendations.json`.
 
 ### 8. Select — `node stake.mjs`
 
-Reads the agent report and builds the bet slip (`data/stake-slip.json`): skips friendlies, takes the single best candidate per market type, filters out trivial/long-shot lines, ranks by confidence, and caps the total with `MAX_BETS`. Regeneration is **ledger-safe**: any bet that has left selection (`slip-ready`, `confirmed`, `placed`, `settled`, ...) is carried into the new slip unchanged — never dropped mid-settlement — and only `pending`/`skipped` slots are re-picked, up to the remaining `MAX_BETS` capacity. `node stake.mjs --refill` re-fills a slip's skipped slots from the pipeline instead of hand-picking: it keeps placed/slip-ready bets, never re-picks an already-attempted combination, respects the friendly gate, and caps at `MAX_BETS` (settled/cancelled history never blocks a refill).
+Reads the agent report and builds the bet slip (`data/stake-slip.json`) as **slips** (`slips[]`, each with `legs[]`), using the slip-composition rule:
+
+- **Odds ≥ 3.00** → that match alone on its own **single** slip.
+- **Odds 1.25–2.99** → bundled, up to **4** recommended matches per **multi** slip (an accumulator; a leftover bundle with fewer than 4 is still placed).
+
+It skips friendlies, takes the single best candidate per market type, filters out trivial/long-shot lines, and ranks by confidence. Regeneration is **ledger-safe**: any slip that has left selection (`slip-ready`, `confirmed`, `placed`, `settled`, ...) is carried into the new slip unchanged — never dropped mid-settlement — and only `pending`/`skipped` slips are re-picked. `node stake.mjs --refill` re-fills a slip's skipped slots from the pipeline instead of hand-picking: it keeps placed/slip-ready slips, never re-picks an already-attempted combination, respects the friendly gate, and caps at the bankroll's `maxSlips` (settled/cancelled history never blocks a refill).
+
+### 8b. Bankroll — `bankroll.mjs`
+
+The bankroll splits the **live SportyBet balance** into two halves: an **active half** (money at risk) and a **reserve half** (never staked). Every slip stakes a **fixed 25% of the active half** (set once from the first balance read; it never changes with wins/losses). Winnings recycle back into the active half, so over time the active half (and the number of slips it can fund) grows while the stake stays fixed. The reserve half is never touched.
 
 ### 9. Share code — `node stake-placement.mjs`
 
-Turns each slip bet into a SportyBet selection (`eventId, marketId, outcomeId[, specifier]`) by resolving the outcome name to its numeric id via the event API, and — **only if the current odds are still at or above the agent's `recommendedMinOdds`** — creates a **share code** (`/api/gh/orders/share`). No login, no UI automation, no money moves automatically: the code is meant to be loaded in the SportyBet app, where you stake and confirm yourself. Writes `data/stake-code.md` with the code + URL.
+Turns each **slip's legs** into SportyBet selections (`eventId, marketId, outcomeId[, specifier]`) by resolving each outcome name to its numeric id via the event API, and — **only if every leg's current odds are still at or above the agent's `recommendedMinOdds`** — creates **one share code per slip** (`/api/gh/orders/share`) holding all of that slip's selections. If any leg fails to resolve, the whole accumulator slip is skipped. No login, no UI automation, no money moves automatically: the code is meant to be loaded in the SportyBet app, where you stake and confirm yourself. Writes `data/stake-code.md` with the codes + URLs.
 
-This step is the **money boundary for selection**: a friendly bet is refused a share code unless `ALLOW_FRIENDLIES=true` — even in a stale or hand-edited slip. And whenever a bet is skipped (odds drifted below `recommendedMinOdds`, market/outcome gone, friendly), it is **automatically replaced from the agent report** (the same logic as `stake.mjs --refill`, looped a few rounds), so the slip is always the pipeline's ranking — never a manual substitute.
+This step is the **money boundary for selection**: a friendly bet is refused a share code unless `ALLOW_FRIENDLIES=true` — even in a stale or hand-edited slip. And whenever a slip is skipped (odds drifted below `recommendedMinOdds`, market/outcome gone, friendly), it is **automatically replaced from the agent report** (the same logic as `stake.mjs --refill`, looped a few rounds), so the slip is always the pipeline's ranking — never a manual substitute.
 
 ### 10. Auto-stake on SportyBet — `node stake-autoplace.mjs`
 
-When `SB_USER`/`SB_PASS` are set (GitHub secrets `SB_USER`, `SB_PASS`), this logs into the SportyBet mobile web with Playwright, loads the share code, switches the slip to **REAL** money (never the SIM/virtual mode), types the stake, and places the bet — then marks the slip bet `placed` only when SportyBet shows **Bet Successful**. Set `STAKE_DRY_RUN=true` to log in and fill the slip but skip the actual payment. Without credentials it does nothing and the code is left for manual staking. The friendly gate also applies here: no money moves on a friendly bet unless `ALLOW_FRIENDLIES=true`, even from a stale slip.
+When `SB_USER`/`SB_PASS` are set (GitHub secrets `SB_USER`, `SB_PASS`), this logs into the SportyBet mobile web with Playwright, loads each slip's share code, switches the slip to **REAL** money (never the SIM/virtual mode), types the stake, and places the bet — then marks the slip `placed` only when SportyBet shows **Bet Successful**. On login it reads the live balance, computes the bankroll (active half, fixed 25% stake), and places only as many slips as the active half can fund at that stake. Set `STAKE_DRY_RUN=true` to log in and fill the slip but skip the actual payment. Without credentials it does nothing and the code is left for manual staking. The friendly gate also applies here: no money moves on a friendly bet unless `ALLOW_FRIENDLIES=true`, even from a stale slip.
 
 ### 11. Confirm — `npm run agent:confirm`
 
-The TypeScript agent verifies each staked selection before kickoff:
+The TypeScript agent verifies every leg of each staked slip before kickoff:
 
 1. The share code still resolves server-side and contains the staked event.
 2. The live odds are still at/above the agent's `recommendedMinOdds` (odds moved down → the bet is cancelled, not placed).
 3. The fixture is confirmed on Flashscore for the staked kickoff (team ids + kickoff).
 
-Only bets that pass all three get `status: confirmed`; anything else is cancelled with the reason. Writes `data/confirm-report.json`.
+Only slips where **every leg** passes all three get `status: confirmed`; any failing leg cancels the whole slip with the reason. Writes `data/confirm-report.json`.
 
-### 12. Monitor until the match ends — `npm run agent:monitor`
+### 12. Monitor until the matches end — `npm run agent:monitor`
 
-The TypeScript agent keeps every confirmed bet open until the fixture finishes on Flashscore (same team-id + kickoff verification as `resolve-results.mjs`), then settles it WON/LOST/VOID, computes payout + net, and writes `data/stake-results.md` with the running P&L. Runs every 30 minutes; open bets stay open until settled.
+The TypeScript agent keeps every confirmed slip open until **all** of its fixtures finish on Flashscore (same team-id + kickoff verification as `resolve-results.mjs`), then settles it at slip level: a single pays `stake × odds`, an accumulator pays `stake × product(all legs' odds)` if **every** leg wins, pays 0 if **any** leg loses, and is void if the legs void. It writes `data/stake-results.md` with the running P&L. Runs every 30 minutes; open slips stay open until settled.
 
 ---
 
@@ -249,8 +258,9 @@ npm test        # node --test test/
 | `CHROMIUM_PATH` | auto | compare-coverage, agent standings |
 | `OUT` | `data/comparison.json` | compare-coverage |
 | `AGENT_OUT` | `data/agent-recommendations.json` | agent |
-| `MAX_BETS` | `3` | stake |
-| `STAKE_PER_BET` | `10` | stake |
+| `STAKE_PER_BET` | `10` | stake, placement, autoplace (default stake per slip when no bankroll is computed) |
+| `BANKROLL_DIVISOR` | `2` | autoplace (balance split into active/reserve halves) |
+| `STAKE_PERCENT_OF_HALF` | `0.25` | autoplace (fixed stake per slip as share of the active half) |
 | `MIN_CONFIDENCE` | `0.6` | stake |
 | `ALLOW_FRIENDLIES` | `false` | stake |
 | `STAKE_SLIP` | `data/stake-slip.json` | stake, placement, monitor |

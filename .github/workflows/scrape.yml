@@ -19,10 +19,11 @@ jobs:
     timeout-minutes: 120
 
     env:
-      MAX_BETS: 2
       STAKE_PER_BET: 10
       MIN_CONFIDENCE: 0.6
       ALLOW_FRIENDLIES: "false"
+      BANKROLL_DIVISOR: 2
+      STAKE_PERCENT_OF_HALF: 0.25
 
     steps:
       - name: Checkout repository

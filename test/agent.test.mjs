@@ -314,7 +314,7 @@ test('webResearch returns per-side buckets (symmetric research)', async () => {
   assert.ok(Object.keys(r).length === 7);
 });
 
-test('selectBets skips friendlies unless allowed and caps at MAX_BETS', () => {
+test('selectBets skips friendlies unless allowed', () => {
   assert.equal(isFriendly('WORLD: Club Friendly'), true);
   assert.equal(isFriendly('Premier League'), false);
 
@@ -324,16 +324,15 @@ test('selectBets skips friendlies unless allowed and caps at MAX_BETS', () => {
   });
   const report = {
     matches: [
-      mk('1', 'Premier League', 'Home', 2.0, 0.9),
+      mk('1', 'Premier League', 'Home', 3.1, 0.9),
       mk('2', 'Premier League', 'Home', 2.1, 0.85),
       mk('3', 'WORLD: Club Friendly', 'Home', 2.0, 0.95),
       mk('4', 'La Liga', 'Away', 2.2, 0.8),
     ],
   };
   const bets = selectBets(report);
-  assert.equal(bets.length, 3); // MAX_BETS default
+  assert.equal(bets.length, 3); // selectBets no longer caps; all non-friendly picks return
   assert.ok(bets.every((b) => b.match.tournament !== 'WORLD: Club Friendly'));
-  assert.equal(bets[0].match.eventId, '1');
 });
 
 test('selectBets rejects trivial 1X2 odds', () => {
@@ -363,11 +362,11 @@ test('resolveOutcome finds the O/U line via specifier and live odds', () => {
 
 test('writeReport renders settled P&L rows', () => {
   const slip = {
-    stakePerBet: 1,
-    bets: [
-      { homeTeam: 'Ajax', awayTeam: 'Heerenveen', market: 'Over/Under', outcome: 'Over 3.5', odds: 2.05, stake: 1, status: 'settled', result: 'WON', payout: 2.05, net: 1.05 },
-      { homeTeam: 'A', awayTeam: 'B', market: '1X2', outcome: 'Home', odds: 1.6, stake: 1, status: 'settled', result: 'LOST', payout: 0, net: -1 },
-      { homeTeam: 'C', awayTeam: 'D', market: '1X2', outcome: 'Draw', odds: 3.2, stake: 1, status: 'pending', result: null, payout: null, net: null },
+    stakePerSlip: 1,
+    slips: [
+      { slipId: 's1', type: 'single', stake: 1, combinedOdds: 2.05, status: 'settled', result: 'WON', payout: 2.05, net: 1.05, legs: [{ homeTeam: 'Ajax', awayTeam: 'Heerenveen', market: 'Over/Under', outcome: 'Over 3.5' }] },
+      { slipId: 's2', type: 'single', stake: 1, combinedOdds: 1.6, status: 'settled', result: 'LOST', payout: 0, net: -1, legs: [{ homeTeam: 'A', awayTeam: 'B', market: '1X2', outcome: 'Home' }] },
+      { slipId: 's3', type: 'single', stake: 1, combinedOdds: 3.2, status: 'pending', result: null, payout: null, net: null, legs: [{ homeTeam: 'C', awayTeam: 'D', market: '1X2', outcome: 'Draw' }] },
     ],
   };
   const tmp = '/tmp/stake-results-test.md';

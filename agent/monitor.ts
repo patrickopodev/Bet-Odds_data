@@ -27,19 +27,49 @@ export async function settleBet(bet: Bet): Promise<{ settled: boolean; result?: 
   bet.result = result ?? 'UNKNOWN';
   bet.status = 'settled';
   bet.settledAt = new Date().toISOString();
-  bet.payout = result === 'WON' ? bet.stake * bet.odds : result === 'VOID' ? bet.stake : 0;
-  bet.net = Math.round((bet.payout - bet.stake) * 100) / 100;
-  return { settled: true, result: bet.result, score: fm.score, net: bet.net };
+  return { settled: true, result: bet.result, score: fm.score };
+}
+
+// Settle a slip: every leg must finish first. For a single-leg slip the payout
+// is stake * odds; for an accumulator it is stake * product of every WON leg's
+// odds, and any LOST leg voids the whole slip.
+export function settleSlip(slip: any): { settled: boolean; skipped?: string } {
+  const open = (slip.legs ?? []).filter((l: any) => l.status === 'placed' || l.status === 'confirmed');
+  const stillOpen = open.filter((l: any) => l.status !== 'settled');
+  if (stillOpen.length) return { settled: false, skipped: `${stillOpen.length} leg(s) not settled yet` };
+
+  const legs = slip.legs ?? [];
+  const results = legs.map((l: any) => l.result);
+  if (results.some((r: any) => r === 'LOST')) {
+    slip.result = 'LOST';
+    slip.payout = 0;
+    slip.net = -Math.round(slip.stake * 100) / 100;
+  } else if (results.every((r: any) => r === 'WON')) {
+    const product = legs.reduce((acc: number, l: any) => acc * l.odds, 1);
+    slip.result = 'WON';
+    slip.payout = Math.round(slip.stake * product * 100) / 100;
+    slip.net = Math.round((slip.payout - slip.stake) * 100) / 100;
+  } else {
+    slip.result = 'VOID';
+    slip.payout = slip.stake;
+    slip.net = 0;
+  }
+  slip.settledAt = new Date().toISOString();
+  slip.status = 'settled';
+  return { settled: true };
 }
 
 export function writeReport(slip: any, resultsFile = path.join(process.env.DATA_DIR ?? 'data', 'stake-results.md')) {
-  const all: Bet[] = slip.bets ?? [];
-  const won = all.filter((b) => b.result === 'WON');
-  const lost = all.filter((b) => b.result === 'LOST');
-  const voide = all.filter((b) => b.result === 'VOID');
-  const open = all.filter((b) => b.status !== 'settled');
-  const totalNet = Math.round(all.reduce((n, b) => n + (b.net ?? 0), 0) * 100) / 100;
-  const staked = all.reduce((n, b) => n + (b.stake ?? 0), 0);
+  const all: any[] = (slip.slips ?? []).map((s: any) => ({
+    ...s,
+    legNames: (s.legs ?? []).map((l: any) => `${l.homeTeam} vs ${l.awayTeam}`).join(' + '),
+  }));
+  const won = all.filter((s) => s.result === 'WON');
+  const lost = all.filter((s) => s.result === 'LOST');
+  const voide = all.filter((s) => s.result === 'VOID');
+  const open = all.filter((s) => s.status !== 'settled');
+  const totalNet = Math.round(all.reduce((n, s) => n + (s.net ?? 0), 0) * 100) / 100;
+  const staked = all.reduce((n, s) => n + (s.stake ?? 0), 0);
 
   const lines = [
     '# Stake results',
@@ -48,8 +78,8 @@ export function writeReport(slip: any, resultsFile = path.join(process.env.DATA_
     '',
     '| Metric | Value |',
     '| --- | --- |',
-    `| Bets | ${all.length} |`,
-    `| Settled | ${all.filter((b) => b.status === 'settled').length} |`,
+    `| Slips | ${all.length} |`,
+    `| Settled | ${all.filter((s) => s.status === 'settled').length} |`,
     `| Won | ${won.length} |`,
     `| Lost | ${lost.length} |`,
     `| Void | ${voide.length} |`,
@@ -57,12 +87,12 @@ export function writeReport(slip: any, resultsFile = path.join(process.env.DATA_
     `| Staked | ${staked} |`,
     `| Net P&L | ${totalNet} |`,
     '',
-    '| Fixture | Market | Outcome | Odds | Stake | Result | Payout | Net |',
+    '| Slip | Type | Fixture(s) | Combined Odds | Stake | Result | Payout | Net |',
     '| --- | --- | --- | ---: | ---: | --- | ---: | ---: |',
   ];
-  for (const b of all) {
+  for (const s of all) {
     lines.push(
-      `| ${b.homeTeam} vs ${b.awayTeam} | ${b.market ?? ''} | ${b.outcome} | ${b.odds} | ${b.stake} | ${b.result ?? b.status} | ${b.payout ?? '-'} | ${b.net ?? '-'} |`
+      `| ${s.slipId} | ${s.type} | ${s.legNames} | ${s.combinedOdds ?? '-'} | ${s.stake} | ${s.result ?? s.status} | ${s.payout ?? '-'} | ${s.net ?? '-'} |`
     );
   }
   fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -78,28 +108,38 @@ export async function main() {
     console.error(`agent:monitor: cannot read ${SLIP_FILE}: ${(e as Error).message}`);
     process.exit(0);
   }
-  const open = (slip.bets ?? []).filter(
-    (b: Bet) => b.status === 'pending' || b.status === 'placed' || b.status === 'slip-ready' || b.status === 'confirmed'
+  const open = (slip.slips ?? []).filter(
+    (s: any) => s.status === 'pending' || s.status === 'placed' || s.status === 'slip-ready' || s.status === 'confirmed'
   );
   let settledCount = 0;
-  for (const bet of open) {
-    try {
-      const r = await settleBet(bet);
-      if (r.settled) {
-        settledCount++;
-        console.log(`  ${bet.homeTeam} ${r.score} ${bet.awayTeam} — ${bet.outcome} → ${r.result} (net ${r.net})`);
-      } else {
-        console.log(`  ${bet.homeTeam} vs ${bet.awayTeam}: ${r.skipped}`);
+  for (const s of open) {
+    // First settle every leg of the slip against its finished fixture.
+    for (const leg of s.legs ?? []) {
+      if (leg.status !== 'placed' && leg.status !== 'confirmed') continue;
+      try {
+        const r = await settleBet(leg);
+        if (r.settled) {
+          console.log(`  ${leg.homeTeam} ${r.score} ${leg.awayTeam} — ${leg.outcome} → ${r.result}`);
+        } else {
+          console.log(`  ${leg.homeTeam} vs ${leg.awayTeam}: ${r.skipped}`);
+        }
+      } catch (e) {
+        console.warn(`  ${leg.homeTeam} vs ${leg.awayTeam}: ${(e as Error).message}`);
       }
-    } catch (e) {
-      console.warn(`  ${bet.homeTeam} vs ${bet.awayTeam}: ${(e as Error).message}`);
+    }
+    const r = settleSlip(s);
+    if (r.settled) {
+      settledCount++;
+      console.log(`  slip ${s.slipId} [${s.type}] → ${s.result} (payout ${s.payout}, net ${s.net})`);
+    } else {
+      console.log(`  slip ${s.slipId}: ${r.skipped}`);
     }
   }
   if (settledCount) {
     fs.writeFileSync(SLIP_FILE, JSON.stringify(slip, null, 2));
   }
   writeReport(slip);
-  const stillOpen = (slip.bets ?? []).filter((b: Bet) => b.status !== 'settled').length;
+  const stillOpen = (slip.slips ?? []).filter((s: any) => s.status !== 'settled').length;
   console.log(`[agent:monitor] ${settledCount} settled; ${stillOpen} still open`);
 }
 

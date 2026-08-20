@@ -48,7 +48,7 @@ export async function confirmBet(bet: Bet): Promise<ConfirmResult> {
   const checks: string[] = [];
   const errors: string[] = [];
 
-  // 1. Share code still resolves.
+  // 1. Share code still resolves (a slip may hold several legs under one code).
   if (bet.shareCode) {
     try {
       const data = await loadShareCode(bet.shareCode);
@@ -121,7 +121,13 @@ export async function main() {
     console.error(`agent:confirm: cannot read ${SLIP_FILE}: ${(e as Error).message}`);
     process.exit(0);
   }
-  const bets = (slip.bets ?? []).filter((b: Bet) => b.status === 'pending' || b.status === 'slip-ready');
+  // Slip-centric: confirm each leg of a pending/slip-ready slip. A slip is
+  // confirmed only when every leg passes; any failing leg cancels the whole
+  // slip (an accumulator can't be placed with a broken leg).
+  const pending = (slip.slips ?? []).filter((s: any) => s.status === 'pending' || s.status === 'slip-ready');
+  const bets = pending.flatMap((s: any) =>
+    (s.legs ?? []).map((leg: any) => ({ ...leg, slipId: s.slipId, stake: s.stake, shareCode: s.shareCode ?? leg.shareCode }))
+  );
   if (!bets.length) {
     console.log('[agent:confirm] no pending bets to confirm');
     fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -147,6 +153,23 @@ export async function main() {
       console.error(`  [cancelled] ${bet.homeTeam} vs ${bet.awayTeam} — ${r.errors.join('; ')}`);
     }
     report.bets.push({ eventId: bet.eventId, homeTeam: bet.homeTeam, awayTeam: bet.awayTeam, ok: r.ok, checks: r.checks, errors: r.errors });
+  }
+
+  // Collapse leg-level confirmations back onto their slips: a slip is
+  // confirmed only if all its legs were confirmed, otherwise cancelled.
+  for (const s of slip.slips ?? []) {
+    if (s.status !== 'pending' && s.status !== 'slip-ready') continue;
+    const legs = s.legs ?? [];
+    const allConfirmed = legs.every((l: any) => l.status === 'confirmed');
+    const anyCancelled = legs.some((l: any) => l.status === 'cancelled');
+    if (allConfirmed) {
+      s.status = 'confirmed';
+      s.confirmedAt = new Date().toISOString();
+    } else if (anyCancelled) {
+      s.status = 'cancelled';
+      s.cancelledAt = new Date().toISOString();
+      s.error = legs.find((l: any) => l.status === 'cancelled')?.error ?? 'leg cancelled';
+    }
   }
 
   fs.mkdirSync(DATA_DIR, { recursive: true });
