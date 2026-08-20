@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-08-20T21:01:00.815Z",
+  "createdAt": "2026-08-20T21:58:09.217Z",
   "stakePerSlip": 10,
   "currency": "GHS",
   "source": "agent-recommendations.json",
@@ -843,10 +843,10 @@
       "slipId": "slip-1",
       "type": "multi",
       "stake": 10,
-      "combinedOdds": 5.55,
+      "combinedOdds": 4.99,
       "status": "skipped",
-      "shareCode": "9WXJ7T",
-      "shareUrl": "https://www.sportybet.com/gh/?shareCode=9WXJ7T",
+      "shareCode": "BPYD7A",
+      "shareUrl": "https://www.sportybet.com/gh/?shareCode=BPYD7A",
       "error": "share code did not load expected selections",
       "placedAt": null,
       "settledAt": null,
@@ -854,6 +854,28 @@
       "payout": null,
       "net": null,
       "legs": [
+        {
+          "eventId": "sr:match:71805796",
+          "homeTeam": "LDU Quito",
+          "awayTeam": "Mirassol FC SP",
+          "tournament": "CONMEBOL Libertadores",
+          "startTime": "2026-08-20T22:00:00.000Z",
+          "marketId": "18",
+          "market": "Over/Under",
+          "outcome": "Over 1.5",
+          "odds": 1.44,
+          "minOdds": 1.22,
+          "confidence": 1,
+          "result": null,
+          "finalScore": null,
+          "error": null,
+          "currentOdds": 1.44,
+          "outcomeId": "12",
+          "specifier": "total=1.5",
+          "status": "slip-ready",
+          "shareCode": "BPYD7A",
+          "shareUrl": "https://www.sportybet.com/gh/?shareCode=BPYD7A"
+        },
         {
           "eventId": "sr:match:72661582",
           "homeTeam": "Venados  FC",
@@ -863,18 +885,18 @@
           "marketId": "18",
           "market": "Over/Under",
           "outcome": "Over 2.5",
-          "odds": 1.54,
-          "minOdds": 1.43,
-          "confidence": 0.9424118027566303,
+          "odds": 1.53,
+          "minOdds": 1.44,
+          "confidence": 0.9367561059511523,
           "result": null,
           "finalScore": null,
           "error": null,
-          "currentOdds": 1.54,
+          "currentOdds": 1.53,
           "outcomeId": "12",
           "specifier": "total=2.5",
           "status": "slip-ready",
-          "shareCode": "9WXJ7T",
-          "shareUrl": "https://www.sportybet.com/gh/?shareCode=9WXJ7T"
+          "shareCode": "BPYD7A",
+          "shareUrl": "https://www.sportybet.com/gh/?shareCode=BPYD7A"
         },
         {
           "eventId": "sr:match:71913642",
@@ -887,7 +909,7 @@
           "outcome": "Over 2.5",
           "odds": 1.49,
           "minOdds": 1.43,
-          "confidence": 0.8835131484529991,
+          "confidence": 0.8829091647868182,
           "result": null,
           "finalScore": null,
           "error": null,
@@ -895,30 +917,8 @@
           "outcomeId": "12",
           "specifier": "total=2.5",
           "status": "slip-ready",
-          "shareCode": "9WXJ7T",
-          "shareUrl": "https://www.sportybet.com/gh/?shareCode=9WXJ7T"
-        },
-        {
-          "eventId": "sr:match:69129714",
-          "homeTeam": "San Antonio FC",
-          "awayTeam": "9 de Octubre FC",
-          "tournament": "Serie B",
-          "startTime": "2026-08-20T21:10:00.000Z",
-          "marketId": "18",
-          "market": "Over/Under",
-          "outcome": "Over 1.5",
-          "odds": 1.59,
-          "minOdds": 1.26,
-          "confidence": 0.8538579805229594,
-          "result": null,
-          "finalScore": null,
-          "error": null,
-          "currentOdds": 1.59,
-          "outcomeId": "12",
-          "specifier": "total=1.5",
-          "status": "slip-ready",
-          "shareCode": "9WXJ7T",
-          "shareUrl": "https://www.sportybet.com/gh/?shareCode=9WXJ7T"
+          "shareCode": "BPYD7A",
+          "shareUrl": "https://www.sportybet.com/gh/?shareCode=BPYD7A"
         },
         {
           "eventId": "sr:match:73746124",
@@ -931,7 +931,7 @@
           "outcome": "Over 1.5",
           "odds": 1.52,
           "minOdds": 1.23,
-          "confidence": 0.6818673944614152,
+          "confidence": 0.6821052631578948,
           "result": null,
           "finalScore": null,
           "error": null,
@@ -939,18 +939,18 @@
           "outcomeId": "12",
           "specifier": "total=1.5",
           "status": "slip-ready",
-          "shareCode": "9WXJ7T",
-          "shareUrl": "https://www.sportybet.com/gh/?shareCode=9WXJ7T"
+          "shareCode": "BPYD7A",
+          "shareUrl": "https://www.sportybet.com/gh/?shareCode=BPYD7A"
         }
       ],
-      "codeReadyAt": "2026-08-20T21:01:02.898Z",
-      "skippedAt": "2026-08-20T21:02:19.410Z"
+      "codeReadyAt": "2026-08-20T21:58:12.672Z",
+      "skippedAt": "2026-08-20T21:59:31.134Z"
     },
     {
       "slipId": "slip-2",
       "type": "multi",
       "stake": 10,
-      "combinedOdds": 1.43,
+      "combinedOdds": 1.46,
       "status": "skipped",
       "shareCode": "EG76LW",
       "shareUrl": "https://www.sportybet.com/gh/?shareCode=EG76LW",
@@ -970,13 +970,13 @@
           "marketId": "18",
           "market": "Over/Under",
           "outcome": "Over 1.5",
-          "odds": 1.43,
+          "odds": 1.46,
           "minOdds": 1.22,
-          "confidence": 0.6459257815355376,
+          "confidence": 0.6598511018463372,
           "result": null,
           "finalScore": null,
           "error": null,
-          "currentOdds": 1.43,
+          "currentOdds": 1.47,
           "outcomeId": "12",
           "specifier": "total=1.5",
           "status": "slip-ready",
@@ -984,8 +984,8 @@
           "shareUrl": "https://www.sportybet.com/gh/?shareCode=EG76LW"
         }
       ],
-      "codeReadyAt": "2026-08-20T21:01:03.902Z",
-      "skippedAt": "2026-08-20T21:02:50.056Z"
+      "codeReadyAt": "2026-08-20T21:58:13.925Z",
+      "skippedAt": "2026-08-20T22:00:02.555Z"
     }
   ],
   "preservedCount": 17
