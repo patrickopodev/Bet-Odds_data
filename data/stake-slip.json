@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-08-20T19:36:38.203Z",
+  "createdAt": "2026-08-20T20:04:46.445Z",
   "stakePerSlip": 10,
   "currency": "GHS",
   "source": "agent-recommendations.json",
@@ -840,14 +840,14 @@
       "codeReadyAt": "2026-08-20T19:36:39.962Z"
     },
     {
-      "slipId": "slip-2",
+      "slipId": "slip-1",
       "type": "multi",
       "stake": 10,
       "combinedOdds": 4.76,
       "status": "skipped",
-      "shareCode": "BP0WVA",
-      "shareUrl": "https://www.sportybet.com/gh/?shareCode=BP0WVA",
-      "error": "booking-code input never appeared",
+      "shareCode": null,
+      "shareUrl": null,
+      "error": "Arborg vs Hamar: market 18 no longer on event; Independiente Santa Fe vs Fortaleza FC: market 18 no longer on event",
       "placedAt": null,
       "settledAt": null,
       "result": null,
@@ -868,13 +868,7 @@
           "confidence": 0.9934121016827784,
           "result": null,
           "finalScore": null,
-          "error": null,
-          "currentOdds": 1.47,
-          "outcomeId": "12",
-          "specifier": "total=3.5",
-          "status": "slip-ready",
-          "shareCode": "BP0WVA",
-          "shareUrl": "https://www.sportybet.com/gh/?shareCode=BP0WVA"
+          "error": "market 18 no longer on event"
         },
         {
           "eventId": "sr:match:72661582",
@@ -887,16 +881,13 @@
           "outcome": "Over 2.5",
           "odds": 1.54,
           "minOdds": 1.44,
-          "confidence": 0.9414736882352192,
+          "confidence": 0.9412743506493506,
           "result": null,
           "finalScore": null,
           "error": null,
           "currentOdds": 1.54,
           "outcomeId": "12",
-          "specifier": "total=2.5",
-          "status": "slip-ready",
-          "shareCode": "BP0WVA",
-          "shareUrl": "https://www.sportybet.com/gh/?shareCode=BP0WVA"
+          "specifier": "total=2.5"
         },
         {
           "eventId": "sr:match:73747492",
@@ -909,16 +900,10 @@
           "outcome": "Under 3.5",
           "odds": 1.41,
           "minOdds": 1.41,
-          "confidence": 0.8944068737103122,
+          "confidence": 0.8944703283808735,
           "result": null,
           "finalScore": null,
-          "error": null,
-          "currentOdds": 1.41,
-          "outcomeId": "13",
-          "specifier": "total=3.5",
-          "status": "slip-ready",
-          "shareCode": "BP0WVA",
-          "shareUrl": "https://www.sportybet.com/gh/?shareCode=BP0WVA"
+          "error": "market 18 no longer on event"
         },
         {
           "eventId": "sr:match:71913642",
@@ -931,30 +916,26 @@
           "outcome": "Over 2.5",
           "odds": 1.49,
           "minOdds": 1.43,
-          "confidence": 0.882945081908061,
+          "confidence": 0.8827093277823638,
           "result": null,
           "finalScore": null,
           "error": null,
           "currentOdds": 1.49,
           "outcomeId": "12",
-          "specifier": "total=2.5",
-          "status": "slip-ready",
-          "shareCode": "BP0WVA",
-          "shareUrl": "https://www.sportybet.com/gh/?shareCode=BP0WVA"
+          "specifier": "total=2.5"
         }
       ],
-      "codeReadyAt": "2026-08-20T19:36:41.461Z",
-      "skippedAt": "2026-08-20T19:38:42.045Z"
+      "skippedAt": "2026-08-20T20:04:47.210Z"
     },
     {
-      "slipId": "slip-3",
+      "slipId": "slip-2",
       "type": "multi",
       "stake": 10,
-      "combinedOdds": 3.46,
+      "combinedOdds": 4.84,
       "status": "skipped",
-      "shareCode": "B067DV",
-      "shareUrl": "https://www.sportybet.com/gh/?shareCode=B067DV",
-      "error": "booking-code input never appeared",
+      "shareCode": null,
+      "shareUrl": null,
+      "error": "Cde Juventud Italiana vs Delfin SC: market 18 no longer on event",
       "placedAt": null,
       "settledAt": null,
       "result": null,
@@ -972,16 +953,29 @@
           "outcome": "Over 1.5",
           "odds": 1.59,
           "minOdds": 1.26,
-          "confidence": 0.8528057093360449,
+          "confidence": 0.85137944491977,
           "result": null,
           "finalScore": null,
           "error": null,
           "currentOdds": 1.59,
           "outcomeId": "12",
-          "specifier": "total=1.5",
-          "status": "slip-ready",
-          "shareCode": "B067DV",
-          "shareUrl": "https://www.sportybet.com/gh/?shareCode=B067DV"
+          "specifier": "total=1.5"
+        },
+        {
+          "eventId": "sr:match:72741648",
+          "homeTeam": "Cde Juventud Italiana",
+          "awayTeam": "Delfin SC",
+          "tournament": "Copa Ecuador",
+          "startTime": "2026-08-20T20:00:00.000Z",
+          "marketId": "18",
+          "market": "Over/Under",
+          "outcome": "Over 1.5",
+          "odds": 1.4,
+          "minOdds": 1.22,
+          "confidence": 0.7921358977603442,
+          "result": null,
+          "finalScore": null,
+          "error": "market 18 no longer on event"
         },
         {
           "eventId": "sr:match:73746124",
@@ -994,16 +988,13 @@
           "outcome": "Over 1.5",
           "odds": 1.52,
           "minOdds": 1.23,
-          "confidence": 0.6813706892107841,
+          "confidence": 0.6806432748538012,
           "result": null,
           "finalScore": null,
           "error": null,
           "currentOdds": 1.52,
           "outcomeId": "12",
-          "specifier": "total=1.5",
-          "status": "slip-ready",
-          "shareCode": "B067DV",
-          "shareUrl": "https://www.sportybet.com/gh/?shareCode=B067DV"
+          "specifier": "total=1.5"
         },
         {
           "eventId": "sr:match:71805384",
@@ -1016,21 +1007,17 @@
           "outcome": "Over 1.5",
           "odds": 1.43,
           "minOdds": 1.22,
-          "confidence": 0.6469717021329925,
+          "confidence": 0.6462746798250812,
           "result": null,
           "finalScore": null,
           "error": null,
           "currentOdds": 1.43,
           "outcomeId": "12",
-          "specifier": "total=1.5",
-          "status": "slip-ready",
-          "shareCode": "B067DV",
-          "shareUrl": "https://www.sportybet.com/gh/?shareCode=B067DV"
+          "specifier": "total=1.5"
         }
       ],
-      "codeReadyAt": "2026-08-20T19:36:43.206Z",
-      "skippedAt": "2026-08-20T19:39:13.299Z"
+      "skippedAt": "2026-08-20T20:04:48.098Z"
     }
   ],
-  "preservedCount": 16
+  "preservedCount": 17
 }
