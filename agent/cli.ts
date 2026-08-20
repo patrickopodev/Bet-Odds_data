@@ -26,7 +26,7 @@ const MARKET_NAMES: Record<string, string> = {
   '41': 'Correct Score',
 };
 
-async function mapWithConcurrency<T, R>(items: T[], worker: (item: T) => Promise<R>, limit = 2): Promise<R[]> {
+async function mapWithConcurrency<T, R>(items: T[], worker: (item: T) => Promise<R>, limit = 4): Promise<R[]> {
   const results: R[] = new Array(items.length);
   let next = 0;
   const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {

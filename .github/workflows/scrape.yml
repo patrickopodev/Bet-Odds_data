@@ -16,7 +16,7 @@ concurrency:
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 240
 
     env:
       STAKE_PER_BET: 10
@@ -46,20 +46,11 @@ jobs:
         id: scrape
         run: node scraper.js
 
-      - name: Monitor final-30-minute pre-match odds (5-min cadence)
-        run: node prematch-monitor.mjs --window 30 --interval 300 --max 45
+      - name: Monitor pre-match odds (all-day window, 5-min cadence)
+        run: node prematch-monitor.mjs --window 1440 --interval 300 --max 120
 
       - name: Build persistent odds database
         run: node build-db.mjs
-
-      - name: Resolve finished matches
-        run: node resolve-results.mjs
-
-      - name: Generate good/bad odds report
-        run: node analyze-odds.mjs --db
-
-      - name: Verify SportyBet coverage vs Flashscore
-        run: node compare-coverage.mjs
 
       - name: Run TypeScript decision agent (deep research)
         run: |
@@ -94,6 +85,12 @@ jobs:
             data/*.md
           if-no-files-found: error
           retention-days: 90
+
+      - name: Resolve finished matches (end-of-day)
+        run: node resolve-results.mjs
+
+      - name: Generate good/bad odds report (end-of-day, feeds tomorrow)
+        run: node analyze-odds.mjs --db
 
       - name: Commit and push data
         run: |
