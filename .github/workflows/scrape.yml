@@ -46,8 +46,8 @@ jobs:
         id: scrape
         run: node scraper.js
 
-      - name: Monitor pre-match odds (all-day window, 5-min cadence)
-        run: node prematch-monitor.mjs --window 1440 --interval 300 --max 120
+      - name: Monitor pre-match odds (5-min cadence, final 30 min before kickoff)
+        run: node prematch-monitor.mjs --window 30 --interval 300 --max 45
 
       - name: Build persistent odds database
         run: node build-db.mjs
