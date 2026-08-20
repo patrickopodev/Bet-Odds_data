@@ -1,6 +1,6 @@
 # Stake share code
 
-Generated: 2026-08-20T20:31:07.487Z
+Generated: 2026-08-20T21:01:03.903Z
 
 Open in the SportyBet app to fill your bet slip (stake per slip: 10):
 

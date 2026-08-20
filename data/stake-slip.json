@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-08-20T20:31:04.353Z",
+  "createdAt": "2026-08-20T21:01:00.815Z",
   "stakePerSlip": 10,
   "currency": "GHS",
   "source": "agent-recommendations.json",
@@ -864,8 +864,8 @@
           "market": "Over/Under",
           "outcome": "Over 2.5",
           "odds": 1.54,
-          "minOdds": 1.44,
-          "confidence": 0.9398346076813584,
+          "minOdds": 1.43,
+          "confidence": 0.9424118027566303,
           "result": null,
           "finalScore": null,
           "error": null,
@@ -887,7 +887,7 @@
           "outcome": "Over 2.5",
           "odds": 1.49,
           "minOdds": 1.43,
-          "confidence": 0.8811095911882473,
+          "confidence": 0.8835131484529991,
           "result": null,
           "finalScore": null,
           "error": null,
@@ -909,7 +909,7 @@
           "outcome": "Over 1.5",
           "odds": 1.59,
           "minOdds": 1.26,
-          "confidence": 0.8525179456408205,
+          "confidence": 0.8538579805229594,
           "result": null,
           "finalScore": null,
           "error": null,
@@ -931,7 +931,7 @@
           "outcome": "Over 1.5",
           "odds": 1.52,
           "minOdds": 1.23,
-          "confidence": 0.6801821862348179,
+          "confidence": 0.6818673944614152,
           "result": null,
           "finalScore": null,
           "error": null,
@@ -943,8 +943,8 @@
           "shareUrl": "https://www.sportybet.com/gh/?shareCode=9WXJ7T"
         }
       ],
-      "codeReadyAt": "2026-08-20T20:31:06.165Z",
-      "skippedAt": "2026-08-20T20:32:23.599Z"
+      "codeReadyAt": "2026-08-20T21:01:02.898Z",
+      "skippedAt": "2026-08-20T21:02:19.410Z"
     },
     {
       "slipId": "slip-2",
@@ -972,7 +972,7 @@
           "outcome": "Over 1.5",
           "odds": 1.43,
           "minOdds": 1.22,
-          "confidence": 0.6457653799944549,
+          "confidence": 0.6459257815355376,
           "result": null,
           "finalScore": null,
           "error": null,
@@ -984,8 +984,8 @@
           "shareUrl": "https://www.sportybet.com/gh/?shareCode=EG76LW"
         }
       ],
-      "codeReadyAt": "2026-08-20T20:31:07.486Z",
-      "skippedAt": "2026-08-20T20:32:54.941Z"
+      "codeReadyAt": "2026-08-20T21:01:03.902Z",
+      "skippedAt": "2026-08-20T21:02:50.056Z"
     }
   ],
   "preservedCount": 17
