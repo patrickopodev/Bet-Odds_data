@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-08-20T20:04:46.445Z",
+  "createdAt": "2026-08-20T20:31:04.353Z",
   "stakePerSlip": 10,
   "currency": "GHS",
   "source": "agent-recommendations.json",
@@ -843,33 +843,17 @@
       "slipId": "slip-1",
       "type": "multi",
       "stake": 10,
-      "combinedOdds": 4.76,
+      "combinedOdds": 5.55,
       "status": "skipped",
-      "shareCode": null,
-      "shareUrl": null,
-      "error": "Arborg vs Hamar: market 18 no longer on event; Independiente Santa Fe vs Fortaleza FC: market 18 no longer on event",
+      "shareCode": "9WXJ7T",
+      "shareUrl": "https://www.sportybet.com/gh/?shareCode=9WXJ7T",
+      "error": "share code did not load expected selections",
       "placedAt": null,
       "settledAt": null,
       "result": null,
       "payout": null,
       "net": null,
       "legs": [
-        {
-          "eventId": "sr:match:70844556",
-          "homeTeam": "Arborg",
-          "awayTeam": "Hamar",
-          "tournament": "4. deild",
-          "startTime": "2026-08-20T20:00:00.000Z",
-          "marketId": "18",
-          "market": "Over/Under",
-          "outcome": "Over 3.5",
-          "odds": 1.47,
-          "minOdds": 1.27,
-          "confidence": 0.9934121016827784,
-          "result": null,
-          "finalScore": null,
-          "error": "market 18 no longer on event"
-        },
         {
           "eventId": "sr:match:72661582",
           "homeTeam": "Venados  FC",
@@ -881,29 +865,16 @@
           "outcome": "Over 2.5",
           "odds": 1.54,
           "minOdds": 1.44,
-          "confidence": 0.9412743506493506,
+          "confidence": 0.9398346076813584,
           "result": null,
           "finalScore": null,
           "error": null,
           "currentOdds": 1.54,
           "outcomeId": "12",
-          "specifier": "total=2.5"
-        },
-        {
-          "eventId": "sr:match:73747492",
-          "homeTeam": "Independiente Santa Fe",
-          "awayTeam": "Fortaleza FC",
-          "tournament": "Liga Femenina",
-          "startTime": "2026-08-20T20:00:00.000Z",
-          "marketId": "18",
-          "market": "Over/Under",
-          "outcome": "Under 3.5",
-          "odds": 1.41,
-          "minOdds": 1.41,
-          "confidence": 0.8944703283808735,
-          "result": null,
-          "finalScore": null,
-          "error": "market 18 no longer on event"
+          "specifier": "total=2.5",
+          "status": "slip-ready",
+          "shareCode": "9WXJ7T",
+          "shareUrl": "https://www.sportybet.com/gh/?shareCode=9WXJ7T"
         },
         {
           "eventId": "sr:match:71913642",
@@ -916,32 +887,17 @@
           "outcome": "Over 2.5",
           "odds": 1.49,
           "minOdds": 1.43,
-          "confidence": 0.8827093277823638,
+          "confidence": 0.8811095911882473,
           "result": null,
           "finalScore": null,
           "error": null,
           "currentOdds": 1.49,
           "outcomeId": "12",
-          "specifier": "total=2.5"
-        }
-      ],
-      "skippedAt": "2026-08-20T20:04:47.210Z"
-    },
-    {
-      "slipId": "slip-2",
-      "type": "multi",
-      "stake": 10,
-      "combinedOdds": 4.84,
-      "status": "skipped",
-      "shareCode": null,
-      "shareUrl": null,
-      "error": "Cde Juventud Italiana vs Delfin SC: market 18 no longer on event",
-      "placedAt": null,
-      "settledAt": null,
-      "result": null,
-      "payout": null,
-      "net": null,
-      "legs": [
+          "specifier": "total=2.5",
+          "status": "slip-ready",
+          "shareCode": "9WXJ7T",
+          "shareUrl": "https://www.sportybet.com/gh/?shareCode=9WXJ7T"
+        },
         {
           "eventId": "sr:match:69129714",
           "homeTeam": "San Antonio FC",
@@ -953,29 +909,16 @@
           "outcome": "Over 1.5",
           "odds": 1.59,
           "minOdds": 1.26,
-          "confidence": 0.85137944491977,
+          "confidence": 0.8525179456408205,
           "result": null,
           "finalScore": null,
           "error": null,
           "currentOdds": 1.59,
           "outcomeId": "12",
-          "specifier": "total=1.5"
-        },
-        {
-          "eventId": "sr:match:72741648",
-          "homeTeam": "Cde Juventud Italiana",
-          "awayTeam": "Delfin SC",
-          "tournament": "Copa Ecuador",
-          "startTime": "2026-08-20T20:00:00.000Z",
-          "marketId": "18",
-          "market": "Over/Under",
-          "outcome": "Over 1.5",
-          "odds": 1.4,
-          "minOdds": 1.22,
-          "confidence": 0.7921358977603442,
-          "result": null,
-          "finalScore": null,
-          "error": "market 18 no longer on event"
+          "specifier": "total=1.5",
+          "status": "slip-ready",
+          "shareCode": "9WXJ7T",
+          "shareUrl": "https://www.sportybet.com/gh/?shareCode=9WXJ7T"
         },
         {
           "eventId": "sr:match:73746124",
@@ -988,14 +931,36 @@
           "outcome": "Over 1.5",
           "odds": 1.52,
           "minOdds": 1.23,
-          "confidence": 0.6806432748538012,
+          "confidence": 0.6801821862348179,
           "result": null,
           "finalScore": null,
           "error": null,
           "currentOdds": 1.52,
           "outcomeId": "12",
-          "specifier": "total=1.5"
-        },
+          "specifier": "total=1.5",
+          "status": "slip-ready",
+          "shareCode": "9WXJ7T",
+          "shareUrl": "https://www.sportybet.com/gh/?shareCode=9WXJ7T"
+        }
+      ],
+      "codeReadyAt": "2026-08-20T20:31:06.165Z",
+      "skippedAt": "2026-08-20T20:32:23.599Z"
+    },
+    {
+      "slipId": "slip-2",
+      "type": "multi",
+      "stake": 10,
+      "combinedOdds": 1.43,
+      "status": "skipped",
+      "shareCode": "EG76LW",
+      "shareUrl": "https://www.sportybet.com/gh/?shareCode=EG76LW",
+      "error": "booking-code input never appeared",
+      "placedAt": null,
+      "settledAt": null,
+      "result": null,
+      "payout": null,
+      "net": null,
+      "legs": [
         {
           "eventId": "sr:match:71805384",
           "homeTeam": "Club Olimpia",
@@ -1007,16 +972,20 @@
           "outcome": "Over 1.5",
           "odds": 1.43,
           "minOdds": 1.22,
-          "confidence": 0.6462746798250812,
+          "confidence": 0.6457653799944549,
           "result": null,
           "finalScore": null,
           "error": null,
           "currentOdds": 1.43,
           "outcomeId": "12",
-          "specifier": "total=1.5"
+          "specifier": "total=1.5",
+          "status": "slip-ready",
+          "shareCode": "EG76LW",
+          "shareUrl": "https://www.sportybet.com/gh/?shareCode=EG76LW"
         }
       ],
-      "skippedAt": "2026-08-20T20:04:48.098Z"
+      "codeReadyAt": "2026-08-20T20:31:07.486Z",
+      "skippedAt": "2026-08-20T20:32:54.941Z"
     }
   ],
   "preservedCount": 17

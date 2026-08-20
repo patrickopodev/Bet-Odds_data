@@ -1,6 +1,6 @@
 # Stake results
 
-Updated: 2026-08-20T20:04:49.531Z
+Updated: 2026-08-20T20:32:56.160Z
 
 | Metric | Value |
 | --- | --- |
@@ -32,5 +32,5 @@ Updated: 2026-08-20T20:04:49.531Z
 | legacy-15 | single | MSK Spisske Podhradie vs MFK Ruzomberok | 1.46 | 10 | cancelled | - | - |
 | legacy-16 | single | Independiente Rivadavia vs Fluminense FC RJ | 1.58 | 10 | WON | 15.8 | 5.8 |
 | slip-1 | multi | IH Hafnarfjordur vs Ellidi + Ulfanir vs KFR + CD Real Santander vs Barranquilla FC + Club Deportivo Cuenca Juniors vs Gualaceo SC | 7.33 | 10 | failed | - | - |
-| slip-1 | multi | Arborg vs Hamar + Venados  FC vs CSD Dorados Sinaloa + Independiente Santa Fe vs Fortaleza FC + Defence Force FC vs SV Broki | 4.76 | 10 | skipped | - | - |
-| slip-2 | multi | San Antonio FC vs 9 de Octubre FC + Cde Juventud Italiana vs Delfin SC + Itagui Leones FC vs Real Cundinamarca + Club Olimpia vs CR Vasco da Gama RJ | 4.84 | 10 | skipped | - | - |
+| slip-1 | multi | Venados  FC vs CSD Dorados Sinaloa + Defence Force FC vs SV Broki + San Antonio FC vs 9 de Octubre FC + Itagui Leones FC vs Real Cundinamarca | 5.55 | 10 | skipped | - | - |
+| slip-2 | multi | Club Olimpia vs CR Vasco da Gama RJ | 1.43 | 10 | skipped | - | - |
