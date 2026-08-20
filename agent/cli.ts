@@ -71,7 +71,7 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
     const started = Date.parse(m.startTime);
     if (Number.isNaN(started)) return null;
     const inWindow = started - Date.now();
-    if (inWindow < -3600_000 || inWindow > 36 * 3600_000) return null; // 1h ago .. 36h ahead
+    if (inWindow < -3600_000 || inWindow > 12 * 3600_000) return null; // 1h ago .. 12h ahead
 
     let home: TeamInfo;
     let away: TeamInfo;
