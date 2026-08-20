@@ -1,16 +1,16 @@
 # Stake results
 
-Updated: 2026-08-20T19:03:22.770Z
+Updated: 2026-08-20T19:39:14.237Z
 
 | Metric | Value |
 | --- | --- |
-| Slips | 21 |
+| Slips | 19 |
 | Settled | 4 |
 | Won | 3 |
 | Lost | 1 |
 | Void | 0 |
-| Open | 17 |
-| Staked | 210 |
+| Open | 15 |
+| Staked | 190 |
 | Net P&L | 17.3 |
 
 | Slip | Type | Fixture(s) | Combined Odds | Stake | Result | Payout | Net |
@@ -31,8 +31,6 @@ Updated: 2026-08-20T19:03:22.770Z
 | legacy-14 | single | KA/Dalv/KF/Hott/Ham U19 vs Stjarnan/KFG U19 | 1.4 | 10 | cancelled | - | - |
 | legacy-15 | single | MSK Spisske Podhradie vs MFK Ruzomberok | 1.46 | 10 | cancelled | - | - |
 | legacy-16 | single | Independiente Rivadavia vs Fluminense FC RJ | 1.58 | 10 | WON | 15.8 | 5.8 |
-| slip-1 | multi | Rayo Vallecano vs Alaves + FC Dinamo City vs Pafos FC + Shamrock Rovers vs Kuopion Palloseura + Always Ready vs Cdt Real Oruro | 11.51 | 10 | skipped | - | - |
-| slip-2 | multi | IH Hafnarfjordur vs Ellidi + Ulfanir vs KFR + CD Real Santander vs Barranquilla FC + Club Deportivo Cuenca Juniors vs Gualaceo SC | 7.33 | 10 | skipped | - | - |
-| slip-3 | multi | Independiente Medellin vs America de Cali Sa + HNK Hajduk Split vs Rakow Czestochowa + Arborg vs Hamar + Venados  FC vs CSD Dorados Sinaloa | 6.95 | 10 | skipped | - | - |
-| slip-4 | multi | Benfica vs AGF Aarhus + Independiente Santa Fe vs Fortaleza FC + Defence Force FC vs SV Broki + San Antonio FC vs 9 de Octubre FC | 6.18 | 10 | skipped | - | - |
-| slip-5 | multi | Sheffield Wednesday vs Bradford City FC + Itagui Leones FC vs Real Cundinamarca + Club Olimpia vs CR Vasco da Gama RJ | 4.09 | 10 | skipped | - | - |
+| slip-1 | multi | IH Hafnarfjordur vs Ellidi + Ulfanir vs KFR + CD Real Santander vs Barranquilla FC + Club Deportivo Cuenca Juniors vs Gualaceo SC | 7.33 | 10 | failed | - | - |
+| slip-2 | multi | Arborg vs Hamar + Venados  FC vs CSD Dorados Sinaloa + Independiente Santa Fe vs Fortaleza FC + Defence Force FC vs SV Broki | 4.76 | 10 | skipped | - | - |
+| slip-3 | multi | San Antonio FC vs 9 de Octubre FC + Itagui Leones FC vs Real Cundinamarca + Club Olimpia vs CR Vasco da Gama RJ | 3.46 | 10 | skipped | - | - |
