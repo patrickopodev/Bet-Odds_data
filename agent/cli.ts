@@ -66,6 +66,11 @@ function saveStandingsCache(cache: Map<string, any[]>) {
   }
 }
 
+// How far ahead of kickoff matches are deep-researched. The 12h default had
+// the agent grinding through the whole day's card every run (the main reason
+// runs outgrew the 30-min cron); closer to kickoff is also fresher form.
+const RESEARCH_HOURS = Number(process.env.AGENT_RESEARCH_HOURS ?? 6);
+
 async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[]; researched: number }> {
   const standingsCache = loadStandingsCache();
   const out: MatchResearch[] = [];
@@ -81,7 +86,7 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
     const started = Date.parse(m.startTime);
     if (Number.isNaN(started)) return null;
     const inWindow = started - Date.now();
-    if (inWindow < -3600_000 || inWindow > 12 * 3600_000) return null; // 1h ago .. 12h ahead
+    if (inWindow < -3600_000 || inWindow > RESEARCH_HOURS * 3600_000) return null; // 1h ago .. RESEARCH_HOURS ahead
 
     let home: TeamInfo;
     let away: TeamInfo;

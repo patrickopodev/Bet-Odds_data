@@ -11,7 +11,12 @@ permissions:
 
 concurrency:
   group: webscraper
-  cancel-in-progress: false
+  # Fresh data beats stale: a new scheduled run cancels a still-running older
+  # one instead of queueing behind it (the old behavior piled up cancelled
+  # runs and left the agent working off 12h-old scrapes). The placement steps
+  # are short and idempotent-ish (unverified state on missing toast), so the
+  # cancel risk during autoplace is smaller than the staleness cost.
+  cancel-in-progress: true
 
 jobs:
   scrape:
@@ -49,20 +54,25 @@ jobs:
 
       - name: Run API scraper (full today's coverage)
         id: scrape
+        timeout-minutes: 15
         run: node scraper.js
 
       - name: Build persistent odds database
+        timeout-minutes: 5
         run: node build-db.mjs
 
       - name: Run TypeScript decision agent (deep research)
+        timeout-minutes: 45
         run: |
           npm run build:agent
           node dist/cli.js
 
       - name: Select bets from agent recommendations
+        timeout-minutes: 2
         run: node stake.mjs
 
       - name: Generate staking share code
+        timeout-minutes: 10
         run: node stake-placement.mjs
 
       - name: Auto-stake the slip on SportyBet (optional)
@@ -70,12 +80,15 @@ jobs:
           SB_USER: ${{ secrets.SB_USER }}
           SB_PASS: ${{ secrets.SB_PASS }}
           STAKE_DRY_RUN: ${{ secrets.STAKE_DRY_RUN }}
+        timeout-minutes: 25
         run: node stake-autoplace.mjs
 
       - name: Agent confirms staked selections
+        timeout-minutes: 15
         run: node dist/confirm.js
 
       - name: Agent monitors staked matches until they end
+        timeout-minutes: 30
         run: node dist/monitor.js
 
       - name: Upload scraped data as artifact
@@ -89,9 +102,11 @@ jobs:
           retention-days: 90
 
       - name: Resolve finished matches (end-of-day)
+        timeout-minutes: 20
         run: node resolve-results.mjs
 
       - name: Generate good/bad odds report (end-of-day, feeds tomorrow)
+        timeout-minutes: 10
         run: node analyze-odds.mjs --db
 
       - name: Commit and push data

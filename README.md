@@ -262,8 +262,11 @@ npm test        # node --test test/
 | `BANKROLL_DIVISOR` | `2` | autoplace (balance split into active/reserve halves) |
 | `STAKE_PERCENT_OF_HALF` | `0.25` | autoplace (fixed stake per slip as share of the active half) |
 | `MIN_CONFIDENCE` | `0.6` | stake |
+| `SLIP_MIN_EV` | `0` | stake (min calibrated EV per slip) |
 | `ALLOW_FRIENDLIES` | `false` | stake |
 | `STAKE_SLIP` | `data/stake-slip.json` | stake, placement, monitor |
+| `AGENT_RESEARCH_HOURS` | `6` | agent (research matches kicking off within N hours) |
+| `AGENT_FEED_BUDGET` | `30` | agent (max new player-stat feeds captured per run) |
 
 ---
 
