@@ -6,7 +6,7 @@ import { evaluateOutcome as jsEvaluate } from '../lib/common.mjs';
 import { analyzeCandidate, candidateSources, buildRecommendations } from '../dist/analysis.js';
 import { extractSnippets, webResearch } from '../dist/research.js';
 import { parseMatchFeed, aggregatePlayerStats } from '../dist/flashscore.js';
-import { selectBets, isFriendly, groupSlips, slipExpectedValue } from '../stake.mjs';
+import { selectBets, isFriendly, groupSlips, slipExpectedValue, confidenceBucket, calibrationTable, calibratedProb } from '../stake.mjs';
 import { resolveOutcome } from '../dist/sporty.js';
 import { writeReport } from '../dist/monitor.js';
 
@@ -324,6 +324,53 @@ test('groupSlips refuses slips that do not clear the EV bar', () => {
     const good = groupSlips([mk('m2', 2.0, 0.6)]);
     assert.equal(good.length, 1);
     assert.equal(good[0].ev, 0.2);
+  } finally {
+    if (before !== undefined) process.env.SLIP_MIN_EV = before;
+  }
+});
+
+test('calibrationTable counts only decisive settled legs', () => {
+  const slips = [
+    { legs: [{ confidence: 0.62, result: 'WON' }, { confidence: 0.65, result: 'LOST' }] },
+    { legs: [{ confidence: 0.68, result: 'VOID' }] }, // push: excluded
+    { legs: [{ confidence: 0.61, result: null }] }, // unsettled: excluded
+    { legs: [{ odds: 2.0, result: 'WON' }] }, // no confidence: excluded
+    { legs: [{ confidence: 0.66, result: 'WON' }] },
+  ];
+  const t = calibrationTable(slips);
+  assert.equal(t.size, 1); // all confidences land in the 0.6 decile
+  assert.deepEqual(t.get(0.6), { wins: 2, n: 3 });
+});
+
+test('calibratedProb degrades gracefully: no history = raw confidence', () => {
+  const empty = new Map();
+  assert.equal(calibratedProb(0.7, empty), 0.7);
+  // One WON leg at the bucket pulls the estimate up but the prior dampens it:
+  // (1 + 10*0.6) / (1 + 10) with k=10 -> ~0.636, not 1.0.
+  const one = calibrationTable([{ legs: [{ confidence: 0.62, result: 'WON' }] }]);
+  const p = calibratedProb(0.64, one);
+  assert.ok(p > 0.6 && p < 0.75, `one win should lift 0.64 modestly (got ${p})`);
+  // Losing history drags it below raw.
+  const losing = calibrationTable([
+    { legs: [{ confidence: 0.62, result: 'LOST' }, { confidence: 0.65, result: 'LOST' }, { confidence: 0.66, result: 'LOST' }] },
+  ]);
+  assert.ok(calibratedProb(0.64, losing) < 0.64);
+});
+
+test('EV gate uses calibrated probabilities when a calibrator is passed', () => {
+  const mk = (id, odds, conf) => ({ match: { eventId: id, homeTeam: 'A', awayTeam: 'B', tournament: 'L', startTime: '' }, candidate: { marketId: '1', market: '1X2', outcome: 'Home', odds, recommendedMinOdds: 1.0, recommended: true, confidence: conf } });
+  const before = process.env.SLIP_MIN_EV;
+  delete process.env.SLIP_MIN_EV;
+  try {
+    const picks = [mk('m1', 2.0, 0.6)];
+    // Raw confidence passes: 0.6 * 2.0 - 1 = +0.2.
+    assert.equal(groupSlips(picks).length, 1);
+    // Pessimistic calibration (history says these legs underperform) refuses.
+    assert.equal(groupSlips(picks, { calibrate: (c) => c * 0.4 }).length, 0);
+    // Optimistic calibration keeps it with a higher recorded ev.
+    const optimistic = groupSlips(picks, { calibrate: (c) => Math.min(1, c * 1.5) });
+    assert.equal(optimistic.length, 1);
+    assert.equal(optimistic[0].ev, 0.8);
   } finally {
     if (before !== undefined) process.env.SLIP_MIN_EV = before;
   }

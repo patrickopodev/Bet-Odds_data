@@ -127,13 +127,76 @@ function toLeg(match, candidate) {
   };
 }
 
-// Per-slip expected value: combined probability (product of leg confidences)
-// vs the accumulator price. Selection ranks legs individually, but only a slip
-// whose combined confidence justifies its combined odds gets money — a 4-leg
-// multi of 60% events wins ~13% of the time and must be priced accordingly.
-export function slipExpectedValue(legs) {
+// ---------------------------------------------------------------------------
+// Calibration: confidence is a heuristic score, not a probability. Before it
+// enters the EV gate it is recalibrated against the pipeline's own settled
+// legs (the ledger keeps every leg's confidence + WON/LOST result), so the
+// gate works on "how often did ~this-confidence legs actually win" rather
+// than the raw heuristic.
+// ---------------------------------------------------------------------------
+
+// Pseudo-count strength of the raw confidence as a Bayesian prior. With n
+// settled legs in a bucket, calibrated = (wins + k*conf) / (n + k): no history
+// reproduces the raw confidence exactly; every real leg pulls the estimate
+// toward observed reality with weight 1/k.
+export const CALIBRATION_PRIOR = 10;
+
+// Confidence is bucketed to deciles so sparse history pools sensibly.
+export function confidenceBucket(c) {
+  return Math.min(0.9, Math.max(0, Math.floor(c * 10) / 10));
+}
+
+// Empirical record per bucket from settled legs. Only decisive outcomes count:
+// VOID is a push and says nothing about probability; legs without a result or
+// confidence are skipped.
+export function calibrationTable(slips) {
+  const table = new Map();
+  for (const s of slips ?? []) {
+    for (const l of s.legs ?? []) {
+      if (l.result !== 'WON' && l.result !== 'LOST') continue;
+      if (typeof l.confidence !== 'number') continue;
+      const b = confidenceBucket(l.confidence);
+      const cur = table.get(b) ?? { wins: 0, n: 0 };
+      cur.n++;
+      if (l.result === 'WON') cur.wins++;
+      table.set(b, cur);
+    }
+  }
+  return table;
+}
+
+function pooled(table) {
+  let wins = 0;
+  let n = 0;
+  for (const r of table.values()) {
+    wins += r.wins;
+    n += r.n;
+  }
+  return { wins, n };
+}
+
+// Calibrated win probability for one leg. Falls back to the pooled record when
+// the leg's own decile has no settles yet, and to the raw confidence when
+// there is no settled history at all.
+export function calibratedProb(confidence, table, k = CALIBRATION_PRIOR) {
+  if (!Number.isFinite(confidence)) return 0;
+  const c = Math.min(1, Math.max(0, confidence));
+  const row = table.get(confidenceBucket(c));
+  const src = row?.n ? row : pooled(table).n ? pooled(table) : null;
+  if (!src) return c;
+  return (src.wins + k * c) / (src.n + k);
+}
+
+// Per-slip expected value: combined CALIBRATED probability vs the accumulator
+// price. Selection ranks legs individually, but only a slip whose combined
+// probability justifies its combined odds gets money — a 4-leg multi of 60%
+// events wins ~13% of the time and must be priced accordingly.
+export function slipExpectedValue(legs, calibrate = (c) => c) {
   const combinedOdds = Math.round(legs.reduce((acc, l) => acc * (l.odds ?? 1), 1) * 100) / 100;
-  const combinedProb = legs.reduce((acc, l) => acc * Math.min(1, Math.max(0, l.confidence ?? 0)), 1);
+  const combinedProb = legs.reduce(
+    (acc, l) => acc * Math.min(1, Math.max(0, calibrate(l.confidence ?? 0))),
+    1
+  );
   return { combinedOdds, combinedProb, ev: combinedProb * combinedOdds - 1 };
 }
 
@@ -148,8 +211,11 @@ export function slipMinEv() {
 // SINGLE_ODDS_MIN, bundles of up to BUNDLE_SIZE for odds in
 // [BUNDLE_ODDS_MIN, SINGLE_ODDS_MIN). A leftover bundle with fewer than
 // BUNDLE_SIZE legs is still placed (user: "place with whatever qualifies").
-// Slips whose expected value does not clear SLIP_MIN_EV are refused.
-export function groupSlips(picks) {
+// Slips whose expected value does not clear SLIP_MIN_EV are refused. EV uses
+// calibrated probabilities (opts.calibrate) when the caller has settled
+// history to calibrate against.
+export function groupSlips(picks, opts = {}) {
+  const calibrate = opts.calibrate ?? ((c) => c);
   const singles = picks.filter((p) => p.candidate.odds >= SINGLE_ODDS_MIN);
   const bundles = picks.filter(
     (p) => p.candidate.odds >= BUNDLE_ODDS_MIN && p.candidate.odds < SINGLE_ODDS_MIN
@@ -164,7 +230,7 @@ export function groupSlips(picks) {
   }
   const minEv = slipMinEv();
   return slips.filter((s) => {
-    const { ev } = slipExpectedValue(s.legs);
+    const { ev } = slipExpectedValue(s.legs, calibrate);
     s.ev = Math.round(ev * 100) / 100;
     return ev > minEv;
   });
@@ -240,7 +306,7 @@ export function nextSlip(existing, report, opts = {}) {
       excludedMatches.has(match.eventId) ||
       attemptedCombos.has(`${match.eventId}|${candidate.marketId}|${candidate.outcome}`),
   });
-  const fresh = groupSlips(picks);
+  const fresh = groupSlips(picks, { calibrate: opts.calibrate });
   const used = fresh.slice(0, capacity);
   const slip = {
     createdAt: new Date().toISOString(),
@@ -274,7 +340,7 @@ export function refillSlip(slip, report, opts = {}) {
     exclude: ({ match, candidate }) =>
       pickedMatch.has(match.eventId) || attempted.has(`${match.eventId}|${candidate.marketId}|${candidate.outcome}`),
   });
-  const fresh = groupSlips(picks);
+  const fresh = groupSlips(picks, { calibrate: opts.calibrate });
   const addedSlips = fresh.slice(0, capacity);
   if (addedSlips.length) {
     slip.slips = [...keep, ...addedSlips];
@@ -282,6 +348,25 @@ export function refillSlip(slip, report, opts = {}) {
     slip.refilledCount = (slip.refilledCount ?? 0) + addedSlips.length;
   }
   return { added: addedSlips.length, exhausted: capacity <= 0 || fresh.length < capacity, slips: addedSlips };
+}
+
+// Build the calibration map from the ledger's settled legs. Returns the table
+// (possibly empty — callers treat empty as "no history, use raw confidence").
+function calibrationFromLedger(slip) {
+  return calibrationTable(normalizeSlip(slip)?.slips ?? []);
+}
+
+// Serialize the table + summary for the ledger audit trail.
+function calibrationSummary(table) {
+  let wins = 0;
+  let n = 0;
+  const buckets = {};
+  for (const [b, r] of table.entries()) {
+    wins += r.wins;
+    n += r.n;
+    buckets[b.toFixed(1)] = `${r.wins}/${r.n}`;
+  }
+  return { settledLegs: n, observedWinRate: n ? Math.round((wins / n) * 1000) / 1000 : null, buckets };
 }
 
 function main() {
@@ -301,7 +386,11 @@ function main() {
       console.error(`stake --refill: cannot read ${SLIP_FILE}: ${e.message}`);
       process.exit(0);
     }
-    const { added, exhausted, slips: addedSlips } = refillSlip(slip, report);
+    const table = calibrationFromLedger(slip);
+    const calibrate = (c) => calibratedProb(c, table);
+    const summary = calibrationSummary(table);
+    if (summary.settledLegs) console.log(`[stake:refill] calibration: ${summary.settledLegs} settled leg(s), observed win rate ${summary.observedWinRate}`);
+    const { added, exhausted, slips: addedSlips } = refillSlip(slip, report, { calibrate });
     if (added > 0) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
       fs.writeFileSync(SLIP_FILE, JSON.stringify(slip, null, 2));
@@ -321,7 +410,17 @@ function main() {
     existing = null;
   }
   const cap = effectiveMaxSlips(existing);
-  const slip = cap != null ? nextSlip(existing, report, { maxSlips: cap }) : nextSlip(existing, report);
+  const table = calibrationFromLedger(existing);
+  const calibrate = (c) => calibratedProb(c, table);
+  const summary = calibrationSummary(table);
+  if (summary.settledLegs) {
+    console.log(`[stake] calibration: ${summary.settledLegs} settled leg(s), observed win rate ${summary.observedWinRate} ${JSON.stringify(summary.buckets)}`);
+  } else {
+    console.log('[stake] calibration: no settled legs yet — EV gate runs on raw confidence');
+  }
+  const opts = cap != null ? { maxSlips: cap, calibrate } : { calibrate };
+  const slip = nextSlip(existing, report, opts);
+  if (summary.settledLegs) slip.calibration = summary;
   fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.writeFileSync(SLIP_FILE, JSON.stringify(slip, null, 2));
 
