@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DATA_DIR, loadDb, MARKET_ORDER, evaluateOutcome, parseScore } from './lib/common.mjs';
+import { DATA_DIR, loadDb, MARKET_ORDER, aggregateHistoricalStats } from './lib/common.mjs';
 
 // ---------------------------------------------------------------------------
 // Repeated-odds analysis (current snapshot, data/latest.json)
@@ -64,68 +64,13 @@ export function findExactOdds(data, market, outcome, odds) {
 // ---------------------------------------------------------------------------
 
 // Aggregate historical plays for one (market, outcome) into per-odds stats.
-// Every unique odds value recorded for an outcome counts as one "play" of
-// that outcome at that price; settled results attach a WON/LOST/VOID to it.
+// Shared computation lives in lib/common.mjs (aggregateHistoricalStats) so the
+// JS analyzer and the TS agent can never drift; this wrapper only formats the
+// win rate as a 3-decimal string for the markdown report.
 export function aggregateDb(db) {
-  const stats = new Map(); // `${marketId}|${outcomeName}|${odds}` -> aggregate
-  for (const ev of Object.values(db.events ?? {})) {
-    const score = ev.finalScore ? parseScore(ev.finalScore) : null;
-    const evaluated = new Map(); // `${marketId}|${name}` -> WON/LOST/VOID per match
-    // Group sibling outcome names per market so combo-aware evaluators (e.g.
-    // Multiscores "Other Homewin") can see whether a final score is covered.
-    const byMarket = new Map();
-    for (const out of Object.values(ev.outcomes ?? {})) {
-      if (!byMarket.has(out.marketId)) byMarket.set(out.marketId, []);
-      byMarket.get(out.marketId).push(out.name);
-    }
-    for (const out of Object.values(ev.outcomes ?? {})) {
-      const id = out.marketId;
-      if (score) {
-        const e = evaluateOutcome(id, out.name, score, byMarket.get(id));
-        if (e) evaluated.set(`${id}|${out.name}`, e);
-      }
-    }
-    // Count each distinct odds value offered for an outcome once per match,
-    // no matter how many snapshots saw that price. This keeps a match that was
-    // scraped 20 times from being counted 20 times.
-    const seenPrices = new Set(); // `${marketId}|${name}|${odds}`
-    for (const out of Object.values(ev.outcomes ?? {})) {
-      const id = out.marketId;
-      const result = evaluated.get(`${id}|${out.name}`);
-      for (const play of out.plays ?? []) {
-        const skey = `${id}|${out.name}|${play.odds}`;
-        if (seenPrices.has(skey)) continue;
-        seenPrices.add(skey);
-        const s = stats.get(skey) ?? {
-          marketId: id,
-          name: out.name,
-          odds: play.odds,
-          plays: 0,
-          won: 0,
-          lost: 0,
-          void: 0,
-          settled: 0,
-          matches: new Set(),
-        };
-        s.plays++;
-        if (result === 'WON') { s.won++; s.settled++; s.matches.add(ev.eventId); }
-        else if (result === 'LOST') { s.lost++; s.settled++; s.matches.add(ev.eventId); }
-        else if (result === 'VOID') { s.void++; s.settled++; s.matches.add(ev.eventId); }
-        stats.set(skey, s);
-      }
-    }
-  }
-  return [...stats.values()].map((s) => ({
-    marketId: s.marketId,
-    name: s.name,
-    odds: s.odds,
-    plays: s.plays,
-    won: s.won,
-    lost: s.lost,
-    void: s.void,
-    settled: s.settled,
-    winRate: s.settled ? (s.won / s.settled).toFixed(3) : null,
-    matchedEvents: s.matches.size,
+  return aggregateHistoricalStats(db).map((s) => ({
+    ...s,
+    winRate: s.winRate == null ? null : s.winRate.toFixed(3),
   }));
 }
 

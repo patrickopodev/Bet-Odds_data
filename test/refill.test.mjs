@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { refillSlip, selectBets, isFriendly, nextSlip, keepableSlips, keepableBets, groupSlips, normalizeSlip, SINGLE_ODDS_MIN, BUNDLE_ODDS_MIN, BUNDLE_SIZE } from '../stake.mjs';
+import { refillSlip, selectBets, isFriendly, nextSlip, keepableSlips, keepableBets, groupSlips, normalizeSlip, effectiveMaxSlips, SINGLE_ODDS_MIN, BUNDLE_ODDS_MIN, BUNDLE_SIZE } from '../stake.mjs';
 
 function mkCand(marketId, outcome, odds, conf) {
   return { marketId, market: '1X2', outcome, odds, recommendedMinOdds: 1.2, recommended: true, confidence: conf };
@@ -190,6 +190,99 @@ test('refillSlip ignores the settled ledger when computing capacity', () => {
   assert.equal(slip.slips[0].status, 'settled'); // ledger untouched
   assert.equal(slip.slips[1].status, 'pending');
   assert.equal(slip.slips[2].status, 'pending');
+});
+
+test('nextSlip never re-picks a match from a skipped slip of an earlier run', () => {
+  // Regression: skipped slips drop out of the preserved set, but their matches
+  // must still be excluded. Otherwise the next 30-min run re-selects the same
+  // teams and the same match shows up on two slips (duplicates).
+  const report = {
+    matches: [
+      mkMatch('m1', 'Premier League', [mkCand('1', 'Home', 3.2, 0.9)]),
+      mkMatch('m2', 'Premier League', [mkCand('1', 'Home', 2.0, 0.85)]),
+    ],
+  };
+  const existing = { stakePerSlip: 10, slips: [mkSlip('s1', 'single', [mkLeg('m1', 'Home')], { status: 'skipped', error: 'odds drifted' })] };
+  const slip = nextSlip(existing, report);
+  assert.equal(slip.preservedCount, 0, 'skipped slip is not preserved');
+  assert.equal(slip.slips.length, 1);
+  assert.equal(slip.slips[0].legs[0].eventId, 'm2', 'skipped match m1 must not be re-picked');
+});
+
+test('nextSlip caps active slips when maxSlips is passed', () => {
+  const report = {
+    matches: [
+      mkMatch('m1', 'Premier League', [mkCand('1', 'Home', 3.2, 0.9)]),
+      mkMatch('m2', 'Premier League', [mkCand('1', 'Home', 2.0, 0.85)]),
+      mkMatch('m3', 'Premier League', [mkCand('1', 'Home', 1.9, 0.8)]),
+    ],
+  };
+  const existing = { stakePerSlip: 10, slips: [mkSlip('s1', 'single', [mkLeg('m1', 'Home')], { status: 'placed' })] };
+  const slip = nextSlip(existing, report, { maxSlips: 2 });
+  assert.equal(slip.slips.length, 2); // 1 placed + 1 new (m2+m3 bundle)
+  assert.ok(!slip.slips.some((s) => s.legs.some((l) => l.eventId === 'm4')));
+});
+
+test('effectiveMaxSlips takes the tighter of env and bankroll cap', () => {
+  const before = process.env.STAKE_MAX_SLIPS;
+  process.env.STAKE_MAX_SLIPS = '3';
+  try {
+    assert.equal(effectiveMaxSlips(null), 3);
+    assert.equal(effectiveMaxSlips({ bankroll: { maxSlips: 2 } }), 2);
+    assert.equal(effectiveMaxSlips({ bankroll: { maxSlips: 5 } }), 3);
+    assert.equal(effectiveMaxSlips({ bankroll: { maxSlips: 2 } }), 2);
+  } finally {
+    if (before === undefined) delete process.env.STAKE_MAX_SLIPS;
+    else process.env.STAKE_MAX_SLIPS = before;
+  }
+});
+
+test('effectiveMaxSlips is null when nothing is configured', () => {
+  const before = process.env.STAKE_MAX_SLIPS;
+  delete process.env.STAKE_MAX_SLIPS;
+  try {
+    assert.equal(effectiveMaxSlips(null), null);
+    assert.equal(effectiveMaxSlips({ bankroll: {} }), null);
+  } finally {
+    if (before !== undefined) process.env.STAKE_MAX_SLIPS = before;
+  }
+});
+
+test('an unverified slip holds capacity (money may have moved)', () => {
+  const before = process.env.STAKE_MAX_SLIPS;
+  delete process.env.STAKE_MAX_SLIPS;
+  try {
+    const report = {
+      matches: [
+        mkMatch('m1', 'Premier League', [mkCand('1', 'Home', 3.2, 0.9)]),
+        mkMatch('m2', 'Premier League', [mkCand('1', 'Home', 2.0, 0.85)]),
+      ],
+    };
+    const existing = { stakePerSlip: 10, slips: [mkSlip('s1', 'single', [mkLeg('m1', 'Home')], { status: 'unverified' })] };
+    // maxSlips 1: the unverified slip alone exhausts capacity — no new slip.
+    const slip = nextSlip(existing, report, { maxSlips: 1 });
+    assert.equal(slip.slips.length, 1);
+    assert.equal(slip.slips[0].status, 'unverified');
+    // With headroom, exactly one new slip fits alongside it.
+    const slip2 = nextSlip(existing, report, { maxSlips: 2 });
+    assert.equal(slip2.slips.length, 2);
+  } finally {
+    if (before !== undefined) process.env.STAKE_MAX_SLIPS = before;
+  }
+});
+
+test('refillSlip never re-picks a match that was on a skipped slip', () => {
+  const report = {
+    matches: [
+      mkMatch('m1', 'Premier League', [mkCand('1', 'Home', 3.5, 0.9)]),
+      mkMatch('m2', 'Premier League', [mkCand('1', 'Home', 2.1, 0.8)]),
+    ],
+  };
+  const slip = { stakePerSlip: 10, slips: [mkSlip('s1', 'single', [mkLeg('m1', 'Home')], { status: 'skipped', error: 'odds drifted' })] };
+  const { added, slips } = refillSlip(slip, report);
+  assert.equal(added, 1);
+  assert.equal(slips.length, 1);
+  assert.equal(slip.slips[0].legs[0].eventId, 'm2');
 });
 
 test('keepableSlips/keepableBets drop only pending and skipped', () => {

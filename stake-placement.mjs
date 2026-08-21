@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fetchEventMarkets } from './lib/common.mjs';
 import { createShareCode, loadShareCode, shareUrl, ticketSummary } from './share-code.mjs';
-import { isFriendly, refillSlip, normalizeSlip } from './stake.mjs';
+import { isFriendly, refillSlip, normalizeSlip, effectiveMaxSlips } from './stake.mjs';
 
 const DATA_DIR = process.env.DATA_DIR ?? 'data';
 const SLIP_FILE = process.env.STAKE_SLIP ?? path.join(DATA_DIR, 'stake-slip.json');
@@ -134,7 +134,12 @@ async function run() {
 
     // Auto-re-select from the pipeline: replace any skipped slip with the
     // next-best candidates the agent ranked, instead of substituting by hand.
-    const { added, exhausted } = report ? refillSlip(slip, report) : { added: 0, exhausted: true };
+    // The same active-slip cap as stake.mjs applies so a refill can't grow the
+    // ledger beyond what the bankroll funds.
+    const cap = effectiveMaxSlips(slip);
+    const { added, exhausted } = report
+      ? refillSlip(slip, report, cap != null ? { maxSlips: cap } : {})
+      : { added: 0, exhausted: true };
     if (added > 0) {
       console.log(`[stake-placement] refilled ${added} skipped slot(s) from the agent report`);
     }

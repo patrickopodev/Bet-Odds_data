@@ -2,6 +2,7 @@ import { chromium } from 'playwright-core';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { UA } from './lib/common.mjs';
 import { isFriendly, normalizeSlip } from './stake.mjs';
 import { computeBankroll, parseBalance } from './bankroll.mjs';
 import { shareUrl } from './share-code.mjs';
@@ -10,7 +11,69 @@ const DATA_DIR = process.env.DATA_DIR ?? 'data';
 const SLIP_FILE = process.env.STAKE_SLIP ?? path.join(DATA_DIR, 'stake-slip.json');
 const ALLOW_FRIENDLIES = process.env.ALLOW_FRIENDLIES === 'true';
 
-const UA = 'Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36';
+// ---------------------------------------------------------------------------
+// Pure decision helpers (unit-tested in test/stake-autoplace.test.mjs).
+// ---------------------------------------------------------------------------
+
+// Escape a literal string for use inside a RegExp constructor.
+export function escapeRegex(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Verify a loaded slip really contains every leg: each leg's home AND away team
+// name must appear on the page (case-insensitive). Guards against a share code
+// that resolved to a different selection than the one we planned to place.
+export function verifySlipLoaded(pageText, legs) {
+  const txt = pageText ?? '';
+  return legs.every(
+    (l) =>
+      new RegExp(escapeRegex(l.homeTeam), 'i').test(txt) &&
+      new RegExp(escapeRegex(l.awayTeam), 'i').test(txt)
+  );
+}
+
+// Confirm the stake keypad registered the typed amount: the field's text (with
+// whitespace stripped) must contain the stake we intended to enter.
+export function stakeRegistered(shownText, stake) {
+  return String(shownText ?? '').replace(/\s+/g, '').includes(String(stake));
+}
+
+// A bet is only considered placed when SportyBet prints its success toast.
+export function isPlacementSuccess(pageText) {
+  return /Bet Successful/i.test(pageText ?? '');
+}
+
+// Definite-failure signals SportyBet shows when a bet cannot be placed.
+export function isPlacementFailure(pageText) {
+  return /insufficient|bet failed|place bet failed|error occurred/i.test(pageText ?? '');
+}
+
+// Extract old->new odds pairs from an "Accept Changes" dialog body
+// ("Over 2.5 1.85 → 1.60"; separators: → -> => –>). Returns [] when the text
+// carries no recognizable change pair.
+export function parseOddsChanges(dialogText) {
+  const pairs = [];
+  const re = /(\d+(?:\.\d+)?)\s*(?:→|->|=>|–>)\s*(\d+(?:\.\d+)?)/g;
+  let m;
+  while ((m = re.exec(String(dialogText ?? ''))) !== null) {
+    pairs.push({ from: Number(m[1]), to: Number(m[2]) });
+  }
+  return pairs;
+}
+
+// Decide whether every odds change still respects each leg's value floor
+// (minOdds). A change is matched to its leg by the previous odds; any change
+// that can't be matched to a leg, or a dialog whose prices couldn't be parsed
+// at all, refuses the whole slip — never accept an odds change blind.
+export function oddsChangesAcceptable(legs, changes) {
+  if (!changes.length) return false;
+  for (const ch of changes) {
+    const leg = (legs ?? []).find((l) => Math.abs((l.odds ?? 0) - ch.from) < 1e-9);
+    if (!leg) return false;
+    if (ch.to < (leg.minOdds ?? 0) - 1e-9) return false;
+  }
+  return true;
+}
 
 async function run() {
   let slip;
@@ -139,12 +202,8 @@ async function run() {
     if (prefilled !== code) await codeInput.fill(code);
     await ck('div[data-op="load-code-button"], [data-op="load-code-button"]');
     await page.waitForTimeout(6000);
-    let txt = await page.evaluate(() => document.body.innerText);
-    const legsOk = s.legs.every(
-      (l) =>
-        new RegExp(l.homeTeam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i').test(txt) &&
-        new RegExp(l.awayTeam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i').test(txt)
-    );
+    const txt = await page.evaluate(() => document.body.innerText);
+    const legsOk = verifySlipLoaded(txt, s.legs);
     console.log(`[stake-autoplace] slip ${s.slipId} (${s.type}) legs present?`, legsOk);
     if (!legsOk) {
       console.error(`[stake-autoplace] ABORT: wrong selection for ${code}`);
@@ -172,7 +231,7 @@ async function run() {
     const shownStake = (await page.evaluate(() => document.querySelector('[data-op="betslip-stake-amount"]')?.textContent ?? ''))
       .replace(/\s+/g, '');
     console.log(`[stake-autoplace] slip ${s.slipId} stake typed ${stake} (field shows ${shownStake})`);
-    if (!shownStake.includes(stake)) {
+    if (!stakeRegistered(shownStake, stake)) {
       s.status = 'failed';
       s.error = `stake did not register (field shows ${shownStake})`;
       console.error(`[stake-autoplace] ${s.slipId}: stake did not register`);
@@ -187,19 +246,54 @@ async function run() {
       await page.waitForTimeout(6000);
     }
     const accept = page.locator('button:has-text("Accept Changes"), div:has-text("Accept Changes")').first();
-    if (await accept.count()) { await accept.click({ force: true }).catch(() => {}); await page.waitForTimeout(6000); }
+    if (await accept.count()) {
+      // "Accept Changes" means odds moved — usually down. Accepting blindly
+      // would place the bet below the agent's recommendedMinOdds floor, so
+      // parse the new prices and only accept when every leg is still at or
+      // above its minOdds. Unparseable dialog -> refuse the slip.
+      const changeText = await page.evaluate(() => document.body.innerText);
+      const changes = parseOddsChanges(changeText);
+      if (oddsChangesAcceptable(s.legs, changes)) {
+        await accept.click({ force: true }).catch(() => {});
+        await page.waitForTimeout(6000);
+      } else {
+        s.status = 'skipped';
+        s.skippedAt = new Date().toISOString();
+        s.error = `odds changed below recommendedMinOdds (${changes.map((c) => `${c.from}->${c.to}`).join(', ') || 'unparseable'})`;
+        console.error(`[stake-autoplace] ${s.slipId}: odds changed below minOdds — refusing to accept (${s.error})`);
+        continue;
+      }
+    }
     await page.waitForTimeout(4000);
 
+    // Poll briefly for the outcome before deciding: a slow toast must not be
+    // misread as a failure (the click may already have moved money).
+    let placedSeen = false;
+    let definiteFail = false;
+    for (let i = 0; i < 5 && !placedSeen && !definiteFail; i++) {
+      if (i > 0) await page.waitForTimeout(2000);
+      const body = await page.evaluate(() => document.body.innerText);
+      placedSeen = isPlacementSuccess(body);
+      definiteFail = !placedSeen && isPlacementFailure(body);
+    }
     const confirmBody = await page.evaluate(() => document.body.innerText);
-    if (/Bet Successful/i.test(confirmBody)) {
+    if (isPlacementSuccess(confirmBody)) {
       s.status = 'placed';
       s.placedAt = new Date().toISOString();
       for (const leg of s.legs) { leg.status = 'placed'; leg.placedAt = new Date().toISOString(); }
       console.log(`[stake-autoplace] PLACED ${s.slipId} [${s.type}] combined @${s.combinedOdds} stake ${stake} ${slip.currency}`);
-    } else {
+    } else if (definiteFail) {
       s.status = 'failed';
-      s.error = 'no "Bet Successful" confirmation on page';
-      console.error(`[stake-autoplace] placement did not confirm for ${code}`);
+      s.error = 'SportyBet reported a placement failure (no money moved)';
+      console.error(`[stake-autoplace] ${s.slipId}: placement failed (definite failure signal)`);
+    } else {
+      // No success toast AND no failure message: the click may already have
+      // moved money. Record 'unverified' — never a clean 'failed', which a
+      // later run could treat as free capacity and double-stake. Reconcile
+      // against My Bets before trusting this slip either way.
+      s.status = 'unverified';
+      s.error = 'no "Bet Successful" confirmation and no failure message — verify against bet history';
+      console.error(`[stake-autoplace] ${s.slipId}: placement UNVERIFIED for ${code} — check bet history before re-staking`);
     }
   }
 

@@ -13,13 +13,25 @@ export const STAKE_PERCENT_OF_HALF = 0.25; // 25% of the active half per slip
 const round2 = (n) => Math.round(n * 100) / 100;
 
 // Parse the wallet balance out of the logged-in page body text, e.g.
-// "GHS | 20.00" or "Balance: GHS 20.00". Returns null when not found.
+// "Balance: GHS 20.00" or "GHS | 36.80". Returns null when not found.
+// Patterns are tried in order of how likely they are to name the actual wallet
+// amount: a "Balance"-labelled figure first, then the wallet's "GHS | x" tile,
+// then a bare "GHS <amount>" as a last resort. Bare amounts can be an odds
+// quote elsewhere on the page, so the labelled patterns are preferred.
 export function parseBalance(bodyText) {
   if (!bodyText) return null;
-  const m = bodyText.match(/GHS[^\d]{0,4}([0-9]+(?:\.[0-9]{1,2})?)/);
-  if (!m) return null;
-  const n = Number(m[1]);
-  return Number.isFinite(n) ? n : null;
+  const patterns = [
+    /Balance[^\n]{0,40}?GHS\s*(?:[|:=-]\s*)?([0-9]+(?:\.[0-9]{1,2})?)/i,
+    /GHS\s*\|\s*([0-9]+(?:\.[0-9]{1,2})?)/,
+    /GHS[^\d]{0,4}([0-9]+(?:\.[0-9]{1,2})?)/,
+  ];
+  for (const re of patterns) {
+    const m = bodyText.match(re);
+    if (!m) continue;
+    const n = Number(m[1]);
+    if (Number.isFinite(n)) return n;
+  }
+  return null;
 }
 
 // Compute the bankroll plan from a live balance:

@@ -20,3 +20,26 @@ export function normTeam(s: string | null | undefined): string;
 export function queryTeam(s: string): string;
 
 export function decodeFeedBlock(block: string): Record<string, string>;
+
+export const UA: string;
+
+export function extractFeedEvents(html: string, feedName: string): Record<string, string>[];
+
+export function resolveTeam(
+  name: string
+): Promise<{ id: string; url: string; name: string } | null>;
+
+export interface OddsStats {
+  marketId: string;
+  name: string;
+  odds: number;
+  plays: number;
+  won: number;
+  lost: number;
+  void: number;
+  settled: number;
+  winRate: number | null;
+  matchedEvents: number;
+}
+
+export function aggregateHistoricalStats(db: { events: Record<string, any> }): OddsStats[];

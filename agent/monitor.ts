@@ -31,8 +31,9 @@ export async function settleBet(bet: Bet): Promise<{ settled: boolean; result?: 
 }
 
 // Settle a slip: every leg must finish first. For a single-leg slip the payout
-// is stake * odds; for an accumulator it is stake * product of every WON leg's
-// odds, and any LOST leg voids the whole slip.
+// is stake * odds; for an accumulator it is stake * product of every leg's odds
+// when ALL legs WON, 0 when ANY leg LOST, and stake back (net 0) when the legs
+// only mix WON with VOID (no LOST).
 export function settleSlip(slip: any): { settled: boolean; skipped?: string } {
   const open = (slip.legs ?? []).filter((l: any) => l.status === 'placed' || l.status === 'confirmed');
   const stillOpen = open.filter((l: any) => l.status !== 'settled');

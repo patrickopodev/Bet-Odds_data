@@ -39,6 +39,15 @@ test('parseBalance reads the wallet amount from the page body', () => {
   assert.equal(parseBalance(null), null);
 });
 
+test('parseBalance prefers a labelled balance over bare GHS amounts', () => {
+  // An odds quote ("GHS 1.45") must not win over the labelled wallet balance.
+  assert.equal(parseBalance('Over 2.5 GHS 1.45 | Balance: GHS 120.50'), 120.5);
+  assert.equal(parseBalance('Odds GHS 2.30, Balance available: GHS 10'), 10);
+  // The wallet tile "GHS | x" also outranks a bare amount.
+  assert.equal(parseBalance('GHS | 36.80 | SportyBet | Over 2.5 GHS 1.45'), 36.8);
+  assert.equal(parseBalance('Wallet GHS 120.50'), 120.5);
+});
+
 test('recycling winnings grows the active half but keeps the stake fixed', () => {
   // Win 12.5 @2.1 -> balance 100 -> 112.5 after payout; the stake stays the
   // fixed 25% of the ORIGINAL half (12.5), never recomputed from the new half.

@@ -1,55 +1,23 @@
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { DB_FILE, decodeFeedBlock, fetchJson, fetchText, loadDb, mapWithConcurrency, normTeam, queryTeam, saveDb } from './lib/common.mjs';
+import {
+  DB_FILE,
+  extractFeedEvents,
+  fetchText,
+  loadDb,
+  mapWithConcurrency,
+  normTeam,
+  resolveTeam,
+  saveDb,
+} from './lib/common.mjs';
+
+export { extractFeedEvents };
 
 const CONCURRENCY = 3;
 
 // Allow a small tolerance when matching a scraped kickoff (unix seconds) to the
 // Flashscore feed's AD field, in case the fixture time shifted slightly.
 const KICKOFF_TOLERANCE_SECONDS = 60 * 60;
-
-// Pull the embedded feed string (e.g. cjs.initialFeeds["summary-results"]) out of
-// a Flashscore team page HTML. Returns decoded events as field maps.
-export function extractFeedEvents(html, feedName) {
-  const marker = `cjs.initialFeeds["${feedName}"]`;
-  const i = html.indexOf(marker);
-  if (i === -1) return [];
-  const start = html.indexOf('data: `', i);
-  if (start === -1) return [];
-  const end = html.indexOf('`', start + 8);
-  if (end === -1) return [];
-  const feed = html.slice(start + 7, end);
-  const events = [];
-  for (const block of feed.split('~')) {
-    const fields = decodeFeedBlock(block);
-    if (fields.AA) events.push(fields);
-  }
-  return events;
-}
-
-// Resolve a team's Flashscore page URL + id via the Livesport search API.
-// Returns { id, url, name } or null.
-export async function resolveTeam(name) {
-  const q = encodeURIComponent(queryTeam(name));
-  const data = await fetchJson(`https://s.livesport.services/api/v2/search?q=${q}&sport=football&lang=en`, {
-    headers: { 'Accept': 'application/json' },
-  });
-  const teams = (data ?? []).filter(
-    (r) => r.type?.name === 'Team' && r.sport?.name === 'Soccer'
-  );
-  const target = normTeam(name);
-  // Require a core-name match: guessing `teams[0]` risks attaching the wrong
-  // fixture's final score. The length>=4 guard avoids trivial short matches.
-  // Return null so the event is skipped (and stays unsettled) if no match.
-  const exact = teams.find((t) => {
-    const n = normTeam(t.name);
-    return (
-      n === target ||
-      (n.length >= 4 && target.length >= 4 && (n.includes(target) || target.includes(n)))
-    );
-  });
-  return exact ?? null;
-}
 
 // Fetch a team's fixtures + results feeds and return all events, tagged with
 // the feed they came from. Only `summary-results` holds genuinely finished

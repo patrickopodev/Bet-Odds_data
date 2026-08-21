@@ -1,26 +1,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { chromium } from 'playwright-core';
-import { normTeam, queryTeam, decodeFeedBlock } from '../lib/common.mjs';
+import { UA, decodeFeedBlock, extractFeedEvents, normTeam, resolveTeam } from '../lib/common.mjs';
 import type { PlayerStat, TeamInfo } from './types.js';
 
-const UA =
-  process.env.USER_AGENT ??
-  'Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36';
+export { resolveTeam };
 
 export interface FsTeam {
   id: string;
   url: string;
   name: string;
-}
-
-async function fetchJson(url: string, headers: Record<string, string> = {}): Promise<any> {
-  const res = await fetch(url, {
-    headers: { 'User-Agent': UA, ...headers },
-    signal: AbortSignal.timeout(15000),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  return res.json();
 }
 
 async function fetchText(url: string, headers: Record<string, string> = {}): Promise<string> {
@@ -30,23 +19,6 @@ async function fetchText(url: string, headers: Record<string, string> = {}): Pro
   });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   return res.text();
-}
-
-// Resolve a team to its Flashscore id + url via the Livesport search API.
-export async function resolveTeam(name: string): Promise<FsTeam | null> {
-  const q = encodeURIComponent(queryTeam(name));
-  const data = await fetchJson(`https://s.livesport.services/api/v2/search?q=${q}&sport=football&lang=en`, {
-    Accept: 'application/json',
-  });
-  const teams: any[] = (data ?? []).filter(
-    (r: any) => r.type?.name === 'Team' && r.sport?.name === 'Soccer'
-  );
-  const target = normTeam(name);
-  const exact = teams.find((t) => {
-    const n = normTeam(t.name);
-    return n === target || (n.length >= 4 && target.length >= 4 && (n.includes(target) || target.includes(n)));
-  });
-  return exact ? { id: exact.id, url: exact.url, name: exact.name } : null;
 }
 
 export interface LeagueRef {
@@ -59,23 +31,6 @@ export interface TeamForm {
   form: string;
   lastResults: { opp: string; score: string; result: 'W' | 'D' | 'L'; eventId?: string; side?: 'home' | 'away' }[];
   league: LeagueRef | null;
-}
-
-function extractFeed(html: string, feedName: string): Record<string, string>[] {
-  const marker = `cjs.initialFeeds["${feedName}"]`;
-  const i = html.indexOf(marker);
-  if (i === -1) return [];
-  const start = html.indexOf('data: `', i);
-  if (start === -1) return [];
-  const end = html.indexOf('`', start + 8);
-  if (end === -1) return [];
-  const feed = html.slice(start + 7, end);
-  const events: Record<string, string>[] = [];
-  for (const block of feed.split('~')) {
-    const fields = decodeFeedBlock(block);
-    if (fields.AA) events.push(fields);
-  }
-  return events;
 }
 
 // Decode every block in a feed, including tournament-header blocks that carry
@@ -104,8 +59,8 @@ export async function fetchTeamForm(team: FsTeam): Promise<TeamForm> {
     Accept: 'text/html,application/xhtml+xml',
     Referer: 'https://www.flashscore.com/',
   });
-  const results = extractFeed(html, 'summary-results');
-  const fixtures = extractFeed(html, 'summary-fixtures');
+  const results = extractFeedEvents(html, 'summary-results');
+  const fixtures = extractFeedEvents(html, 'summary-fixtures');
 
   // Primary league = most frequent league NAME across both feeds. Tournament
   // ids (ZC) can differ between the results and fixtures feeds for the same
@@ -568,7 +523,7 @@ export async function findMatchWithTeams(
   };
 
   if (opts.requireFinished) {
-    const finished = extractFeed(html, 'summary-results').filter(
+    const finished = extractFeedEvents(html, 'summary-results').filter(
       (e) =>
         String(e.AB) === '3' &&
         e.AG &&
@@ -588,7 +543,7 @@ export async function findMatchWithTeams(
     return { status: 'notfound' };
   }
 
-  const upcoming = extractFeed(html, 'summary-fixtures').filter(isPair);
+  const upcoming = extractFeedEvents(html, 'summary-fixtures').filter(isPair);
   const m = upcoming.sort(
     (a, b) => Math.abs(Number(a.AD) - kickoff) - Math.abs(Number(b.AD) - kickoff)
   )[0];

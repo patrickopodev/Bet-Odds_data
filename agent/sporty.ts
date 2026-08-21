@@ -2,10 +2,9 @@
 // and the share code so the agent can confirm a staked selection before the
 // match and monitor it until it ends.
 
+import { UA } from '../lib/common.mjs';
+
 const SPORTYBET_BASE_URL = process.env.SPORTYBET_BASE_URL ?? 'https://www.sportybet.com';
-const UA =
-  process.env.USER_AGENT ??
-  'Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36';
 
 async function fetchSportyJson(url: string): Promise<any> {
   const res = await fetch(url, {

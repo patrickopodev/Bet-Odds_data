@@ -170,6 +170,40 @@ test('analyzeCandidate scales the historical edge by sample size', () => {
   assert.equal(large.historicalSettled, 30);
 });
 
+test('low-sample history cannot set the minimum odds or move confidence', () => {
+  // 3/3 won at 1.6 -> enough for outcomeHistory to return a win rate, but below
+  // MIN_HISTORY_SAMPLE: the min odds must stay at the 1.4 floor, not drop to
+  // ~0.92 from a 100% record over three matches.
+  const events = {};
+  for (let i = 0; i < 3; i++) {
+    events['e' + i] = {
+      eventId: 'e' + i,
+      homeTeam: 'A',
+      awayTeam: 'B',
+      startTime: '',
+      finalScore: '2:1',
+      outcomes: { o: { marketId: '1', name: 'Home', plays: [{ odds: 1.6 }] } },
+    };
+  }
+  const stats = historicalStats({ events });
+  const match = {
+    eventId: 'x',
+    homeTeam: 'A',
+    awayTeam: 'B',
+    tournament: 'T',
+    startTime: '',
+    home: { name: 'A', flashscoreId: null, flashscoreUrl: null, position: null, played: null, points: null, form: '', formScore: 0, lastResults: [], research: [], researchAt: null },
+    away: { name: 'B', flashscoreId: null, flashscoreUrl: null, position: null, played: null, points: null, form: '', formScore: 0, lastResults: [], research: [], researchAt: null },
+  };
+  const c = analyzeCandidate(match, { marketId: '1', name: '1X2', outcome: 'Home', odds: 1.6, active: true }, stats);
+  assert.equal(c.recommendedMinOdds, 1.4, 'thin history must not back out a sub-1.4 min odds');
+  assert.ok(c.reason.includes('LOW SAMPLE'), 'thin history is still flagged');
+  // Confidence must not have been boosted by the 100% thin record: base 0.35
+  // with empty form/position lands below the 0.5 recommendation bar.
+  assert.ok(c.confidence < 0.5);
+  assert.equal(c.recommended, false);
+});
+
 test('parseMatchFeed extracts officials (referee/venue) and goal/assist events', () => {
   // Real df_sui feed shape captured from a finished match: goal + assistance in
   // one block (IE=8 after the scorer), a card block, and the MIT/MIV officials
@@ -226,7 +260,7 @@ test('aggregatePlayerStats credits a team only its own side of each finished mat
   assert.equal(stats.cards.length, 0);
 });
 
-test('injury news + missing key players lower 1X2 confidence; officials enter reason', () => {
+test('1X2 reason surfaces form and table; player/referee intel is not consulted', () => {
   const stats = historicalStats({ events: {} });
   const match = {
     eventId: 'x',
@@ -240,12 +274,14 @@ test('injury news + missing key players lower 1X2 confidence; officials enter re
   };
   const src = { marketId: '1', name: '1X2', outcome: 'Home', odds: 1.6, active: true };
   const c = analyzeCandidate(match, src, stats);
-  assert.ok(c.reason.includes('ref Scott C.'), 'reason names the referee');
-  assert.ok(c.reason.includes('@Tynecastle Park'), 'reason names the venue');
-  assert.ok(c.reason.includes('injury note'), 'reason surfaces injury research');
+  assert.ok(c.reason.includes('form WWWWW'), 'reason names team form');
+  assert.ok(c.reason.includes('table #1'), 'reason names the table');
+  assert.ok(!c.reason.includes('ref Scott C.'), 'referee intel does not enter the reason');
+  assert.ok(!c.reason.includes('Tynecastle Park'), 'venue intel does not enter the reason');
+  assert.ok(!c.reason.includes('injury note'), 'injury research does not enter the reason');
 });
 
-test('research snippets feed confidence (injury news lowers it)', () => {
+test('web research snippets no longer move confidence (reverted deep dig)', () => {
   const stats = historicalStats({ events: {} });
   const mk = (formScore, position, research) => ({
     eventId: 'x',
@@ -259,11 +295,11 @@ test('research snippets feed confidence (injury news lowers it)', () => {
   const src = { marketId: '1', name: '1X2', outcome: 'Home', odds: 1.8, active: true };
   const clean = analyzeCandidate(mk(15, 1, []), src, stats);
   const injured = analyzeCandidate(mk(15, 1, ['Key striker ruled out with a hamstring injury, suspended defender']), src, stats);
-  assert.ok(injured.confidence < clean.confidence, 'negative news must reduce confidence');
+  assert.equal(injured.confidence, clean.confidence, 'research text must not change confidence');
   assert.ok(clean.reason.includes('form'), 'reason mentions team form');
 });
 
-test('O/U confidence is line-aware (gap vs the market line)', () => {
+test('O/U confidence scales with avg goals; the line is not read', () => {
   const stats = historicalStats({ events: {} });
   const mk = (homeRes, awayRes) => ({
     eventId: 'x',
@@ -286,8 +322,8 @@ test('O/U confidence is line-aware (gap vs the market line)', () => {
   const overLow = analyzeCandidate(lowScoring, { marketId: '18', name: 'O/U', outcome: 'Over 2.5', odds: 1.9, active: true }, stats);
   const underHigh = analyzeCandidate(highScoring, { marketId: '18', name: 'O/U', outcome: 'Under 2.5', odds: 1.9, active: true }, stats);
   assert.ok(overHigh.confidence > overLow.confidence, 'higher avg goals → more confident Over');
-  assert.ok(overHigh.reason.includes('vs Over 2.5'), 'reason names the line');
-  assert.ok(underHigh.confidence < overHigh.confidence, 'same team, Under should be less confident than Over');
+  assert.ok(overHigh.reason.includes('avg last-5 total 4.2'), 'reason reports the average total');
+  assert.equal(underHigh.confidence, overHigh.confidence, 'the formula is average-based, not line-aware');
 });
 
 test('extractSnippets parses DDG html and dedupes', () => {
@@ -302,16 +338,10 @@ test('extractSnippets parses DDG html and dedupes', () => {
   assert.ok(out[0].includes('Hearts news'));
 });
 
-test('webResearch returns per-side buckets (symmetric research)', async () => {
+test('webResearch returns a flat snippet list shared by both teams', async () => {
   const r = await webResearch('Fake Team Alpha', 'Fake Team Beta', 'Test League');
-  assert.ok(Array.isArray(r.match));
-  assert.ok(Array.isArray(r.home));
-  assert.ok(Array.isArray(r.away));
-  assert.ok(Array.isArray(r.homeInjuries));
-  assert.ok(Array.isArray(r.awayInjuries));
-  assert.ok(Array.isArray(r.homePlayers));
-  assert.ok(Array.isArray(r.awayPlayers));
-  assert.ok(Object.keys(r).length === 7);
+  assert.ok(Array.isArray(r));
+  assert.ok(r.every((s) => typeof s === 'string'));
 });
 
 test('selectBets skips friendlies unless allowed', () => {

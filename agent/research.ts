@@ -49,32 +49,17 @@ export function extractSnippets(html: string, limit = 3): string[] {
   return uniq(parsed);
 }
 
-export interface ResearchSet {
-  match: string[]; // shared preview (both teams)
-  home: string[]; // home team's own news
-  away: string[]; // away team's own news
-  homeInjuries: string[]; // home team injury/suspension snippets
-  awayInjuries: string[]; // away team injury/suspension snippets
-  homePlayers: string[]; // home team key-player/lineup snippets
-  awayPlayers: string[]; // away team key-player/lineup snippets
-}
-
-// Per-side research so both teams get symmetric web signal (fix: the old
-// second query only ever researched the home team). Injury/suspension and
-// key-player/lineup queries are split per side too, so each team's player news
-// feeds its own confidence.
-export async function webResearch(home: string, away: string, tournament: string): Promise<ResearchSet> {
+// Web research is a flat list of recent news/preview snippets shared by both
+// teams. Injury/lineup/referee queries are deliberately absent: they fed
+// confidence signals that did not improve recommendations.
+export async function webResearch(home: string, away: string, tournament: string): Promise<string[]> {
   const queries = [
-    { side: 'match', q: `${home} vs ${away} preview` },
-    { side: 'home', q: `${home} ${tournament} recent form` },
-    { side: 'away', q: `${away} ${tournament} recent form` },
-    { side: 'homeInjuries', q: `${home} injuries suspensions team news` },
-    { side: 'awayInjuries', q: `${away} injuries suspensions team news` },
-    { side: 'homePlayers', q: `${home} predicted lineup key players` },
-    { side: 'awayPlayers', q: `${away} predicted lineup key players` },
-  ] as const;
-  const results: ResearchSet = { match: [], home: [], away: [], homeInjuries: [], awayInjuries: [], homePlayers: [], awayPlayers: [] };
-  for (const { side, q } of queries) {
+    `${home} vs ${away} preview`,
+    `${home} ${tournament} recent form`,
+    `${away} ${tournament} recent form`,
+  ];
+  const results: string[] = [];
+  for (const q of queries) {
     try {
       const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(q)}`;
       const res = await fetch(url, {
@@ -87,18 +72,11 @@ export async function webResearch(home: string, away: string, tournament: string
       });
       if (!res.ok) continue;
       const html = await res.text();
-      results[side].push(...extractSnippets(html, 2));
+      results.push(...extractSnippets(html, 2));
     } catch {
       // best-effort: skip
     }
+    if (results.length >= 6) break;
   }
-  return {
-    match: uniq(results.match).slice(0, 6),
-    home: uniq(results.home).slice(0, 6),
-    away: uniq(results.away).slice(0, 6),
-    homeInjuries: uniq(results.homeInjuries).slice(0, 6),
-    awayInjuries: uniq(results.awayInjuries).slice(0, 6),
-    homePlayers: uniq(results.homePlayers).slice(0, 6),
-    awayPlayers: uniq(results.awayPlayers).slice(0, 6),
-  };
+  return uniq(results).slice(0, 6);
 }

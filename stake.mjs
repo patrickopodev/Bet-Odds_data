@@ -24,10 +24,29 @@ function isFriendly(tournament) {
 
 export { isFriendly };
 
+function envInt(name) {
+  const v = process.env[name];
+  return v == null || v === '' ? null : Number(v);
+}
+
+// Cap the number of ACTIVE slips (money at risk) the pipeline may hold. The
+// workflow passes STAKE_MAX_SLIPS as a safety floor; once a run has recorded a
+// live bankroll (autoplace writes slip.bankroll.maxSlips), that tighter budget
+// cap also applies. null means "no cap" for manual runs.
+export function effectiveMaxSlips(slip) {
+  const candidates = [envInt('STAKE_MAX_SLIPS'), slip?.bankroll?.maxSlips ?? null].filter(
+    (x) => x != null && Number.isFinite(x) && x > 0
+  );
+  return candidates.length ? Math.min(...candidates) : null;
+}
+
 // Statuses that count toward the active-slip cap: money is at risk, is about to
-// be placed, or a replacement still needs to be selected. Terminal ledger
-// entries (settled/cancelled/failed) never consume capacity.
-export const ACTIVE_BET_STATUSES = ['pending', 'skipped', 'slip-ready', 'confirmed', 'placed'];
+// be placed, or a replacement still needs to be selected. 'unverified' counts
+// too: the placement click may have gone through without a success toast, so
+// the money must be treated as at risk until someone reconciles the bet
+// history. Terminal ledger entries (settled/cancelled/failed) never consume
+// capacity.
+export const ACTIVE_BET_STATUSES = ['pending', 'skipped', 'slip-ready', 'confirmed', 'placed', 'unverified'];
 
 // Slips that must survive a slip regeneration: anything past plain selection
 // (share code out, placed, confirmed, settled...) stays on the ledger so the
@@ -185,10 +204,14 @@ export function nextSlip(existing, report, opts = {}) {
   const preserved = prev ? keepableSlips(prev) : [];
   const activeKept = preserved.filter((s) => ACTIVE_BET_STATUSES.includes(s.status)).length;
   const capacity = Math.max(0, maxSlips - activeKept);
-  const excludedMatches = new Set(preserved.flatMap((s) => s.legs.map((l) => l.eventId)));
-  const attemptedCombos = new Set(
-    preserved.flatMap((s) => s.legs.map((l) => `${l.eventId}|${l.marketId}|${l.outcome}`))
-  );
+  // A match or combo is never re-picked once it has appeared on ANY slip —
+  // kept or not. Skipped/failed/pending slips drop out of the preserved set
+  // (so a replacement can be selected), but their matches must stay excluded,
+  // otherwise the same teams come back on new slips the next run: that's what
+  // produced duplicate legs across the ledger.
+  const allLegs = (prev?.slips ?? []).flatMap((s) => s.legs);
+  const excludedMatches = new Set(allLegs.map((l) => l.eventId));
+  const attemptedCombos = new Set(allLegs.map((l) => `${l.eventId}|${l.marketId}|${l.outcome}`));
   const picks = selectBets(report, {
     exclude: ({ match, candidate }) =>
       excludedMatches.has(match.eventId) ||
@@ -218,7 +241,8 @@ export function refillSlip(slip, report, opts = {}) {
   const all = normalizeSlip(slip)?.slips ?? [];
   const keep = all.filter((s) => s.status !== 'skipped');
   const attempted = new Set(all.flatMap((s) => s.legs.map((l) => `${l.eventId}|${l.marketId}|${l.outcome}`)));
-  const pickedMatch = new Set(keep.flatMap((s) => s.legs.map((l) => l.eventId)));
+  // A match once selected — even on a skipped slip — is never re-picked.
+  const pickedMatch = new Set(all.flatMap((s) => s.legs.map((l) => l.eventId)));
   const activeKept = keep.filter((s) => ACTIVE_BET_STATUSES.includes(s.status)).length;
   const capacity = maxSlips - activeKept;
   if (capacity <= 0) return { added: 0, exhausted: true, slips: [] };
@@ -273,7 +297,8 @@ function main() {
   } catch {
     existing = null;
   }
-  const slip = nextSlip(existing, report);
+  const cap = effectiveMaxSlips(existing);
+  const slip = cap != null ? nextSlip(existing, report, { maxSlips: cap }) : nextSlip(existing, report);
   fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.writeFileSync(SLIP_FILE, JSON.stringify(slip, null, 2));
 

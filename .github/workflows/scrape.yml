@@ -24,6 +24,11 @@ jobs:
       ALLOW_FRIENDLIES: "false"
       BANKROLL_DIVISOR: 2
       STAKE_PERCENT_OF_HALF: 0.25
+      # Max ACTIVE slips (money at risk) at any time. Without a cap the 30-min
+      # cron mints a fresh batch every run and can place slips faster than the
+      # bankroll recycles — that runaway is what piled up a dozen+ slips in a
+      # day. Tighten further if you want less exposure.
+      STAKE_MAX_SLIPS: "2"
 
     steps:
       - name: Checkout repository
@@ -97,6 +102,10 @@ jobs:
           if git diff --quiet && git diff --cached --quiet; then
             echo "No changes to data; skipping commit."
           else
+            # The pre-match monitor workflow also commits data/ on a 15-min
+            # cadence; rebase onto anything it pushed before committing so a
+            # concurrent push can't fail this run.
+            git pull --rebase origin main
             git commit -m "chore(webscraper): update scraped data ($(date -u +%Y-%m-%dT%H:%M:%SZ))"
             git push
           fi

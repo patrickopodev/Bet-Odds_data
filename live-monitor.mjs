@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fetchSportyApiJson, assertEventListShape, SPORTYBET_BASE_URL, TARGET_SPORT } from './lib/common.mjs';
+import { DATA_DIR, fetchSportyApiJson, assertEventListShape, SPORTYBET_BASE_URL, TARGET_SPORT } from './lib/common.mjs';
 
 // Poll a live event's 1X2 market and log every odds change as it is seen.
 // Usage:
@@ -93,7 +93,7 @@ function safeEventId(eventId) {
 }
 
 async function loadLog(eventId) {
-  const file = path.join('data', `live-1x2-${safeEventId(eventId)}.json`);
+  const file = path.join(DATA_DIR, `live-1x2-${safeEventId(eventId)}.json`);
   try {
     return JSON.parse(await fs.readFile(file, 'utf8'));
   } catch {
@@ -123,7 +123,7 @@ async function main() {
   console.log('Changes only are saved. Ctrl+C to stop.\n');
 
   const flush = async () => {
-    const file = path.join('data', `live-1x2-${safeEventId(eventId)}.json`);
+    const file = path.join(DATA_DIR, `live-1x2-${safeEventId(eventId)}.json`);
     await fs.mkdir(path.dirname(file), { recursive: true });
     await fs.writeFile(file, JSON.stringify(log, null, 2), 'utf8');
   };
