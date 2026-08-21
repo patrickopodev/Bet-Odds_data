@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { isSimulated } from '../lib/common.mjs';
 import {
   researchTeam,
   findMatchWithTeams,
@@ -75,6 +76,8 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
 
   const worker = async (m: LatestMatch) => {
     if (m.matchStatus && /^H|^FT/i.test(m.matchStatus)) return null; // skip live/finished
+    // SRL (Simulated Reality) leagues are virtual — never research or back them.
+    if (isSimulated(m.tournament) || isSimulated(m.homeTeam) || isSimulated(m.awayTeam)) return null;
     const started = Date.parse(m.startTime);
     if (Number.isNaN(started)) return null;
     const inWindow = started - Date.now();

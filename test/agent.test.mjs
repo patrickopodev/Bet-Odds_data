@@ -6,7 +6,36 @@ import { evaluateOutcome as jsEvaluate } from '../lib/common.mjs';
 import { analyzeCandidate, candidateSources, buildRecommendations } from '../dist/analysis.js';
 import { extractSnippets, webResearch } from '../dist/research.js';
 import { parseMatchFeed, aggregatePlayerStats } from '../dist/flashscore.js';
+import { isSimulated } from '../lib/common.mjs';
 import { selectBets, isFriendly, groupSlips, slipExpectedValue, confidenceBucket, calibrationTable, calibratedProb } from '../stake.mjs';
+
+test('isSimulated flags SRL leagues and team names only', () => {
+  assert.equal(isSimulated('LaLiga SRL'), true);
+  assert.equal(isSimulated('Premier League SRL'), true);
+  assert.equal(isSimulated('Arsenal SRL'), true);
+  assert.equal(isSimulated('Coventry City Srl'), true);
+  assert.equal(isSimulated('Premier League'), false);
+  assert.equal(isSimulated('Seria RL'), false); // not a word-boundary SRL
+  assert.equal(isSimulated('J1 League'), false);
+  assert.equal(isSimulated(null), false);
+});
+
+test('selectBets refuses simulated (SRL) matches even when recommended', () => {
+  const mk = (id, tourney, home, odds) => ({
+    match: { eventId: id, homeTeam: home, awayTeam: 'B', tournament: tourney, startTime: '' },
+    candidates: [{ marketId: '18', market: 'O/U', outcome: 'Over 2.5', odds, recommendedMinOdds: 1.0, recommended: true, confidence: 0.9 }],
+  });
+  const report = {
+    matches: [
+      mk('1', 'Premier League', 'Arsenal', 2.0),
+      mk('2', 'LaLiga SRL', 'Betis SRL', 2.0),
+      mk('3', 'Premier League', 'Arsenal SRL', 2.0), // virtual via team name
+    ],
+  };
+  const picks = selectBets(report);
+  assert.equal(picks.length, 1);
+  assert.equal(picks[0].match.eventId, '1');
+});
 import { resolveOutcome } from '../dist/sporty.js';
 import { writeReport } from '../dist/monitor.js';
 

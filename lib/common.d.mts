@@ -17,6 +17,8 @@ export function evaluateOutcome(
 
 export function normTeam(s: string | null | undefined): string;
 
+export function isSimulated(name: string | null | undefined): boolean;
+
 export function queryTeam(s: string): string;
 
 export function decodeFeedBlock(block: string): Record<string, string>;

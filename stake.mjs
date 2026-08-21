@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isSimulated } from './lib/common.mjs';
 
 const DATA_DIR = process.env.DATA_DIR ?? 'data';
 const AGENT_FILE = path.join(DATA_DIR, 'agent-recommendations.json');
@@ -71,6 +72,9 @@ export function selectBets(report, opts = {}) {
     const { match, candidates } = rec;
     if (!candidates || !candidates.length) continue;
     if (isFriendly(match.tournament) && !ALLOW_FRIENDLIES) continue;
+    // Money-boundary virtual gate: SRL (simulated reality) matches are never
+    // picked, even from a stale or hand-edited agent report.
+    if (isSimulated(match.tournament) || isSimulated(match.homeTeam) || isSimulated(match.awayTeam)) continue;
 
     const recCands = candidates.filter(
       (c) => c.recommended && c.confidence >= MIN_CONFIDENCE && c.odds >= c.recommendedMinOdds
