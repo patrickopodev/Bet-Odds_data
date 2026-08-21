@@ -1,5 +1,5 @@
 import type { Candidate, MatchResearch, Recommendation, TeamInfo } from './types.js';
-import { historicalStats, outcomeHistory, type Db, type LatestMatch } from './db.js';
+import { historicalStats, outcomeHistory, oddsDrift, MIN_DRIFT_PLAYS, type Db, type LatestMatch } from './db.js';
 
 export interface CandidateSource {
   marketId: string;
@@ -22,7 +22,12 @@ export function candidateSources(m: LatestMatch): CandidateSource[] {
   return out;
 }
 
-const RELEVANT_MARKETS = new Set(['1', '18', '548']);
+// All four scraped sections are candidates. 1X2/O/U and Total Goals also get
+// team-form signals; Correct Score (41) and Multiscores (551) rely purely on
+// the odds-db history: their base confidence (0.35) only clears the 0.5
+// recommendation bar when a trusted odds-band record adds up to +0.25 — i.e.
+// the DB itself must prove the price wins before the agent backs it.
+const RELEVANT_MARKETS = new Set(['1', '18', '548', '41', '551']);
 
 // History is only trusted once enough matches have settled to separate signal
 // from variance. Below this threshold the win rate stays informational (shown
@@ -46,7 +51,8 @@ function teamConfidence(t: TeamInfo, base: number): number {
 export function analyzeCandidate(
   m: MatchResearch,
   c: CandidateSource,
-  stats: ReturnType<typeof historicalStats>
+  stats: ReturnType<typeof historicalStats>,
+  movement: ReturnType<typeof oddsDrift> = null
 ): Candidate {
   const implied = 1 / c.odds;
   const hist = outcomeHistory(stats, c.marketId, c.outcome, c.odds);
@@ -96,6 +102,23 @@ export function analyzeCandidate(
     }
   }
 
+  // Market movement from today's own snapshots: a price the market is backing
+  // (steaming, drift < 0) nudges confidence up; a drifting price nudges it
+  // down. Capped at ±0.05 and ignored below MIN_DRIFT_PLAYS distinct prices —
+  // movement over 1-2 snapshots is noise, not signal.
+  let oddsDriftValue: number | null = null;
+  if (movement && movement.samples >= MIN_DRIFT_PLAYS && Math.abs(movement.drift) > 1e-9) {
+    oddsDriftValue = movement.drift;
+    const nudge = Math.min(0.05, Math.abs(movement.drift) * 0.5);
+    if (movement.drift < 0) {
+      confidence = Math.min(1, confidence + nudge);
+      reason += `, steamed ${movement.first.toFixed(2)}→${movement.last.toFixed(2)} over ${movement.samples} prices`;
+    } else {
+      confidence -= nudge;
+      reason += `, drifted ${movement.first.toFixed(2)}→${movement.last.toFixed(2)} over ${movement.samples} prices`;
+    }
+  }
+
   // Minimum odds the JS staker must respect: implied probability backed out of
   // the historical win rate, with a safety margin — but only when the sample is
   // big enough to trust. Otherwise fall back to the scraped odds floor.
@@ -117,7 +140,8 @@ export function analyzeCandidate(
     historicalWinRate: hist.winRate,
     historicalSettled: hist.settled,
     edge,
-    confidence,
+    oddsDrift: oddsDriftValue,
+    confidence: Math.max(0, Math.min(1, confidence)),
     recommendedMinOdds,
     recommended,
     reason,
@@ -138,7 +162,7 @@ export function buildRecommendations(
     const candidates = candidateSources(src)
       .filter((c) => RELEVANT_MARKETS.has(c.marketId))
       .map((c) => {
-        const cand = analyzeCandidate(m, c, stats);
+        const cand = analyzeCandidate(m, c, stats, oddsDrift(db.events?.[m.eventId], c.marketId, c.outcome));
         cand.market = marketNames(c.marketId);
         return cand;
       })

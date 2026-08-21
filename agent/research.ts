@@ -50,8 +50,9 @@ export function extractSnippets(html: string, limit = 3): string[] {
 }
 
 // Web research is a flat list of recent news/preview snippets shared by both
-// teams. Injury/lineup/referee queries are deliberately absent: they fed
-// confidence signals that did not improve recommendations.
+// teams. Injury/lineup queries were removed entirely: they fed confidence
+// signals that did not improve recommendations (and the fields are gone from
+// TeamInfo).
 export async function webResearch(home: string, away: string, tournament: string): Promise<string[]> {
   const queries = [
     `${home} vs ${away} preview`,

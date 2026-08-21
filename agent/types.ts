@@ -28,8 +28,6 @@ export interface TeamInfo {
   lastResults: { opp: string; score: string; result: 'W' | 'D' | 'L' }[];
   research: string[]; // web-search snippets for this team
   researchAt: string | null; // ISO timestamp of when research was fetched
-  injuries: string[]; // web-research snippets mentioning injuries/suspensions
-  keyPlayers: string[]; // web-research snippets naming key players/lineups
   scorers: PlayerStat[]; // goals scored in the team's last-5 finished matches
   assists: PlayerStat[]; // assists recorded in the team's last-5 finished matches
   cards: PlayerStat[]; // cards picked up in the team's last-5 finished matches
@@ -57,6 +55,7 @@ export interface Candidate {
   historicalWinRate: number | null; // from odds-db at this outcome (any odds band)
   historicalSettled: number;
   edge: number | null; // historicalWinRate - impliedProb
+  oddsDrift: number | null; // last seen odds - first seen odds today (negative = steamed)
   confidence: number; // 0..1 blended research score
   recommendedMinOdds: number; // odds threshold the JS staker must respect
   recommended: boolean;

@@ -10,7 +10,7 @@ export interface DbEvent {
   awayTeam: string;
   startTime: string;
   finalScore: string | null;
-  outcomes: Record<string, { marketId: string; name: string; plays: { odds: number }[] }>;
+  outcomes: Record<string, { marketId: string; name: string; plays: { odds: number; seenAt?: string }[] }>;
 }
 
 export interface Db {
@@ -92,4 +92,29 @@ export function outcomeHistory(
     best,
     rows,
   };
+}
+
+// Movement of one outcome's price across today's own snapshots. The scraper
+// records every distinct price with seenAt every 30 minutes, so the DB holds a
+// per-outcome odds timeline for each event. drift = last - first: negative
+// means the price shortened (steamer — money arriving on this selection),
+// positive means it drifted (money against it). Returns null below
+// MIN_DRIFT_PLAYS distinct prices — movement over 1-2 snapshots is noise.
+export const MIN_DRIFT_PLAYS = 3;
+
+export function oddsDrift(
+  ev: DbEvent | undefined,
+  marketId: string,
+  outcome: string
+): { drift: number; first: number; last: number; samples: number } | null {
+  const plays = ev?.outcomes?.[`${marketId}|${outcome}`]?.plays ?? [];
+  if (plays.length < MIN_DRIFT_PLAYS) return null;
+  const sorted = [...plays].sort((a, b) => {
+    const ta = a.seenAt ? Date.parse(a.seenAt) : 0;
+    const tb = b.seenAt ? Date.parse(b.seenAt) : 0;
+    return ta - tb;
+  });
+  const first = sorted[0].odds;
+  const last = sorted[sorted.length - 1].odds;
+  return { drift: Number((last - first).toFixed(3)), first, last, samples: sorted.length };
 }

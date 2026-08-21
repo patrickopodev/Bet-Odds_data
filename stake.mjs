@@ -127,10 +127,28 @@ function toLeg(match, candidate) {
   };
 }
 
+// Per-slip expected value: combined probability (product of leg confidences)
+// vs the accumulator price. Selection ranks legs individually, but only a slip
+// whose combined confidence justifies its combined odds gets money — a 4-leg
+// multi of 60% events wins ~13% of the time and must be priced accordingly.
+export function slipExpectedValue(legs) {
+  const combinedOdds = Math.round(legs.reduce((acc, l) => acc * (l.odds ?? 1), 1) * 100) / 100;
+  const combinedProb = legs.reduce((acc, l) => acc * Math.min(1, Math.max(0, l.confidence ?? 0)), 1);
+  return { combinedOdds, combinedProb, ev: combinedProb * combinedOdds - 1 };
+}
+
+// Slips must clear this EV to be placed (default: strictly positive). Raise it
+// via env to demand more margin per slip.
+export function slipMinEv() {
+  const v = Number(process.env.SLIP_MIN_EV);
+  return Number.isFinite(v) ? v : 0;
+}
+
 // Group ranked picks into slips per the composition rule: singles for odds >=
 // SINGLE_ODDS_MIN, bundles of up to BUNDLE_SIZE for odds in
 // [BUNDLE_ODDS_MIN, SINGLE_ODDS_MIN). A leftover bundle with fewer than
 // BUNDLE_SIZE legs is still placed (user: "place with whatever qualifies").
+// Slips whose expected value does not clear SLIP_MIN_EV are refused.
 export function groupSlips(picks) {
   const singles = picks.filter((p) => p.candidate.odds >= SINGLE_ODDS_MIN);
   const bundles = picks.filter(
@@ -144,7 +162,12 @@ export function groupSlips(picks) {
   for (let i = 0; i < bundles.length; i += BUNDLE_SIZE) {
     slips.push(makeSlip(`slip-${n++}`, 'multi', bundles.slice(i, i + BUNDLE_SIZE)));
   }
-  return slips;
+  const minEv = slipMinEv();
+  return slips.filter((s) => {
+    const { ev } = slipExpectedValue(s.legs);
+    s.ev = Math.round(ev * 100) / 100;
+    return ev > minEv;
+  });
 }
 
 function makeSlip(slipId, type, pickLegs) {

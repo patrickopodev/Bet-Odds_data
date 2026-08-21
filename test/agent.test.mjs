@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { evaluateOutcome as tsEvaluate, historicalStats, outcomeHistory } from '../dist/db.js';
+import { evaluateOutcome as tsEvaluate, historicalStats, outcomeHistory, oddsDrift } from '../dist/db.js';
 import { evaluateOutcome as jsEvaluate } from '../lib/common.mjs';
 import { analyzeCandidate, candidateSources, buildRecommendations } from '../dist/analysis.js';
 import { extractSnippets, webResearch } from '../dist/research.js';
 import { parseMatchFeed, aggregatePlayerStats } from '../dist/flashscore.js';
-import { selectBets, isFriendly } from '../stake.mjs';
+import { selectBets, isFriendly, groupSlips, slipExpectedValue } from '../stake.mjs';
 import { resolveOutcome } from '../dist/sporty.js';
 import { writeReport } from '../dist/monitor.js';
 
@@ -170,6 +170,46 @@ test('analyzeCandidate scales the historical edge by sample size', () => {
   assert.equal(large.historicalSettled, 30);
 });
 
+test('Correct Score / Multiscores recommend only on trusted odds-db history', () => {
+  // Markets 41/551 have no team-form signal: base confidence 0.35 can only
+  // clear the 0.5 bar when a trusted (>=5 settled) odds-band record adds up to
+  // +0.25 — the DB itself must prove the price wins.
+  const mkStats = (n, odds) => {
+    const events = {};
+    for (let i = 0; i < n; i++) {
+      events['e' + i] = {
+        eventId: 'e' + i,
+        homeTeam: 'A',
+        awayTeam: 'B',
+        startTime: '',
+        finalScore: '2:1',
+        outcomes: { o: { marketId: '41', name: '2:1', plays: [{ odds }] } },
+      };
+    }
+    return historicalStats({ events });
+  };
+  const match = {
+    eventId: 'x',
+    homeTeam: 'A',
+    awayTeam: 'B',
+    tournament: 'T',
+    startTime: '',
+    home: { name: 'A', flashscoreId: null, flashscoreUrl: null, position: null, played: null, points: null, form: '', formScore: 0, lastResults: [], research: [], researchAt: null },
+    away: { name: 'B', flashscoreId: null, flashscoreUrl: null, position: null, played: null, points: null, form: '', formScore: 0, lastResults: [], research: [], researchAt: null },
+  };
+  const src = { marketId: '41', name: 'Correct Score [0:0]', outcome: '2:1', odds: 7.5, active: true };
+
+  // No history at all -> base confidence only, never recommended.
+  const bare = analyzeCandidate(match, src, historicalStats({ events: {} }));
+  assert.equal(bare.recommended, false);
+  assert.ok(bare.confidence < 0.5);
+
+  // 6/6 settled wins at the matching band -> full-strength edge boost clears the bar.
+  const proven = analyzeCandidate(match, src, mkStats(6, 7.4));
+  assert.ok(proven.confidence >= 0.5, `trusted history should clear the bar (got ${proven.confidence})`);
+  assert.equal(proven.recommended, true);
+});
+
 test('low-sample history cannot set the minimum odds or move confidence', () => {
   // 3/3 won at 1.6 -> enough for outcomeHistory to return a win rate, but below
   // MIN_HISTORY_SAMPLE: the min odds must stay at the 1.4 floor, not drop to
@@ -202,6 +242,91 @@ test('low-sample history cannot set the minimum odds or move confidence', () => 
   // with empty form/position lands below the 0.5 recommendation bar.
   assert.ok(c.confidence < 0.5);
   assert.equal(c.recommended, false);
+});
+
+test('oddsDrift reads the event play timeline; below 3 prices it is noise', () => {
+  const ev = {
+    eventId: 'x',
+    homeTeam: 'A',
+    awayTeam: 'B',
+    startTime: '',
+    finalScore: null,
+    outcomes: {
+      '18|Over 2.5': {
+        marketId: '18',
+        name: 'Over 2.5',
+        plays: [
+          { odds: 1.9, seenAt: '2026-08-21T10:00:00Z' },
+          { odds: 1.8, seenAt: '2026-08-21T10:30:00Z' },
+          { odds: 1.75, seenAt: '2026-08-21T11:00:00Z' },
+        ],
+      },
+    },
+  };
+  const d = oddsDrift(ev, '18', 'Over 2.5');
+  assert.equal(d.samples, 3);
+  assert.equal(d.drift, -0.15); // shortened -> steamer
+  // Plays are sorted by seenAt even when stored out of order.
+  const shuffled = { ...ev, outcomes: { '18|Over 2.5': { marketId: '18', name: 'Over 2.5', plays: [...ev.outcomes['18|Over 2.5'].plays].reverse() } } };
+  assert.equal(oddsDrift(shuffled, '18', 'Over 2.5').drift, -0.15);
+  // Fewer than MIN_DRIFT_PLAYS distinct prices -> null (noise).
+  const thin = { ...ev, outcomes: { '18|Over 2.5': { marketId: '18', name: 'Over 2.5', plays: [{ odds: 1.9 }, { odds: 1.8 }] } } };
+  assert.equal(oddsDrift(thin, '18', 'Over 2.5'), null);
+  assert.equal(oddsDrift(undefined, '18', 'Over 2.5'), null);
+});
+
+test('steaming odds nudge confidence up, drifting odds down', () => {
+  const stats = historicalStats({ events: {} });
+  const mk = () => ({
+    eventId: 'x',
+    homeTeam: 'A',
+    awayTeam: 'B',
+    tournament: 'T',
+    startTime: '',
+    home: { name: 'A', flashscoreId: null, flashscoreUrl: null, position: null, played: null, points: null, form: '', formScore: 0, lastResults: [], research: [], researchAt: null },
+    away: { name: 'B', flashscoreId: null, flashscoreUrl: null, position: null, played: null, points: null, form: '', formScore: 0, lastResults: [], research: [], researchAt: null },
+  });
+  const src = { marketId: '41', name: 'Correct Score [0:0]', outcome: '2:1', odds: 7.5, active: true };
+  const flat = analyzeCandidate(mk(), src, stats); // no movement data
+  const steamed = analyzeCandidate(mk(), src, stats, { drift: -0.4, first: 7.9, last: 7.5, samples: 4 });
+  const drifted = analyzeCandidate(mk(), src, stats, { drift: 0.4, first: 7.1, last: 7.5, samples: 4 });
+  assert.ok(steamed.confidence > flat.confidence, 'steam boosts');
+  assert.ok(drifted.confidence < flat.confidence, 'drift penalizes');
+  assert.equal(steamed.oddsDrift, -0.4);
+  assert.equal(flat.oddsDrift, null);
+  assert.ok(steamed.reason.includes('steamed 7.90→7.50'));
+});
+
+test('slipExpectedValue combines leg confidences against the accumulator price', () => {
+  const legs = [
+    { odds: 1.8, confidence: 0.5 },
+    { odds: 1.8, confidence: 0.5 },
+    { odds: 1.8, confidence: 0.5 },
+    { odds: 1.8, confidence: 0.5 },
+  ];
+  const { combinedOdds, combinedProb, ev } = slipExpectedValue(legs);
+  assert.equal(combinedOdds, 10.5);
+  assert.ok(Math.abs(combinedProb - 0.0625) < 1e-9);
+  assert.ok(ev < 0, 'four 50% legs at 1.8 each is negative EV');
+  const single = slipExpectedValue([{ odds: 3.2, confidence: 0.6 }]);
+  assert.ok(single.ev > 0);
+});
+
+test('groupSlips refuses slips that do not clear the EV bar', () => {
+  const before = process.env.SLIP_MIN_EV;
+  delete process.env.SLIP_MIN_EV;
+  try {
+    const mk = (id, odds, conf) => ({ match: { eventId: id, homeTeam: 'A', awayTeam: 'B', tournament: 'L', startTime: '' }, candidate: { marketId: '1', market: '1X2', outcome: 'Home', odds, recommendedMinOdds: 1.0, recommended: true, confidence: conf } });
+    // Single at 1.5 with 0.55 confidence: EV = 0.825 - 1 < 0 -> refused.
+    const bad = groupSlips([mk('m1', 1.5, 0.55)]);
+    assert.equal(bad.length, 0);
+    // Same shape but confident enough: EV = 0.66*2.0... use odds 2.0 conf 0.6 -> +0.2.
+    const good = groupSlips([mk('m2', 2.0, 0.6)]);
+    assert.equal(good.length, 1);
+    assert.equal(good[0].ev, 0.2);
+  } finally {
+    if (before !== undefined) process.env.SLIP_MIN_EV = before;
+  }
 });
 
 test('parseMatchFeed extracts officials (referee/venue) and goal/assist events', () => {
@@ -268,8 +393,8 @@ test('1X2 reason surfaces form and table; player/referee intel is not consulted'
     awayTeam: 'B',
     tournament: 'T',
     startTime: '',
-    home: { name: 'A', flashscoreId: null, flashscoreUrl: null, position: 1, played: 20, points: null, form: 'WWWWW', formScore: 15, lastResults: [], research: [], researchAt: null, injuries: ['Star striker ruled out with hamstring injury'], keyPlayers: [], scorers: [], assists: [], cards: [] },
-    away: { name: 'B', flashscoreId: null, flashscoreUrl: null, position: 18, played: 20, points: null, form: 'LLLLL', formScore: 0, lastResults: [], research: [], researchAt: null, injuries: [], keyPlayers: [], scorers: [], assists: [], cards: [] },
+    home: { name: 'A', flashscoreId: null, flashscoreUrl: null, position: 1, played: 20, points: null, form: 'WWWWW', formScore: 15, lastResults: [], research: [], researchAt: null, scorers: [], assists: [], cards: [] },
+    away: { name: 'B', flashscoreId: null, flashscoreUrl: null, position: 18, played: 20, points: null, form: 'LLLLL', formScore: 0, lastResults: [], research: [], researchAt: null, scorers: [], assists: [], cards: [] },
     officials: { referee: 'Scott C.', venue: 'Tynecastle Park', town: null, capacity: null, attendance: null },
   };
   const src = { marketId: '1', name: '1X2', outcome: 'Home', odds: 1.6, active: true };
@@ -278,7 +403,6 @@ test('1X2 reason surfaces form and table; player/referee intel is not consulted'
   assert.ok(c.reason.includes('table #1'), 'reason names the table');
   assert.ok(!c.reason.includes('ref Scott C.'), 'referee intel does not enter the reason');
   assert.ok(!c.reason.includes('Tynecastle Park'), 'venue intel does not enter the reason');
-  assert.ok(!c.reason.includes('injury note'), 'injury research does not enter the reason');
 });
 
 test('web research snippets no longer move confidence (reverted deep dig)', () => {

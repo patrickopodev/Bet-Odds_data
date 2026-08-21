@@ -116,12 +116,45 @@ export interface StandingsRow {
   rank: number;
 }
 
+// ---------------------------------------------------------------------------
+// Shared browser: standings and match-feed scraping used to launch a fresh
+// Chromium PER league / PER batch — the single biggest runtime cost of the
+// research step (launch ≈ 2-5s each). One lazy browser is shared for the
+// whole process instead; cli.ts closes it when research finishes.
+// ---------------------------------------------------------------------------
+let sharedBrowser: Awaited<ReturnType<typeof chromium.launch>> | null = null;
+
+async function getSharedBrowser() {
+  if (!sharedBrowser || !sharedBrowser.isConnected()) {
+    sharedBrowser = await chromium.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+    });
+  }
+  return sharedBrowser;
+}
+
+export async function closeSharedBrowser() {
+  const b = sharedBrowser;
+  sharedBrowser = null;
+  if (b) await b.close().catch(() => {});
+}
+
+// Poll until `has` returns true or the deadline passes. Replaces the old fixed
+// sleeps (10s standings / 8s feed): most feeds arrive in 1-3s, so early-exit
+// cuts minutes off a full research run while keeping the same ceiling.
+async function waitFor(has: () => boolean, timeoutMs: number): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (has()) return true;
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  return has();
+}
+
 // Fetch a league's standings table via Playwright and return every row.
 export async function fetchStandings(leagueUrl: string): Promise<StandingsRow[]> {
-  const browser = await chromium.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
-  });
+  const browser = await getSharedBrowser();
   try {
     const page = await browser.newPage({ userAgent: UA });
     let table = '';
@@ -139,11 +172,12 @@ export async function fetchStandings(leagueUrl: string): Promise<StandingsRow[]>
       waitUntil: 'domcontentloaded',
       timeout: 60000,
     });
-    await page.waitForTimeout(10000);
+    await waitFor(() => Boolean(table), 10000);
     if (!table) {
       await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 });
-      await page.waitForTimeout(10000);
+      await waitFor(() => Boolean(table), 10000);
     }
+    await page.close().catch(() => {});
     const rows: StandingsRow[] = [];
     for (const b of table.split('~')) {
       const f = decodeFeedBlock(b);
@@ -153,7 +187,7 @@ export async function fetchStandings(leagueUrl: string): Promise<StandingsRow[]>
     }
     return rows;
   } finally {
-    await browser.close();
+    // Page closed above; the shared browser itself stays up for the next league.
   }
 }
 
@@ -307,10 +341,7 @@ export async function captureMatchFeeds(
 ): Promise<Map<string, FsMatchFeed>> {
   const ids = [...new Set(eventIds)].filter((id) => !runCache.has(id));
   if (ids.length === 0) return runCache;
-  const browser = await chromium.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
-  });
+  const browser = await getSharedBrowser();
   try {
     for (const id of ids) {
       const page = await browser.newPage({ userAgent: UA });
@@ -330,10 +361,10 @@ export async function captureMatchFeeds(
           waitUntil: 'domcontentloaded',
           timeout: 60000,
         });
-        await page.waitForTimeout(8000);
+        await waitFor(() => Boolean(feed), 8000);
         if (!feed) {
           await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 });
-          await page.waitForTimeout(8000);
+          await waitFor(() => Boolean(feed), 8000);
         }
         if (feed) {
           runCache.set(id, parseMatchFeed(feed));
@@ -346,7 +377,7 @@ export async function captureMatchFeeds(
       }
     }
   } finally {
-    await browser.close();
+    // Shared browser stays up; cli.ts closes it after enrichment.
   }
   return runCache;
 }
@@ -439,7 +470,7 @@ export async function researchTeam(
   name: string,
   standingsCache: Map<string, StandingsRow[]>
 ): Promise<TeamInfo> {
-  const info: TeamInfo = { name, flashscoreId: null, flashscoreUrl: null, position: null, played: null, points: null, form: '', formScore: 0, lastResults: [], research: [], researchAt: null, injuries: [], keyPlayers: [], scorers: [], assists: [], cards: [] };
+  const info: TeamInfo = { name, flashscoreId: null, flashscoreUrl: null, position: null, played: null, points: null, form: '', formScore: 0, lastResults: [], research: [], researchAt: null, scorers: [], assists: [], cards: [] };
   try {
     const team = await resolveTeam(name);
     if (!team) {

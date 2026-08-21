@@ -1,6 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { researchTeam } from './flashscore.js';
+import {
+  researchTeam,
+  findMatchWithTeams,
+  captureMatchFeeds,
+  aggregatePlayerStats,
+  loadFeedCache,
+  persistFeedCache,
+  closeSharedBrowser,
+} from './flashscore.js';
 import { webResearch } from './research.js';
 import { buildRecommendations } from './analysis.js';
 import { loadDb, loadLatest, type LatestMatch } from './db.js';
@@ -15,7 +23,13 @@ const MARKET_NAMES: Record<string, string> = {
   '18': 'Over/Under',
   '548': 'Total Goals',
   '41': 'Correct Score',
+  '551': 'Multiscores',
 };
+
+// Max NEW match feeds captured per run for player stats (last-5 results of
+// recommended matches' teams). Feeds persist in data/flashscore-feed-cache.json,
+// so steady-state runs mostly hit the cache and the budget rarely binds.
+const FEED_BUDGET = Number(process.env.AGENT_FEED_BUDGET ?? 30);
 
 async function mapWithConcurrency<T, R>(items: T[], worker: (item: T) => Promise<R>, limit = 4): Promise<R[]> {
   const results: R[] = new Array(items.length);
@@ -55,6 +69,9 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
   const standingsCache = loadStandingsCache();
   const out: MatchResearch[] = [];
   let researched = 0;
+  // Timing buckets so the workflow log shows where the run spent its time.
+  let msFlashscore = 0;
+  let msWeb = 0;
 
   const worker = async (m: LatestMatch) => {
     if (m.matchStatus && /^H|^FT/i.test(m.matchStatus)) return null; // skip live/finished
@@ -65,6 +82,7 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
 
     let home: TeamInfo;
     let away: TeamInfo;
+    const t0 = Date.now();
     try {
       [home, away] = await Promise.all([
         researchTeam(m.homeTeam, standingsCache),
@@ -73,6 +91,7 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
     } catch {
       return null;
     }
+    msFlashscore += Date.now() - t0;
     researched++;
 
     // Web research is fetched once and shared by both sides so each team gets
@@ -80,7 +99,9 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
     // is; it stays null when no web search was needed (no form/position).
     if (home.form || away.form || home.position || away.position) {
       const nowIso = new Date().toISOString();
+      const t1 = Date.now();
       const r = await webResearch(m.homeTeam, m.awayTeam, m.tournament).catch(() => []);
+      msWeb += Date.now() - t1;
       home.research = r;
       away.research = r;
       home.researchAt = nowIso;
@@ -105,9 +126,72 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
     if (r) out.push(r);
   }
 
+  console.log(
+    `[agent] timing: flashscore (form+standings) ${(msFlashscore / 1000).toFixed(0)}s, web snippets ${(msWeb / 1000).toFixed(0)}s`
+  );
+
   const db = loadDb();
   const recs = buildRecommendations(out, matches, db, (mid) => MARKET_NAMES[mid] ?? mid);
   return { recs, researched };
+}
+
+// Enrich recommended matches with player stats (last-5 scorers/assists/cards)
+// and the fixture's officials — the data lives in Flashscore's per-match
+// df_sui feed, which only a real browser emits. Budgeted: feeds are shared via
+// the on-disk cache and new captures are capped at FEED_BUDGET so enrichment
+// adds minutes only on first sight of a match, not every run. Data lands in
+// agent-recommendations.json for the staking guide; it deliberately does NOT
+// move confidence (that signal was reverted before — see analysis.ts history).
+async function enrichRecommended(recs: Recommendation[]) {
+  const withRecs = recs.filter((r) => r.candidates.some((c) => c.recommended));
+  if (!withRecs.length) return;
+
+  const runCache = loadFeedCache();
+  const wanted: string[] = [];
+  for (const r of withRecs) {
+    for (const t of [r.match.home, r.match.away]) {
+      wanted.push(...((t.lastResults ?? []) as { eventId?: string }[]).map((x) => x.eventId).filter(Boolean) as string[]);
+    }
+  }
+  const fresh = [...new Set(wanted)].filter((id) => !runCache.has(id)).slice(0, FEED_BUDGET);
+  const t0 = Date.now();
+  await captureMatchFeeds(fresh, runCache);
+
+  for (const r of withRecs) {
+    for (const t of [r.match.home, r.match.away]) {
+      const stats = aggregatePlayerStats(runCache, (t.lastResults ?? []) as never);
+      t.scorers = stats.scorers;
+      t.assists = stats.assists;
+      t.cards = stats.cards;
+    }
+    // Officials (referee/venue) come from today's fixture feed — one extra
+    // page per recommended match, cached like the rest.
+    try {
+      const { home, away } = r.match;
+      if (home.flashscoreId && away.flashscoreId) {
+        const fm = await findMatchWithTeams(
+          { id: home.flashscoreId, url: home.flashscoreUrl ?? '', name: home.name },
+          { id: away.flashscoreId, url: away.flashscoreUrl ?? '', name: away.name },
+          Date.parse(r.match.startTime),
+          { requireFinished: false }
+        );
+        if (fm.status === 'upcoming' && fm.flashscoreId) {
+          await captureMatchFeeds([fm.flashscoreId], runCache);
+          const feed = runCache.get(fm.flashscoreId);
+          if (feed && (feed.officials.referee || feed.officials.venue)) {
+            r.match.officials = feed.officials;
+          }
+        }
+      }
+    } catch {
+      /* officials are best-effort */
+    }
+  }
+
+  persistFeedCache(runCache);
+  console.log(
+    `[agent] enrichment: ${withRecs.length} recommended match(es), ${fresh.length} new feed(s) captured in ${((Date.now() - t0) / 1000).toFixed(0)}s`
+  );
 }
 
 async function main() {
@@ -122,21 +206,27 @@ async function main() {
   };
 
   report.totalMatches = latest.matches.length;
-  const { recs, researched } = await research(latest.matches);
-  report.researched = researched;
-  report.matches = recs;
+  try {
+    const { recs, researched } = await research(latest.matches);
+    report.researched = researched;
+    report.matches = recs;
 
-  for (const r of recs) {
-    const rec = r.candidates.filter((c) => c.recommended);
-    if (rec.length) {
-      report.recommendedBets += rec.length;
-      console.log(`[agent] ${r.match.homeTeam} vs ${r.match.awayTeam} (${r.match.tournament})`);
-      for (const c of rec) {
-        console.log(
-          `  RECOMMEND ${c.market} ${c.outcome} @${c.odds} (min ${c.recommendedMinOdds}) conf ${(c.confidence * 100).toFixed(0)}% — ${c.reason}`
-        );
+    await enrichRecommended(recs);
+
+    for (const r of recs) {
+      const rec = r.candidates.filter((c) => c.recommended);
+      if (rec.length) {
+        report.recommendedBets += rec.length;
+        console.log(`[agent] ${r.match.homeTeam} vs ${r.match.awayTeam} (${r.match.tournament})`);
+        for (const c of rec) {
+          console.log(
+            `  RECOMMEND ${c.market} ${c.outcome} @${c.odds} (min ${c.recommendedMinOdds}) conf ${(c.confidence * 100).toFixed(0)}% — ${c.reason}`
+          );
+        }
       }
     }
+  } finally {
+    await closeSharedBrowser();
   }
 
   fs.mkdirSync(DATA_DIR, { recursive: true });
