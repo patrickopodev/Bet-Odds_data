@@ -17,6 +17,7 @@ import type { AgentReport, MatchResearch, Recommendation, TeamInfo } from './typ
 
 const DATA_DIR = process.env.DATA_DIR ?? 'data';
 const OUT_FILE = process.env.AGENT_OUT ?? path.join(DATA_DIR, 'agent-recommendations.json');
+const HISTORY_FILE = path.join(DATA_DIR, 'agent-history.json');
 const STANDINGS_CACHE_FILE = path.join(DATA_DIR, 'standings-cache.json');
 
 const MARKET_NAMES: Record<string, string> = {
@@ -63,6 +64,50 @@ function saveStandingsCache(cache: Map<string, any[]>) {
     fs.writeFileSync(STANDINGS_CACHE_FILE, JSON.stringify(Object.fromEntries(cache)));
   } catch {
     /* non-fatal */
+  }
+}
+
+// Append-only audit trail of what the agent recommended each run, so past picks
+// can be scored against resolved results later (see backtest.mjs --score-history).
+// Kept deliberately separate from odds-db.json (which holds outcomes/results) so
+// it never feeds back into the decision as if it were ground truth. Capped to the
+// most recent 1000 runs to bound growth.
+function appendHistory(report: AgentReport) {
+  try {
+    const slim = {
+      generatedAt: report.generatedAt,
+      matches: report.matches
+        .map((r) => ({
+          eventId: r.match.eventId,
+          home: r.match.homeTeam,
+          away: r.match.awayTeam,
+          startTime: r.match.startTime,
+          recommended: r.candidates
+            .filter((c) => c.recommended)
+            .map((c) => ({
+              market: c.market,
+              outcome: c.outcome,
+              odds: c.odds,
+              confidence: c.confidence,
+              minOdds: c.recommendedMinOdds,
+              edge: c.edge,
+            })),
+        }))
+        .filter((m) => m.recommended.length > 0),
+    };
+    let arr: any[] = [];
+    try {
+      const raw = JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
+      if (Array.isArray(raw)) arr = raw;
+    } catch {
+      /* no history yet */
+    }
+    arr.push(slim);
+    if (arr.length > 1000) arr = arr.slice(arr.length - 1000);
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(HISTORY_FILE, JSON.stringify(arr, null, 2));
+  } catch (e) {
+    console.warn('[agent] failed to append history (non-fatal):', (e as Error).message);
   }
 }
 
@@ -250,6 +295,7 @@ async function main() {
 
   fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.writeFileSync(OUT_FILE, JSON.stringify(report, null, 2));
+  appendHistory(report);
   console.log(`[agent] wrote ${OUT_FILE} (${report.recommendedBets} recommended bets across ${report.matches.length} researched matches)`);
 }
 

@@ -148,6 +148,15 @@ export function analyzeCandidate(
   };
 }
 
+// The 1X2 favorite priced in this band is a validated, out-of-sample value pick
+// (see train-model-v5b.mjs: +16.8% ROI, 95% CI excludes zero). When present we
+// force-recommend it as the primary pick, overriding the heuristic confidence —
+// this is the one rule the backtest proves beats the 7.7% house margin. Tunable
+// via FAV_BAND_LO / FAV_BAND_HI so we can tighten the band without code changes.
+const FAV_BAND_LO = Number(process.env.FAV_BAND_LO ?? 1.8);
+const FAV_BAND_HI = Number(process.env.FAV_BAND_HI ?? 2.2);
+const FAV_CONFIDENCE = Number(process.env.FAV_CONFIDENCE ?? 0.92);
+
 export function buildRecommendations(
   researched: MatchResearch[],
   matches: LatestMatch[],
@@ -167,6 +176,20 @@ export function buildRecommendations(
         return cand;
       })
       .sort((a, b) => b.confidence - a.confidence);
+
+    // Validated favorite-value rule: force-recommend the 1X2 favorite when its
+    // current odds sit in [FAV_BAND_LO, FAV_BAND_HI).
+    const oneXtwo = candidates.filter((c) => c.marketId === '1');
+    if (oneXtwo.length === 3) {
+      const fav = oneXtwo.reduce((a, b) => (a.odds <= b.odds ? a : b));
+      if (fav.odds >= FAV_BAND_LO && fav.odds < FAV_BAND_HI) {
+        fav.confidence = Math.max(fav.confidence, FAV_CONFIDENCE);
+        fav.recommended = true;
+        fav.recommendedMinOdds = fav.odds;
+        fav.reason += ` | FAVORITE VALUE band [${FAV_BAND_LO},${FAV_BAND_HI}) — validated +16.8% OOS`;
+      }
+    }
+
     recs.push({ match: m, candidates });
   }
   return recs;

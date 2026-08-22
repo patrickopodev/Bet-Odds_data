@@ -1,0 +1,146 @@
+// Option 3 v5b - OUT-OF-SAMPLE validation of the favorite [1.8,2.2) edge + PAPER TRADE mode.
+// Validates the v5 discovery WITHOUT leakage: band is chosen on train, bet on held-out test.
+// Modes: (default) validation; --paper = log future picks (no stake); --score-paper = settle them.
+import fs from 'node:fs';
+import { DB_FILE, parseScore, evaluateOutcome } from './lib/common.mjs';
+
+const MARGIN = 0.077;
+const BANDS = [[1.0, 1.3], [1.3, 1.5], [1.5, 1.8], [1.8, 2.2], [2.2, 3.0]];
+const PAPER_FILE = 'data/paper-picks.json';
+const FIXED = [1.8, 2.2]; // the v5 candidate
+
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function shuffle(arr, rng) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = (rng() * (i + 1)) | 0;
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function roi(pnls) {
+  const n = pnls.length;
+  return n ? pnls.reduce((s, x) => s + x, 0) / n : 0;
+}
+function ci(pnls, B = 2000) {
+  const n = pnls.length;
+  if (!n) return [0, 0];
+  const rois = [];
+  for (let b = 0; b < B; b++) {
+    let s = 0;
+    for (let i = 0; i < n; i++) s += pnls[(Math.random() * n) | 0];
+    rois.push(s / n);
+  }
+  rois.sort((a, b) => a - b);
+  return [rois[Math.floor(B * 0.025)], rois[Math.floor(B * 0.975)]];
+}
+function bestBand(train) {
+  let best = null, bestR = -Infinity;
+  for (const [lo, hi] of BANDS) {
+    const p = train.filter((e) => e.favLast >= lo && e.favLast < hi).map((e) => e.pnl);
+    if (p.length >= 30 && roi(p) > bestR) { bestR = roi(p); best = [lo, hi]; }
+  }
+  return best;
+}
+function inBand(e, b) { return e.favLast >= b[0] && e.favLast < b[1]; }
+
+// ---- load events ----
+const db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+const rows = [];
+for (const ev of Object.values(db.events ?? {})) {
+  const score = ev.finalScore ? parseScore(ev.finalScore) : null;
+  const sides = ['Home', 'Draw', 'Away'].map((name) => {
+    const p = ev.outcomes[`1|${name}`]?.plays ?? [];
+    return p.length ? { name, last: p.at(-1).odds } : null;
+  }).filter(Boolean);
+  if (sides.length < 3) continue;
+  sides.sort((a, b) => a.last - b.last);
+  const fav = sides[0];
+  let pnl = 0, won = false, resolved = false;
+  if (score) {
+    const r = evaluateOutcome('1', fav.name, score);
+    pnl = r === 'VOID' ? 0 : r === 'WON' ? fav.last - 1 : -1;
+    won = pnl > 0; resolved = true;
+  }
+  rows.push({ id: ev.id, league: String(ev.tournament ?? '').trim(), favLast: fav.last, favName: fav.name, pnl, won, resolved, score });
+}
+const resolved = rows.filter((r) => r.resolved);
+console.log(`events with 1X2 odds: ${rows.length}, resolved: ${resolved.length}, unresolved (paper-tradeable): ${rows.length - resolved.length}`);
+
+if (!process.argv.includes('--paper') && !process.argv.includes('--score-paper')) {
+  // ===== VALIDATION =====
+  const rng = mulberry32(12345);
+  // 50/50 holdout, both directions
+  const sh = shuffle(resolved, rng);
+  const mid = Math.floor(sh.length / 2);
+  const A = sh.slice(0, mid), B = sh.slice(mid);
+  for (const [tr, te, lbl] of [[A, B, 'train=A test=B'], [B, A, 'train=B test=A']]) {
+    const band = bestBand(tr) || FIXED;
+    const p = te.filter((e) => inBand(e, band)).map((e) => e.pnl);
+    const [lo, hi] = ci(p);
+    console.log(`[${lbl}] chosen band ${band}: n=${p.length} ROI=${(roi(p) * 100).toFixed(1)}% CI=[${(lo * 100).toFixed(1)}%,${(hi * 100).toFixed(1)}%]`);
+  }
+  // k-fold (k=5): band re-selected on train each fold
+  const k = 5, sh2 = shuffle(resolved, mulberry32(999));
+  const foldPnl = [];
+  const foldRois = [];
+  for (let f = 0; f < k; f++) {
+    const te = sh2.filter((_, i) => i % k === f);
+    const tr = sh2.filter((_, i) => i % k !== f);
+    const band = bestBand(tr) || FIXED;
+    const p = te.filter((e) => inBand(e, band)).map((e) => e.pnl);
+    foldPnl.push(...p);
+    foldRois.push(roi(p));
+    console.log(`  fold ${f}: band ${band} n=${p.length} ROI=${(roi(p) * 100).toFixed(1)}%`);
+  }
+  const [lo, hi] = ci(foldPnl);
+  console.log(`K-FOLD OUT-OF-SAMPLE: n=${foldPnl.length} ROI=${(roi(foldPnl) * 100).toFixed(1)}% CI=[${(lo * 100).toFixed(1)}%,${(hi * 100).toFixed(1)}%]`);
+  // fixed candidate band on full resolved (reference)
+  const fp = resolved.filter((e) => inBand(e, FIXED)).map((e) => e.pnl);
+  const [flo, fhi] = ci(fp);
+  console.log(`FIXED [1.8,2.2) on ALL resolved (in-sample ref): n=${fp.length} ROI=${(roi(fp) * 100).toFixed(1)}% CI=[${(flo * 100).toFixed(1)}%,${(fhi * 100).toFixed(1)}%]`);
+}
+
+// ===== PAPER TRADE =====
+function loadPaper() {
+  try { return JSON.parse(fs.readFileSync(PAPER_FILE, 'utf8')); } catch { return []; }
+}
+if (process.argv.includes('--paper') || process.argv.includes('--score-paper')) {
+  const paper = loadPaper();
+  const seen = new Set(paper.map((p) => p.id));
+  if (process.argv.includes('--paper')) {
+    for (const e of rows) {
+      if (e.resolved || seen.has(e.id)) continue;
+      if (e.favLast >= FIXED[0] && e.favLast < FIXED[1]) {
+        paper.push({ id: e.id, league: e.league, pick: e.favName, odds: e.favLast, addedAt: new Date().toISOString(), status: 'OPEN' });
+        seen.add(e.id);
+      }
+    }
+    fs.writeFileSync(PAPER_FILE, JSON.stringify(paper, null, 2));
+  }
+  // score any paper picks whose events are now resolved
+  const byId = new Map(rows.map((r) => [r.id, r]));
+  let scored = 0, pnls = [];
+  for (const p of paper) {
+    if (p.status === 'OPEN' && byId.has(p.id)) {
+      const r = byId.get(p.id);
+      if (r.resolved) {
+        p.status = r.pnl > 0 ? 'WON' : (r.pnl < 0 ? 'LOST' : 'VOID');
+        p.pnl = r.pnl;
+        scored++;
+      }
+    }
+    if (p.status === 'WON' || p.status === 'LOST' || p.status === 'VOID') pnls.push(p.pnl);
+  }
+  fs.writeFileSync(PAPER_FILE, JSON.stringify(paper, null, 2));
+  const [lo, hi] = ci(pnls);
+  console.log(`PAPER picks total=${paper.length} resolved-so-far=${pnls.length} ROI=${pnls.length ? (roi(pnls) * 100).toFixed(1) : '0'}% CI=[${(lo * 100).toFixed(1)}%,${(hi * 100).toFixed(1)}%]`);
+  console.log(`  -> ${paper.filter((p) => p.status === 'OPEN').length} still open (awaiting results). File: ${PAPER_FILE}`);
+}

@@ -1,0 +1,78 @@
+name: Deep Research Agent
+
+# Runs the TypeScript decision agent on its own cadence so it can continuously
+# refresh data/agent-recommendations.json (consumed by the money path in
+# scrape.yml) WITHOUT delaying staking. Splitting it out also isolates its
+# ~45-min runtime from the 30-min betting cron, so research can never push a bet
+# past kickoff, and a slow research run can't be cancelled mid-placement.
+on:
+  schedule:
+    # Every 30 minutes. The agent pre-researches matches within AGENT_RESEARCH_HOURS
+    # of kickoff (6h) and caches Flashscore feeds, so the file stays fresh.
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: agent-research
+  # Never kill an in-flight research run: a cancelled run would lose its work and
+  # leave agent-recommendations.json stale. Let overruns queue instead.
+  cancel-in-progress: false
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    env:
+      AGENT_RESEARCH_HOURS: "6"
+      AGENT_FEED_BUDGET: "30"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium for Playwright
+        run: npx playwright-core install chromium --with-deps
+
+      - name: Build TypeScript agent
+        run: npm run build:agent
+
+      - name: Run deep research agent
+        timeout-minutes: 75
+        run: node dist/cli.js
+
+      # Paper-trade scan: logs 1X2-favorite value picks (odds in [1.8,2.2))
+      # to data/paper-picks.json with ZERO stake. --score-paper settles any whose
+      # matches have since resolved, building a live out-of-sample track record
+      # of the validated strategy before any real money moves. See train-model-v5b.mjs.
+      - name: Paper-trade scan (favorite value picks, no stake)
+        timeout-minutes: 5
+        run: node train-model-v5b.mjs --paper --score-paper
+
+      - name: Commit agent output
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/agent-recommendations.json data/agent-history.json data/paper-picks.json
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No agent output changes; skipping commit."
+          else
+            # The scrape/prematch workflows also commit data/; rebase onto any
+            # concurrent push so this commit doesn't fail.
+            git pull --rebase origin main
+            git commit -m "chore(agent): refresh recommendations ($(date -u +%Y-%m-%dT%H:%M:%SZ))"
+            git push
+          fi

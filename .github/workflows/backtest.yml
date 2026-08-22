@@ -1,0 +1,41 @@
+name: Backtest Agent Picks
+
+# Scores the agent's accumulated recommendations (data/agent-history.json)
+# against resolved results and FAILS the run if the strategy loses beyond the
+# bookmaker margin. This is the honesty gate: it catches a losing picker before
+# anyone enables auto-staking. Read-only on the repo.
+on:
+  schedule:
+    # Daily, off-peak.
+    - cron: "15 0 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Score agent history vs results
+        # Only the validated era (last 30 days) so legacy pre-favorite-rule picks
+        # don't keep the gate red. Fails if ROI over >=30 resolved bets < -7.7%.
+        run: node backtest.mjs --score-history --since-days 30 --fail-below -0.077
+
+      - name: Score paper-trade track (favorite value)
+        # Independent, bias-free monitor of the validated strategy's LIVE picks.
+        run: node backtest.mjs --score-paper --fail-below -0.077

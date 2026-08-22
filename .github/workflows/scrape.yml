@@ -49,6 +49,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Build the TypeScript agent up front so dist/ (confirm.js, monitor.js)
+      # exists before the money path runs. The deep research step itself now
+      # lives in its own workflow (agent.yml) so it can refresh
+      # agent-recommendations.json continuously without delaying staking.
+      - name: Build TypeScript agent
+        run: npm run build:agent
+
       - name: Install Chromium for Playwright
         run: npx playwright-core install chromium --with-deps
 
@@ -61,11 +68,9 @@ jobs:
         timeout-minutes: 5
         run: node build-db.mjs
 
-      # Money path FIRST, on the last committed agent report: selection,
-      # placement and settlement must never sit behind the hour-long deep
-      # research step (a cancelled run used to kill staking while sparing the
-      # slow part). The agent refreshes recommendations at the END for the
-      # next run's selection; placement re-verifies minOdds live regardless.
+      # Money path FIRST, on the latest committed agent report. The agent runs
+      # in a separate workflow (agent.yml) and continuously refreshes
+      # agent-recommendations.json; placement re-verifies minOdds live regardless.
       - name: Select bets from agent recommendations
         timeout-minutes: 2
         run: node stake.mjs
@@ -74,7 +79,13 @@ jobs:
         timeout-minutes: 10
         run: node stake-placement.mjs
 
-      - name: Auto-stake the slip on SportyBet (optional)
+      # Auto-staking is OPT-IN: this step only runs when the STAKE_AUTOPLACE_ENABLED
+      # secret is set to "true". Without it, the workflow builds the slip + share
+      # code for manual staking but never moves real money. Even when enabled,
+      # STAKE_DRY_RUN=true skips the actual payment. Do not enable until a model
+      # is validated out-of-sample (see backtest.mjs).
+      - name: Auto-stake the slip on SportyBet (opt-in)
+        if: ${{ secrets.STAKE_AUTOPLACE_ENABLED == 'true' }}
         env:
           SB_USER: ${{ secrets.SB_USER }}
           SB_PASS: ${{ secrets.SB_PASS }}
@@ -108,11 +119,8 @@ jobs:
         timeout-minutes: 10
         run: node analyze-odds.mjs --db
 
-      - name: Run TypeScript decision agent (deep research, feeds next run)
-        timeout-minutes: 45
-        run: |
-          npm run build:agent
-          node dist/cli.js
+      # Deep research now runs in agent.yml (separate cadence) which keeps
+      # agent-recommendations.json fresh for the money path above.
 
       - name: Commit and push data
         run: |
