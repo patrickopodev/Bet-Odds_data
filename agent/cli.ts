@@ -128,7 +128,18 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
     };
   };
 
-  const researchedMatches = await mapWithConcurrency(matches, worker, 2);
+  console.log(
+    `[agent] researching ${matches.length} scraped match(es) in a ${RESEARCH_HOURS}h kickoff window (concurrency 2)...`
+  );
+  let done = 0;
+  const researchedMatches = await mapWithConcurrency(matches, async (m: LatestMatch) => {
+    const r = await worker(m);
+    done++;
+    if (done % 20 === 0 || done === matches.length) {
+      console.log(`[agent] progress ${done}/${matches.length} matches researched (${((done / matches.length) * 100).toFixed(0)}%)`);
+    }
+    return r;
+  }, 2);
   saveStandingsCache(standingsCache);
   for (const r of researchedMatches) {
     if (r) out.push(r);
