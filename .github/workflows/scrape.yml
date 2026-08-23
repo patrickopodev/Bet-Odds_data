@@ -73,10 +73,12 @@ jobs:
       # agent-recommendations.json; placement re-verifies minOdds live regardless.
       - name: Select bets from agent recommendations
         timeout-minutes: 2
+        continue-on-error: true
         run: node stake.mjs
 
       - name: Generate staking share code
         timeout-minutes: 10
+        continue-on-error: true
         run: node stake-placement.mjs
 
       # Auto-staking is OPT-IN: this step only runs when the STAKE_AUTOPLACE_ENABLED
@@ -95,10 +97,12 @@ jobs:
 
       - name: Agent confirms staked selections
         timeout-minutes: 15
+        continue-on-error: true
         run: node dist/confirm.js
 
       - name: Agent monitors staked matches until they end
         timeout-minutes: 30
+        continue-on-error: true
         run: node dist/monitor.js
 
       - name: Upload scraped data as artifact
@@ -123,6 +127,7 @@ jobs:
       # agent-recommendations.json fresh for the money path above.
 
       - name: Commit and push data
+        if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

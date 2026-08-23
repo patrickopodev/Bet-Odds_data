@@ -38,6 +38,7 @@ jobs:
         run: node prematch-monitor.mjs --window 30 --interval 300 --max 30
 
       - name: Commit pre-match odds log
+        if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

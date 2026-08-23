@@ -63,6 +63,7 @@ jobs:
         run: node train-model-v5b.mjs --paper --score-paper
 
       - name: Commit agent output
+        if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
