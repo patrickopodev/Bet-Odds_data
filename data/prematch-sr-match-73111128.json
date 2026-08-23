@@ -1,0 +1,22 @@
+{
+  "eventId": "sr:match:73111128",
+  "productId": "3",
+  "markets": [
+    "1 (1X2)",
+    "18 (O/U)",
+    "41 (Correct Score)",
+    "548 (Multigoals)",
+    "551 (Multiscores)"
+  ],
+  "homeTeam": "Estac Troyes",
+  "awayTeam": "RC Strasbourg Alsace",
+  "kickoff": 1787475600000,
+  "startedAt": "2026-08-23T09:00:18.789Z",
+  "wentLiveAt": "2026-08-23T09:00:20.973Z",
+  "changes": [
+    {
+      "at": "2026-08-23T09:00:20.973Z",
+      "live": true
+    }
+  ]
+}
