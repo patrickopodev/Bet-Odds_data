@@ -150,9 +150,31 @@ export async function ingestPrematchLog(db, file) {
   }
 }
 
+// Recursively collect every *.json under data/prematch/ (the new append-only
+// per-poll layout). Tolerates the directory not existing yet.
+async function walkPrematch(dir) {
+  let out = [];
+  let entries;
+  try {
+    entries = await fs.readdir(dir, { withFileTypes: true });
+  } catch {
+    return out;
+  }
+  for (const e of entries) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) out = out.concat(await walkPrematch(p));
+    else if (e.name.endsWith('.json')) out.push(p);
+  }
+  return out;
+}
+
 async function run() {
   const files = (await fs.readdir(DATA_DIR)).filter((f) => /^snapshot-.*\.json$/.test(f));
-  const prematchFiles = (await fs.readdir(DATA_DIR)).filter((f) => /^prematch-.*\.json$/.test(f));
+  // Pre-match logs: legacy flat data/prematch-<eventId>.json (back-compat) AND
+  // the new append-only data/prematch/<date>/<event>-<HHMMSS>.json layout.
+  const prematchFlat = (await fs.readdir(DATA_DIR)).filter((f) => /^prematch-.*\.json$/.test(f)).map((f) => path.join(DATA_DIR, f));
+  const prematchNested = await walkPrematch(path.join(DATA_DIR, 'prematch'));
+  const prematchFiles = [...prematchFlat, ...prematchNested];
   console.log(`Found ${files.length} snapshot(s) and ${prematchFiles.length} pre-match log(s) in ${DATA_DIR}`);
   const db = await loadOrCreateDb();
   let seen = 0;
@@ -162,7 +184,7 @@ async function run() {
   }
   let prematchSeen = 0;
   for (const f of prematchFiles.sort()) {
-    await ingestPrematchLog(db, path.join(DATA_DIR, f));
+    await ingestPrematchLog(db, f);
     prematchSeen++;
   }
   // Prune any pre-existing events that lack the join key (e.g. malformed

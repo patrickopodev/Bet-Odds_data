@@ -1,0 +1,131 @@
+name: Betting Money Path
+
+# The staking leg, split out of the old scrape.yml. It consumes the odds
+# database (collector.yml -> `odds-data` artifact) and the agent's picks
+# (agent.yml -> `agent-recs` artifact), builds/places slips, and records results
+# in the `betting-data` artifact. It never touches `main`.
+#
+# The persistent slip/result store lives in the `betting-data` artifact, not git.
+
+on:
+  schedule:
+    # Every 30 minutes.
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: betting
+  # Fresh slips beat stale: a new run cancels a still-running older one instead
+  # of queueing behind it. Only one instance runs at a time, so there is no
+  # concurrent write to the `betting-data` artifact.
+  cancel-in-progress: true
+
+jobs:
+  bet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+
+    env:
+      STAKE_PER_BET: 10
+      MIN_CONFIDENCE: 0.6
+      ALLOW_FRIENDLIES: "false"
+      BANKROLL_DIVISOR: 2
+      STAKE_PERCENT_OF_HALF: 0.25
+      # Max ACTIVE slips (money at risk) at any time. Without a cap the 30-min
+      # cron mints a fresh batch every run and can place slips faster than the
+      # bankroll recycles.
+      STAKE_MAX_SLIPS: "2"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Build the TypeScript agent up front so dist/ (confirm.js, monitor.js)
+      # exists before the money path runs.
+      - name: Build TypeScript agent
+        run: npm run build:agent
+
+      - name: Install Chromium for Playwright
+        run: npx playwright-core install chromium --with-deps
+
+      # Pull the accumulated stores produced by the other workflows.
+      - name: Restore data artifacts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/restore-artifact.sh odds-data data
+          bash scripts/restore-artifact.sh agent-recs data
+          bash scripts/restore-artifact.sh betting-data data
+
+      # Money path FIRST, on the latest agent report (re-verified live anyway).
+      - name: Select bets from agent recommendations
+        timeout-minutes: 2
+        continue-on-error: true
+        run: node stake.mjs
+
+      - name: Generate staking share code
+        timeout-minutes: 10
+        continue-on-error: true
+        run: node stake-placement.mjs
+
+      # Single, explicit pre-autoplace gate (P3). Runs only when autoplace is
+      # enabled. If any safeguard fails it exits non-zero and (with no
+      # continue-on-error) blocks the autoplace step below from running. The
+      # minOdds / stale-slip defenses inside autoplace remain as depth.
+      - name: Validate slip before auto-stake
+        if: ${{ secrets.STAKE_AUTOPLACE_ENABLED == 'true' }}
+        timeout-minutes: 2
+        run: node validate-stake.mjs
+
+      # Auto-staking is OPT-IN: this step only runs when STAKE_AUTOPLACE_ENABLED
+      # is "true". Without it, the workflow builds the slip + share code for
+      # manual staking but never moves real money.
+      - name: Auto-stake the slip on SportyBet (opt-in)
+        if: ${{ secrets.STAKE_AUTOPLACE_ENABLED == 'true' }}
+        env:
+          SB_USER: ${{ secrets.SB_USER }}
+          SB_PASS: ${{ secrets.SB_PASS }}
+          STAKE_DRY_RUN: ${{ secrets.STAKE_DRY_RUN }}
+        timeout-minutes: 25
+        run: node stake-autoplace.mjs
+
+      - name: Agent confirms staked selections
+        timeout-minutes: 15
+        continue-on-error: true
+        run: node dist/confirm.js
+
+      - name: Agent monitors staked matches until they end
+        timeout-minutes: 30
+        continue-on-error: true
+        run: node dist/monitor.js
+
+      - name: Resolve finished matches (end-of-day)
+        timeout-minutes: 20
+        run: node resolve-results.mjs
+
+      # Persist only the slips/results this workflow owns.
+      - name: Upload betting data artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: betting-data
+          path: |
+            data/stake-slip.json
+            data/stake-code.md
+            data/confirm-report.json
+            data/stake-results.md
+          if-no-files-found: warn
+          retention-days: 90

@@ -1,10 +1,11 @@
 name: Deep Research Agent
 
-# Runs the TypeScript decision agent on its own cadence so it can continuously
-# refresh data/agent-recommendations.json (consumed by the money path in
-# scrape.yml) WITHOUT delaying staking. Splitting it out also isolates its
-# ~45-min runtime from the 30-min betting cron, so research can never push a bet
-# past kickoff, and a slow research run can't be cancelled mid-placement.
+# Runs the TypeScript decision agent on its own cadence to continuously refresh
+# data/agent-recommendations.json (consumed by the money path in betting.yml)
+# WITHOUT delaying staking. It reads the odds database (collector.yml ->
+# `odds-data` artifact) for context and persists its own outputs in the
+# `agent-recs` artifact. Nothing is ever committed to `main`.
+
 on:
   schedule:
     # Every 30 minutes. The agent pre-researches matches within AGENT_RESEARCH_HOURS
@@ -13,7 +14,8 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: write
+  contents: read
+  actions: write
 
 concurrency:
   group: agent-research
@@ -50,33 +52,37 @@ jobs:
       - name: Build TypeScript agent
         run: npm run build:agent
 
+      - name: Restore prior agent output + odds data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/restore-artifact.sh odds-data data
+          bash scripts/restore-artifact.sh agent-recs data
+          # Raw pre-match odds trajectory, for the research layer to derive
+          # movement/steam features directly (it also arrives folded into
+          # odds-db.json via the collector's build-db step).
+          bash scripts/restore-artifact.sh prematch-data data
+
       - name: Run deep research agent
         timeout-minutes: 75
         run: node dist/cli.js
 
       # Paper-trade scan: logs 1X2-favorite value picks (odds in [1.8,2.2))
       # to data/paper-picks.json with ZERO stake. --score-paper settles any whose
-      # matches have since resolved, building a live out-of-sample track record
-      # of the validated strategy before any real money moves. See train-model-v5b.mjs.
+      # matches have since resolved, building a live out-of-sample track record.
       - name: Paper-trade scan (favorite value picks, no stake)
         timeout-minutes: 5
         run: node train-model-v5b.mjs --paper --score-paper
 
-      - name: Commit agent output
-        if: always()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/patrickopodev/Bet-Odds_data.git"
-          git add data/agent-recommendations.json data/agent-history.json data/paper-picks.json
-          if git diff --quiet && git diff --cached --quiet; then
-            echo "No agent output changes; skipping commit."
-          else
-            # Commit first (pull --rebase refuses a dirty index), then rebase onto
-            # any concurrent push from the scrape/prematch workflows, then push.
-            git commit -m "chore(agent): refresh recommendations ($(date -u +%Y-%m-%dT%H:%M:%SZ))"
-            git pull --rebase origin main
-            git push
-          fi
+      - name: Upload agent output artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-recs
+          path: |
+            data/agent-recommendations.json
+            data/agent-history.json
+            data/standings-cache.json
+            data/flashscore-feed-cache.json
+            data/paper-picks.json
+          if-no-files-found: warn
+          retention-days: 90

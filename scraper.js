@@ -103,8 +103,12 @@ async function run() {
   const data = await scrapeSportyBet();
 
   if (data.matches.length === 0) {
-    console.error('Scrape returned 0 matches - aborting without overwriting latest.json (API likely blocked or empty).');
-    process.exit(1);
+    // Genuinely no qualifying matches this cycle (or API returned empty). We
+    // preserve the last good latest.json by NOT writing it, and exit 2 so the
+    // collector can treat this as a soft/no-op (build-db + upload still run and
+    // preserve the prior artifact) rather than a hard API failure (exit 1).
+    console.error('Scrape returned 0 matches - preserving last good latest.json (exit 2: soft/no-op).');
+    process.exit(2);
   }
 
   const filename = await writeSnapshot(data);

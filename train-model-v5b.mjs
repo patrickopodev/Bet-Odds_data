@@ -3,6 +3,7 @@
 // Modes: (default) validation; --paper = log future picks (no stake); --score-paper = settle them.
 import fs from 'node:fs';
 import { DB_FILE, parseScore, evaluateOutcome } from './lib/common.mjs';
+import { roi, ci } from './lib/settlement.mjs';
 
 const MARGIN = 0.077;
 const BANDS = [[1.0, 1.3], [1.3, 1.5], [1.5, 1.8], [1.8, 2.2], [2.2, 3.0]];
@@ -24,22 +25,6 @@ function shuffle(arr, rng) {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
-}
-function roi(pnls) {
-  const n = pnls.length;
-  return n ? pnls.reduce((s, x) => s + x, 0) / n : 0;
-}
-function ci(pnls, B = 2000) {
-  const n = pnls.length;
-  if (!n) return [0, 0];
-  const rois = [];
-  for (let b = 0; b < B; b++) {
-    let s = 0;
-    for (let i = 0; i < n; i++) s += pnls[(Math.random() * n) | 0];
-    rois.push(s / n);
-  }
-  rois.sort((a, b) => a - b);
-  return [rois[Math.floor(B * 0.025)], rois[Math.floor(B * 0.975)]];
 }
 function bestBand(train) {
   let best = null, bestR = -Infinity;

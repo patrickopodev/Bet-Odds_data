@@ -25,9 +25,11 @@ import {
 //   node prematch-monitor.mjs --max 25            # stop after 25 min even if still pre-match
 //   node prematch-monitor.mjs --event <eventId>   # monitor a single match regardless of window
 //
-// Output: data/prematch-<eventId>.json — full change log, one file per match.
-// A match is "LIVE" (and removed from monitoring) when its eventId shows up in
-// the live catalog (productId 1) or its scheduled kickoff passes.
+// Output: data/prematch/<YYYY-MM-DD>/<eventId>-<HHMMSS>.json — one APPEND-ONLY
+// file per poll, so the full odds trajectory is reconstructable by sorting on
+// `at` (no in-place overwrite that would lose earlier samples). A match is
+// "LIVE" (and removed from monitoring) when its eventId shows up in the live
+// catalog (productId 1) or its scheduled kickoff passes.
 
 const LIVE_PRODUCT = '1';
 const PREMATCH_PRODUCT = '3';
@@ -77,30 +79,30 @@ function safeEventId(eventId) {
   return String(eventId).replace(/[^a-zA-Z0-9._-]/g, '-');
 }
 
-// Load a match's existing change log, or seed a fresh one.
-async function loadLog(eventId, ev) {
-  const file = path.join(DATA_DIR, `prematch-${safeEventId(eventId)}.json`);
-  try {
-    return JSON.parse(await fs.readFile(file, 'utf8'));
-  } catch {
-    return {
-      eventId,
-      productId: PREMATCH_PRODUCT,
-      markets: ['1 (1X2)', '18 (O/U)', '41 (Correct Score)', '548 (Multigoals)', '551 (Multiscores)'],
-      homeTeam: ev?.homeTeam ?? null,
-      awayTeam: ev?.awayTeam ?? null,
-      kickoff: ev?.startTime ?? null,
-      startedAt: new Date().toISOString(),
-      wentLiveAt: null,
-      changes: [],
-    };
-  }
+// Append-only per-poll storage. Each poll that changed writes a NEW file under
+// data/prematch/<date>/ so the trajectory is never overwritten. build-db.mjs
+// (and the agent) read these back by sorting on `at`.
+function pollDateDir() {
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
 }
-
-async function saveLog(log) {
-  const file = path.join(DATA_DIR, `prematch-${safeEventId(log.eventId)}.json`);
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  await fs.writeFile(file, JSON.stringify(log, null, 2), 'utf8');
+function pollStamp(iso) {
+  return iso.slice(11, 19).replace(/:/g, ''); // HHMMSS
+}
+function pollFilePath(eventId, nowIso) {
+  return path.join(DATA_DIR, 'prematch', pollDateDir(), `${safeEventId(eventId)}-${pollStamp(nowIso)}.json`);
+}
+async function writePollFile(eventId, ev, nowIso, entry) {
+  const file = pollFilePath(eventId, nowIso);
+  await fs.mkdir(path.dirname(file), { recursive: true });
+  const payload = {
+    eventId,
+    homeTeam: ev?.homeTeam ?? null,
+    awayTeam: ev?.awayTeam ?? null,
+    kickoff: ev?.startTime ?? null,
+    changes: entry ? [entry] : [],
+  };
+  await fs.writeFile(file, JSON.stringify(payload, null, 2), 'utf8');
+  return file;
 }
 
 // One live-catalog sweep: which of the watched eventIds have gone live?
@@ -128,7 +130,7 @@ async function fetchLiveEventIds(limitPages = 5) {
   return live;
 }
 
-async function pollMatch(ev, log, lastSeen, nowIso) {
+async function pollMatch(ev, lastSeen, nowIso) {
   const entry = { at: nowIso, sections: {} };
   let changed = false;
   const markets = await fetchEventMarketsByKey(ev.eventId, PREMATCH_PRODUCT);
@@ -142,8 +144,7 @@ async function pollMatch(ev, log, lastSeen, nowIso) {
     }
   }
   if (changed) {
-    log.changes.push(entry);
-    await saveLog(log);
+    await writePollFile(ev.eventId, ev, nowIso, entry);
     const parts = Object.keys(entry.sections).map((k) => {
       const m = entry.sections[k];
       const top = (m?.outcomes ?? []).slice(0, 4).map((o) => `${o.name}: ${o.odds}`).join(', ');
@@ -178,11 +179,11 @@ async function monitor() {
   }
   console.log('Changes only are saved. Stops when each match goes LIVE.\n');
 
-  const logs = new Map();
+  const savedCounts = new Map();
   const lastSeen = new Map();
   const active = new Map();
   for (const t of targets) {
-    logs.set(t.eventId, await loadLog(t.eventId, t));
+    savedCounts.set(t.eventId, 0);
     lastSeen.set(t.eventId, {});
     active.set(t.eventId, true);
   }
@@ -203,23 +204,21 @@ async function monitor() {
 
     for (const t of targets) {
       if (!active.get(t.eventId)) continue;
-      const log = logs.get(t.eventId);
 
       // Stop when the match has gone LIVE (present in live catalog) or its
       // scheduled kickoff time has passed. Either way, recording ends for that
       // match the moment it starts.
       const kickedOff = kickoffMs(t) !== null && Date.now() >= kickoffMs(t);
       if (liveIds.has(t.eventId) || kickedOff) {
-        log.wentLiveAt = nowIso;
-        log.changes.push({ at: nowIso, live: true });
-        await saveLog(log);
+        await writePollFile(t.eventId, t, nowIso, { at: nowIso, live: true });
         active.set(t.eventId, false);
         console.log(`  [${nowIso.slice(11, 19)}Z] ${t.eventId} is now LIVE. Monitoring stopped.`);
         continue;
       }
 
       try {
-        await pollMatch(t, log, lastSeen.get(t.eventId), nowIso);
+        const changed = await pollMatch(t, lastSeen.get(t.eventId), nowIso);
+        if (changed) savedCounts.set(t.eventId, savedCounts.get(t.eventId) + 1);
       } catch (e) {
         console.warn(`  [${nowIso.slice(11, 19)}Z] ${t.eventId} poll failed (${e.message}); retrying next tick.`);
       }
@@ -230,8 +229,8 @@ async function monitor() {
 
   console.log('');
   for (const t of targets) {
-    const log = logs.get(t.eventId);
-    console.log(`  ${t.homeTeam ?? ''} vs ${t.awayTeam ?? ''} -> ${log.changes.length} change(s) saved (data/prematch-${safeEventId(t.eventId)}.json)`);
+    const n = savedCounts.get(t.eventId);
+    console.log(`  ${t.homeTeam ?? ''} vs ${t.awayTeam ?? ''} -> ${n} poll(s) saved under data/prematch/${pollDateDir()}/${safeEventId(t.eventId)}-*.json`);
   }
 }
 

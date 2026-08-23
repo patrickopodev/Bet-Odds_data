@@ -1,18 +1,25 @@
 name: Pre-match Odds Monitor
 
+# Records the final-30-minute pre-kickoff odds window for each match (5-min
+# cadence) into data/prematch-*.json. These are part of the odds record that
+# feeds the model. The logs persist in the `prematch-data` artifact; nothing is
+# committed to `main`.
+
 on:
   schedule:
     # Every 15 minutes. Matches enter their final-30-minute pre-match window at
-    # different times all day, and each run records up to 30 minutes of 5-min
-    # polls, so overlapping runs keep the odds log continuous across the day.
+    # different times all day, so overlapping runs keep the odds log continuous.
     - cron: "*/15 * * * *"
   workflow_dispatch: {}
 
 permissions:
-  contents: write
+  contents: read
+  actions: write
 
 concurrency:
   group: prematch-monitor
+  # Only one monitor runs at a time (cancel the older), so two runs never write
+  # the same prematch-*.json concurrently. No `main` push happens.
   cancel-in-progress: true
 
 jobs:
@@ -34,24 +41,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Restore prior pre-match logs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/restore-artifact.sh prematch-data data
+
       - name: Record pre-match odds (final 30 min before kickoff, 5-min cadence)
         run: node prematch-monitor.mjs --window 30 --interval 300 --max 30
 
-      - name: Commit pre-match odds log
-        if: always()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/patrickopodev/Bet-Odds_data.git"
-          git add data/prematch-*.json
-          if git diff --quiet && git diff --cached --quiet; then
-            echo "No odds changes to commit; skipping."
-          else
-            # Commit first (pull --rebase refuses a dirty index), then rebase onto
-            # any concurrent push, then push.
-            git commit -m "chore(webscraper): record pre-match odds changes ($(date -u +%Y-%m-%dT%H:%M:%SZ))"
-            git pull --rebase origin main
-            git push
-          fi
+      - name: Upload pre-match data artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: prematch-data
+          path: |
+            data/prematch/**/*.json
+          if-no-files-found: warn
+          retention-days: 90
