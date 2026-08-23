@@ -39,6 +39,9 @@ jobs:
       # cron mints a fresh batch every run and can place slips faster than the
       # bankroll recycles.
       STAKE_MAX_SLIPS: "2"
+      # Map the secret into the env context so it can be referenced from an
+      # `if:` condition (the `secrets` context is not allowed directly in `if`).
+      STAKE_AUTOPLACE_ENABLED: ${{ secrets.STAKE_AUTOPLACE_ENABLED }}
 
     steps:
       - name: Checkout repository
@@ -87,7 +90,7 @@ jobs:
       # continue-on-error) blocks the autoplace step below from running. The
       # minOdds / stale-slip defenses inside autoplace remain as depth.
       - name: Validate slip before auto-stake
-        if: ${{ secrets.STAKE_AUTOPLACE_ENABLED == 'true' }}
+        if: ${{ env.STAKE_AUTOPLACE_ENABLED == 'true' }}
         timeout-minutes: 2
         run: node validate-stake.mjs
 
@@ -95,7 +98,7 @@ jobs:
       # is "true". Without it, the workflow builds the slip + share code for
       # manual staking but never moves real money.
       - name: Auto-stake the slip on SportyBet (opt-in)
-        if: ${{ secrets.STAKE_AUTOPLACE_ENABLED == 'true' }}
+        if: ${{ env.STAKE_AUTOPLACE_ENABLED == 'true' }}
         env:
           SB_USER: ${{ secrets.SB_USER }}
           SB_PASS: ${{ secrets.SB_PASS }}
