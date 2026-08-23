@@ -63,9 +63,12 @@ jobs:
         run: node train-model-v5b.mjs --paper --score-paper
 
       - name: Commit agent output
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/patrickopodev/Bet-Odds_data.git"
           git add data/agent-recommendations.json data/agent-history.json data/paper-picks.json
           if git diff --quiet && git diff --cached --quiet; then
             echo "No agent output changes; skipping commit."
