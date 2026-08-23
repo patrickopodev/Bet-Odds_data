@@ -1,0 +1,144 @@
+{
+  "eventId": "sr:match:73297310",
+  "productId": "3",
+  "markets": [
+    "1 (1X2)",
+    "18 (O/U)",
+    "41 (Correct Score)",
+    "548 (Multigoals)",
+    "551 (Multiscores)"
+  ],
+  "homeTeam": "IF Gnistan",
+  "awayTeam": "Aaland United",
+  "kickoff": 1787479200000,
+  "startedAt": "2026-08-23T09:36:34.918Z",
+  "wentLiveAt": null,
+  "changes": [
+    {
+      "at": "2026-08-23T09:36:37.046Z",
+      "sections": {
+        "1X2 / O/U": {
+          "marketId": "1+18",
+          "name": "1X2 / O/U",
+          "group": null,
+          "outcomes": [
+            {
+              "name": "Home",
+              "odds": 6.6,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Draw",
+              "odds": 5.1,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Away",
+              "odds": 1.28,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Over 3.5",
+              "odds": 1.88,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 3.5",
+              "odds": 1.8,
+              "active": true,
+              "marketId": "18"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "at": "2026-08-23T09:52:05.451Z",
+      "sections": {
+        "1X2 / O/U": {
+          "marketId": "1+18",
+          "name": "1X2 / O/U",
+          "group": null,
+          "outcomes": [
+            {
+              "name": "Home",
+              "odds": 6.6,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Draw",
+              "odds": 5.1,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Away",
+              "odds": 1.28,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Over 3.5",
+              "odds": 1.9,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 3.5",
+              "odds": 1.77,
+              "active": true,
+              "marketId": "18"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "at": "2026-08-23T09:57:11.600Z",
+      "sections": {
+        "1X2 / O/U": {
+          "marketId": "1+18",
+          "name": "1X2 / O/U",
+          "group": null,
+          "outcomes": [
+            {
+              "name": "Home",
+              "odds": 6.6,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Draw",
+              "odds": 5.1,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Away",
+              "odds": 1.28,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Over 3.5",
+              "odds": 1.94,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 3.5",
+              "odds": 1.74,
+              "active": true,
+              "marketId": "18"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "eventId": "sr:match:70252254",
+  "productId": "3",
+  "markets": [
+    "1 (1X2)",
+    "18 (O/U)",
+    "41 (Correct Score)",
+    "548 (Multigoals)",
+    "551 (Multiscores)"
+  ],
+  "homeTeam": "FC Dynamo Barnaul",
+  "awayTeam": "FK Akron-2 Tolyatti",
+  "kickoff": 1787479200000,
+  "startedAt": "2026-08-23T09:36:34.918Z",
+  "wentLiveAt": null,
+  "changes": [
+    {
+      "at": "2026-08-23T09:36:37.046Z",
+      "sections": {
+        "1X2 / O/U": {
+          "marketId": "1+18",
+          "name": "1X2 / O/U",
+          "group": null,
+          "outcomes": [
+            {
+              "name": "Home",
+              "odds": 1.95,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Draw",
+              "odds": 4.5,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Away",
+              "odds": 2.75,
+              "active": true,
+              "marketId": "1"
+            },
+            {
+              "name": "Over 2.5",
+              "odds": 1.4,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 2.5",
+              "odds": 2.7,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Over 3.5",
+              "odds": 2,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 3.5",
+              "odds": 1.68,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Over 4.5",
+              "odds": 3.2,
+              "active": true,
+              "marketId": "18"
+            },
+            {
+              "name": "Under 4.5",
+              "odds": 1.29,
+              "active": true,
+              "marketId": "18"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
