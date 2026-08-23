@@ -138,10 +138,9 @@ jobs:
           if git diff --quiet && git diff --cached --quiet; then
             echo "No changes to data; skipping commit."
           else
-            # The pre-match monitor workflow also commits data/ on a 15-min
-            # cadence; rebase onto anything it pushed before committing so a
-            # concurrent push can't fail this run.
-            git pull --rebase origin main
+            # Commit first (pull --rebase refuses a dirty index), then rebase onto
+            # any concurrent push from the pre-match monitor workflow, then push.
             git commit -m "chore(webscraper): update scraped data ($(date -u +%Y-%m-%dT%H:%M:%SZ))"
+            git pull --rebase origin main
             git push
           fi

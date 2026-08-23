@@ -49,7 +49,9 @@ jobs:
           if git diff --quiet && git diff --cached --quiet; then
             echo "No odds changes to commit; skipping."
           else
-            git pull --rebase origin main
+            # Commit first (pull --rebase refuses a dirty index), then rebase onto
+            # any concurrent push, then push.
             git commit -m "chore(webscraper): record pre-match odds changes ($(date -u +%Y-%m-%dT%H:%M:%SZ))"
+            git pull --rebase origin main
             git push
           fi

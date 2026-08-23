@@ -74,9 +74,9 @@ jobs:
           if git diff --quiet && git diff --cached --quiet; then
             echo "No agent output changes; skipping commit."
           else
-            # The scrape/prematch workflows also commit data/; rebase onto any
-            # concurrent push so this commit doesn't fail.
-            git pull --rebase origin main
+            # Commit first (pull --rebase refuses a dirty index), then rebase onto
+            # any concurrent push from the scrape/prematch workflows, then push.
             git commit -m "chore(agent): refresh recommendations ($(date -u +%Y-%m-%dT%H:%M:%SZ))"
+            git pull --rebase origin main
             git push
           fi
