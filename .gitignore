@@ -1,12 +1,9 @@
 node_modules/
 dist/
 npm-debug.log*
-data/snapshot-*.json
-data/report-*.json
-data/report-*.md
-data/performance-*.md
-data/winners-*.md
-data/flashscore-feed-cache.json
+# All runtime data is generated and persisted via GitHub Artifacts (see
+# collector/agent/betting/backtest workflows) — never commit it.
+data/
 
 # Sensitive / dev-only files
 sportybet-page-structure.md
