@@ -86,3 +86,11 @@ jobs:
             data/paper-picks.json
           if-no-files-found: warn
           retention-days: 90
+
+      # Paper-trade progress dashboard. Reads only data/paper-picks.json (the
+      # FAV_BAND 1X2 track) — kept separate from the correct-score analyzer. The
+      # 30-resolved + positive-ROI gate is reported but NEVER auto-enables
+      # staking; reaching it only marks the track eligible for human review.
+      - name: Print paper-trade progress
+        continue-on-error: true
+        run: node paper-progress.mjs
