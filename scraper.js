@@ -127,6 +127,17 @@ async function run() {
   }
   console.log(`Matches with market data: ${withMarkets}`);
 
+  // Correct Score (market 41) is only offered by SportyBet on a subset of
+  // matches, so track how many actually carried it this cycle. The DB builder
+  // (build-db.mjs) already records market 41 whenever present and stops at
+  // kickoff, so this is purely visibility into capture breadth — if this count
+  // is low, it reflects SportyBet's offering, not a scraper gap.
+  let withCorrectScore = 0;
+  for (const m of data.matches) {
+    if (m.markets && m.markets['Correct Score [0:0]']) withCorrectScore++;
+  }
+  console.log(`Matches with Correct Score (market 41) odds: ${withCorrectScore}/${data.matches.length}`);
+
   if (data.matches.length > 0) {
     console.log('');
     console.log('Sample match:');

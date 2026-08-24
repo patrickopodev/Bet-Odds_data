@@ -75,6 +75,14 @@ jobs:
         timeout-minutes: 10
         run: node analyze-odds.mjs --db
 
+      # Correct-score (market 41) repeated-odds -> outcome relation report.
+      # Reuses the shared aggregateHistoricalStats, so its value bands are the
+      # same signal the agent already consumes for market 41 in
+      # buildRecommendations (agent/analysis.ts).
+      - name: Analyze correct-score relations
+        timeout-minutes: 10
+        run: node analyze-correctscore.mjs
+
       - name: Upload odds data artifact
         uses: actions/upload-artifact@v4
         with:
@@ -85,5 +93,7 @@ jobs:
             data/performance.md
             data/snapshot-*.json
             data/report-*.md
+            data/correctscore-report.md
+            data/correctscore-relations.json
           if-no-files-found: warn
           retention-days: 90
