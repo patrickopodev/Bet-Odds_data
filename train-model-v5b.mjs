@@ -1,4 +1,5 @@
-// Option 3 v5b - OUT-OF-SAMPLE validation of the favorite [1.8,2.2) edge + PAPER TRADE mode.
+// Option 3 v5b - OUT-OF-SAMPLE validation of the favorite-value edge + PAPER TRADE mode.
+// The live paper band is env-tunable (FAV_BAND_LO/HI, default [1.8,2.2)).
 // Validates the v5 discovery WITHOUT leakage: band is chosen on train, bet on held-out test.
 // Modes: (default) validation; --paper = log future picks (no stake); --score-paper = settle them.
 import fs from 'node:fs';
