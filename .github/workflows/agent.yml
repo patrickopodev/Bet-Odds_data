@@ -31,6 +31,10 @@ jobs:
     env:
       AGENT_RESEARCH_HOURS: "6"
       AGENT_FEED_BUDGET: "30"
+      # Widened favorite-value band for faster paper-track sample accumulation
+      # (AGENTS.md: more volume, lower edge than the validated [1.8,2.2)).
+      FAV_BAND_LO: "1.5"
+      FAV_BAND_HI: "2.2"
 
     steps:
       - name: Checkout repository

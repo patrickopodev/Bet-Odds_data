@@ -11,6 +11,11 @@ It is tuned via environment variables (no code change needed):
 
 - `FAV_BAND_LO` (default `1.8`) — band lower bound (inclusive).
 - `FAV_BAND_HI` (default `2.2`) — band upper bound (exclusive).
+
+> **Currently deployed** via workflow env: `FAV_BAND_LO=1.5`, `FAV_BAND_HI=2.2`
+> (agent.yml + betting.yml). Widened from the validated `[1.8, 2.2)` for faster
+> paper-track sample accumulation — expect more volume but lower edge. The
+> v5b backtest still reports `[1.8, 2.2)` as its fixed reference.
 - `FAV_CONFIDENCE` (default `0.92`) — confidence stamped on the pick (must clear
   `MIN_CONFIDENCE` in `scrape.yml`, default `0.6`).
 

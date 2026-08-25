@@ -8,7 +8,11 @@ import { roi, ci } from './lib/settlement.mjs';
 const MARGIN = 0.077;
 const BANDS = [[1.0, 1.3], [1.3, 1.5], [1.5, 1.8], [1.8, 2.2], [2.2, 3.0]];
 const PAPER_FILE = 'data/paper-picks.json';
-const FIXED = [1.8, 2.2]; // the v5 candidate
+// Live paper band — env-tunable (no code change needed). Defaults to the
+// validated v5 candidate [1.8, 2.2). Widen (e.g. 1.5-2.2) for more volume.
+const FAV_BAND_LO = Number(process.env.FAV_BAND_LO ?? 1.8);
+const FAV_BAND_HI = Number(process.env.FAV_BAND_HI ?? 2.2);
+const FIXED = [FAV_BAND_LO, FAV_BAND_HI]; // live paper band
 
 function mulberry32(a) {
   return function () {
@@ -90,7 +94,7 @@ if (!process.argv.includes('--paper') && !process.argv.includes('--score-paper')
   // fixed candidate band on full resolved (reference)
   const fp = resolved.filter((e) => inBand(e, FIXED)).map((e) => e.pnl);
   const [flo, fhi] = ci(fp);
-  console.log(`FIXED [1.8,2.2) on ALL resolved (in-sample ref): n=${fp.length} ROI=${(roi(fp) * 100).toFixed(1)}% CI=[${(flo * 100).toFixed(1)}%,${(fhi * 100).toFixed(1)}%]`);
+  console.log(`FIXED [${FIXED[0]},${FIXED[1]}) on ALL resolved (in-sample ref): n=${fp.length} ROI=${(roi(fp) * 100).toFixed(1)}% CI=[${(flo * 100).toFixed(1)}%,${(fhi * 100).toFixed(1)}%]`);
 }
 
 // ===== PAPER TRADE =====
