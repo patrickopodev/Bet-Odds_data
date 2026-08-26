@@ -1,0 +1,68 @@
+name: Manual Betslip Generator
+
+# HUMAN-IN-THE-LOOP track, fully independent of automatic staking.
+# Generates a SportyBet share code from the agent's FAV_BAND 1X2 picks
+# (the same picks the paper track logs) so a human can place them manually.
+# It never moves money and does NOT read STAKE_AUTOPLACE_ENABLED — that secret
+# gates the automatic money path only. Run on demand from the Actions tab.
+
+on:
+  workflow_dispatch: {}
+  # Optional scheduled sweep so a fresh code is always available; harmless when
+  # there are no FAV_BAND picks. Disable if you prefer purely on-demand.
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: manual-slip
+  cancel-in-progress: false
+
+jobs:
+  slip:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      # Mirror the deployed paper band so the manual track is the SAME strategy
+      # the paper track evaluates.
+      FAV_BAND_LO: "1.5"
+      FAV_BAND_HI: "2.2"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium for Playwright
+        run: npx playwright-core install chromium --with-deps
+
+      - name: Restore agent recommendations + prior manual ledger
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/restore-artifact.sh agent-recs data
+          bash scripts/restore-artifact.sh manual-bets data
+
+      - name: Generate manual betslip code (FAV_BAND 1X2 only)
+        run: node manual-slip.mjs
+
+      - name: Upload manual bets ledger
+        uses: actions/upload-artifact@v4
+        with:
+          name: manual-bets
+          path: data/manual-bets.json
+          if-no-files-found: warn
+          retention-days: 90

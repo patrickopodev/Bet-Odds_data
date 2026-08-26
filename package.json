@@ -14,6 +14,7 @@
     "prematch": "node prematch-monitor.mjs",
     "live": "node live-monitor.mjs",
     "share-code": "node share-code.mjs",
+    "manual-slip": "node manual-slip.mjs",
     "build:agent": "tsc -p agent/tsconfig.json",
     "agent": "npm run build:agent && node dist/cli.js",
     "agent:confirm": "node dist/confirm.js",
