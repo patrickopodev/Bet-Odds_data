@@ -5,6 +5,7 @@
 import fs from 'node:fs';
 import { DB_FILE, parseScore, evaluateOutcome } from './lib/common.mjs';
 import { roi, ci } from './lib/settlement.mjs';
+import { buildFavRows, selectFavBand1X2Picks } from './lib/favband.mjs';
 
 const MARGIN = 0.077;
 const BANDS = [[1.0, 1.3], [1.3, 1.5], [1.5, 1.8], [1.8, 2.2], [2.2, 3.0]];
@@ -43,24 +44,7 @@ function inBand(e, b) { return e.favLast >= b[0] && e.favLast < b[1]; }
 
 // ---- load events ----
 const db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-const rows = [];
-for (const ev of Object.values(db.events ?? {})) {
-  const score = ev.finalScore ? parseScore(ev.finalScore) : null;
-  const sides = ['Home', 'Draw', 'Away'].map((name) => {
-    const p = ev.outcomes[`1|${name}`]?.plays ?? [];
-    return p.length ? { name, last: p.at(-1).odds } : null;
-  }).filter(Boolean);
-  if (sides.length < 3) continue;
-  sides.sort((a, b) => a.last - b.last);
-  const fav = sides[0];
-  let pnl = 0, won = false, resolved = false;
-  if (score) {
-    const r = evaluateOutcome('1', fav.name, score);
-    pnl = r === 'VOID' ? 0 : r === 'WON' ? fav.last - 1 : -1;
-    won = pnl > 0; resolved = true;
-  }
-  rows.push({ id: ev.id, league: String(ev.tournament ?? '').trim(), favLast: fav.last, favName: fav.name, pnl, won, resolved, score });
-}
+const rows = buildFavRows(db);
 const resolved = rows.filter((r) => r.resolved);
 console.log(`events with 1X2 odds: ${rows.length}, resolved: ${resolved.length}, unresolved (paper-tradeable): ${rows.length - resolved.length}`);
 
@@ -106,12 +90,10 @@ if (process.argv.includes('--paper') || process.argv.includes('--score-paper')) 
   const paper = loadPaper();
   const seen = new Set(paper.map((p) => p.id));
   if (process.argv.includes('--paper')) {
-    for (const e of rows) {
-      if (e.resolved || seen.has(e.id)) continue;
-      if (e.favLast >= FIXED[0] && e.favLast < FIXED[1]) {
-        paper.push({ id: e.id, league: e.league, pick: e.favName, odds: e.favLast, addedAt: new Date().toISOString(), status: 'OPEN' });
-        seen.add(e.id);
-      }
+    for (const e of selectFavBand1X2Picks(rows, FIXED[0], FIXED[1])) {
+      if (seen.has(e.id)) continue;
+      paper.push({ id: e.id, league: e.league, pick: e.favName, odds: e.favLast, addedAt: new Date().toISOString(), status: 'OPEN' });
+      seen.add(e.id);
     }
     fs.writeFileSync(PAPER_FILE, JSON.stringify(paper, null, 2));
   }

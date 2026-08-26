@@ -1,55 +1,26 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DATA_DIR, fetchEventMarkets } from './lib/common.mjs';
+import { DATA_DIR, DB_FILE, fetchEventMarkets } from './lib/common.mjs';
+import { buildFavRows, selectFavBand1X2Picks } from './lib/favband.mjs';
 import { createShareCode, loadShareCode, shareUrl, ticketSummary } from './share-code.mjs';
 
 // ---------------------------------------------------------------------------
 // Manual betslip generator — the HUMAN-IN-THE-LOOP track.
 //
-// Consumes ONLY the FAV_BAND 1X2 picks already flagged by the agent (the exact
-// same picks the paper track logs in paper-picks.json), resolves their
-// SportyBet outcome ids, and produces a shareable betslip code. It NEVER
-// places a bet and does NOT depend on STAKE_AUTOPLACE_ENABLED — that secret
-// gates automatic staking only; this script is the independent manual path.
+// Selects from the SAME source (odds-db.json) with the SAME predicate
+// (buildFavRows + selectFavBand1X2Picks) as the paper track, so every manual
+// selection is a member of the exact set the paper track evaluates. It NEVER
+// places a bet and does NOT depend on STAKE_AUTOPLACE_ENABLED.
 //
-// Picks are recorded (status: GENERATED) to data/manual-bets.json so the
+// Each pick is recorded to data/manual-bets.json (status: GENERATED) so the
 // manually-placed subset can later be compared against the 30+ paper track.
-// This is measurement/usability tooling, not a strategy change.
+// The recorded `status` is what YOU did; the objective match outcome must come
+// from the settlement source, never a hand-edited WON/LOST.
 // ---------------------------------------------------------------------------
 
-const AGENT_FILE = path.join(DATA_DIR, 'agent-recommendations.json');
 const MANUAL_FILE = path.join(DATA_DIR, 'manual-bets.json');
 const FAV_MARKET = '1';
-
-export function extractFavBandPicks(report) {
-  const picks = [];
-  for (const rec of report.matches ?? []) {
-    const { match, candidates } = rec;
-    for (const c of candidates ?? []) {
-      if (
-        c.marketId === FAV_MARKET &&
-        c.recommended &&
-        /FAVORITE VALUE band/i.test(c.reason ?? '')
-      ) {
-        picks.push({ match, candidate: c });
-      }
-    }
-  }
-  return picks;
-}
-
-async function resolveOutcomeId(eventId, outcomeName) {
-  const data = await fetchEventMarkets(eventId);
-  for (const m of data?.markets ?? []) {
-    if (String(m.id) !== FAV_MARKET) continue;
-    const o = (m.outcomes ?? []).find(
-      (x) => String(x.desc).trim().toLowerCase() === String(outcomeName).trim().toLowerCase()
-    );
-    if (o) return { outcomeId: String(o.id), specifier: m.specifier ?? undefined };
-  }
-  return null;
-}
 
 function loadManual() {
   try {
@@ -64,20 +35,33 @@ function saveManual(obj) {
   fs.writeFileSync(MANUAL_FILE, JSON.stringify(obj, null, 2));
 }
 
+async function resolveOutcomeId(eventId, favName) {
+  const data = await fetchEventMarkets(eventId);
+  for (const m of data?.markets ?? []) {
+    if (String(m.id) !== FAV_MARKET) continue;
+    const o = (m.outcomes ?? []).find(
+      (x) => String(x.desc).trim().toLowerCase() === String(favName).trim().toLowerCase()
+    );
+    if (o) return { outcomeId: String(o.id), specifier: m.specifier ?? undefined };
+  }
+  return null;
+}
+
 const BAR = '─'.repeat(34);
 
 async function main() {
-  let report;
+  let db;
   try {
-    report = JSON.parse(fs.readFileSync(AGENT_FILE, 'utf8'));
+    db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
   } catch (e) {
-    console.error(`manual-slip: cannot read ${AGENT_FILE}: ${e.message}`);
+    console.error(`manual-slip: cannot read ${DB_FILE}: ${e.message}`);
     process.exit(0);
   }
 
   const lo = process.env.FAV_BAND_LO ?? 1.8;
   const hi = process.env.FAV_BAND_HI ?? 2.2;
-  const picks = extractFavBandPicks(report);
+  // Same selection the paper track uses — guarantees set equality.
+  const picks = selectFavBand1X2Picks(buildFavRows(db), lo, hi);
 
   console.log(`\nPAPER RECOMMENDATIONS (FAV_BAND [${lo}, ${hi}))`);
   console.log(BAR);
@@ -87,11 +71,9 @@ async function main() {
     return;
   }
   picks.forEach((p, i) => {
-    const c = p.candidate;
-    console.log(`${i + 1}. ${p.match.homeTeam} vs ${p.match.awayTeam}`);
-    console.log(`   Pick: ${c.outcome}`);
-    console.log(`   Odds: ${c.odds}`);
-    console.log(`   Confidence: ${c.confidence != null ? c.confidence.toFixed(2) : 'n/a'}`);
+    console.log(`${i + 1}. ${p.homeTeam} vs ${p.awayTeam}`);
+    console.log(`   Pick: ${p.favName}`);
+    console.log(`   Odds: ${p.favLast}`);
   });
   console.log(`Selected: ${picks.length}`);
   console.log(BAR);
@@ -99,22 +81,21 @@ async function main() {
   const selections = [];
   const resolved = [];
   for (const p of picks) {
-    const c = p.candidate;
-    const r = await resolveOutcomeId(p.match.eventId, c.outcome).catch((e) => {
-      console.error(`  - ${p.match.homeTeam} vs ${p.match.awayTeam} (${c.outcome}): ${e.message}`);
+    const r = await resolveOutcomeId(p.eventId, p.favName).catch((e) => {
+      console.error(`  - ${p.homeTeam} vs ${p.awayTeam}: ${e.message}`);
       return null;
     });
     if (!r) {
-      console.error(`  - ${p.match.homeTeam} vs ${p.match.awayTeam} (${c.outcome}): could not resolve outcome id`);
+      console.error(`  - ${p.homeTeam} vs ${p.awayTeam} (${p.favName}): could not resolve outcome id`);
       continue;
     }
     selections.push({
-      eventId: p.match.eventId,
+      eventId: p.eventId,
       marketId: FAV_MARKET,
       outcomeId: r.outcomeId,
       ...(r.specifier ? { specifier: r.specifier } : {}),
     });
-    resolved.push({ match: p.match, candidate: c });
+    resolved.push(p);
   }
 
   if (!selections.length) {
@@ -140,17 +121,16 @@ async function main() {
   const seen = new Set((manual.bets ?? []).map((b) => `${b.eventId}|${b.outcome}`));
   let added = 0;
   for (const p of resolved) {
-    const key = `${p.match.eventId}|${p.candidate.outcome}`;
+    const key = `${p.eventId}|${p.favName}`;
     if (seen.has(key)) continue;
     manual.bets.push({
       generatedAt: new Date().toISOString(),
-      eventId: p.match.eventId,
-      homeTeam: p.match.homeTeam,
-      awayTeam: p.match.awayTeam,
-      market: p.candidate.market,
-      outcome: p.candidate.outcome,
-      odds: p.candidate.odds,
-      confidence: p.candidate.confidence,
+      eventId: p.eventId,
+      homeTeam: p.homeTeam,
+      awayTeam: p.awayTeam,
+      market: '1X2',
+      outcome: p.favName,
+      odds: p.favLast,
       code,
       status: 'GENERATED',
     });
@@ -160,7 +140,7 @@ async function main() {
   saveManual(manual);
   if (added) {
     console.log(`\nRecorded ${added} new pick(s) to ${MANUAL_FILE} (status GENERATED).`);
-    console.log('Update status to PLACED / WON / LOST once you act on them.');
+    console.log('Outcome must come from the objective settlement source, not a hand-edited WON/LOST.');
   }
 }
 
