@@ -1,0 +1,61 @@
+name: Paper-B O/U Track
+
+# Forward paper track for the pre-specified O/U H1 hypothesis (Stage 1.5b).
+# Records FORWARD O/U 2.5 picks in [1.80, 2.20) and settles them as matches
+# resolve. Fully independent of Strategy A (1X2) and the money path: it restores
+# the read-only `odds-data` artifact and its own `paper-B-data` ledger, writes
+# only data/paper-B-picks.json, and NEVER places or selects a real bet.
+#
+# Gate (>=30 resolved AND positive ROI) is REPORTED, never auto-promoted.
+
+on:
+  # Frequent enough to capture upcoming matches as they appear in the DB.
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: paper-B
+  cancel-in-progress: false
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Restore odds DB + Paper-B ledger (read-only)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/restore-artifact.sh odds-data data
+          bash scripts/restore-artifact.sh paper-B-data data
+
+      - name: Run Paper-B forward track
+        continue-on-error: true
+        run: node paper-B.mjs
+
+      - name: Upload Paper-B ledger
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper-B-data
+          path: data/paper-B-picks.json
+          if-no-files-found: warn
+          retention-days: 90

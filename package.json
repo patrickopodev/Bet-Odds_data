@@ -22,6 +22,7 @@
     "stake": "node stake.mjs",
     "stake-placement": "node stake-placement.mjs",
     "stake-autoplace": "node stake-autoplace.mjs",
+    "paper-B": "node paper-B.mjs",
     "test": "npm run build:agent && node --test test/"
   },
   "engines": {
