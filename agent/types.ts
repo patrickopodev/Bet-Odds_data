@@ -16,6 +16,15 @@ export interface MatchOfficials {
   attendance: string | null;
 }
 
+// Explicit outcome of a web-research call. A blocked search (challenge/rate
+// limit) is reported distinctly from "no information found" so the betting
+// pipeline never mistakes an unavailable search for a genuine no-result.
+export type SearchStatus =
+  | 'SEARCH_SUCCESS'
+  | 'SEARCH_NO_RESULTS'
+  | 'SEARCH_BLOCKED'
+  | 'SEARCH_ERROR';
+
 export interface TeamInfo {
   name: string;
   flashscoreId: string | null;
@@ -28,6 +37,7 @@ export interface TeamInfo {
   lastResults: { opp: string; score: string; result: 'W' | 'D' | 'L' }[];
   research: string[]; // web-search snippets for this team
   researchAt: string | null; // ISO timestamp of when research was fetched
+  researchStatus?: SearchStatus; // SEARCH_SUCCESS | SEARCH_NO_RESULTS | SEARCH_BLOCKED | SEARCH_ERROR
   scorers: PlayerStat[]; // goals scored in the team's last-5 finished matches
   assists: PlayerStat[]; // assists recorded in the team's last-5 finished matches
   cards: PlayerStat[]; // cards picked up in the team's last-5 finished matches

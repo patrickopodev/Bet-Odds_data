@@ -538,10 +538,15 @@ test('extractSnippets parses DDG html and dedupes', () => {
   assert.ok(out[0].includes('Hearts news'));
 });
 
-test('webResearch returns a flat snippet list shared by both teams', async () => {
+test('webResearch returns a result with a flat snippet list shared by both teams', async () => {
   const r = await webResearch('Fake Team Alpha', 'Fake Team Beta', 'Test League');
-  assert.ok(Array.isArray(r));
-  assert.ok(r.every((s) => typeof s === 'string'));
+  assert.ok(typeof r === 'object' && r !== null, 'returns a WebResearchResult object');
+  assert.ok(
+    ['SEARCH_SUCCESS', 'SEARCH_NO_RESULTS', 'SEARCH_BLOCKED', 'SEARCH_ERROR'].includes(r.status),
+    'status is one of the explicit enum values'
+  );
+  assert.ok(Array.isArray(r.snippets), 'snippets is an array');
+  assert.ok(r.snippets.every((s) => typeof s === 'string'), 'every snippet is a string');
 });
 
 test('selectBets skips friendlies unless allowed', () => {

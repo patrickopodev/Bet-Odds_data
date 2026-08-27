@@ -13,6 +13,7 @@ import {
 import { webResearch } from './research.js';
 import { buildRecommendations } from './analysis.js';
 import { loadDb, loadLatest, type LatestMatch } from './db.js';
+import { buildFavRows, selectFavBand1X2Picks } from '../lib/favband.mjs';
 import type { AgentReport, MatchResearch, Recommendation, TeamInfo } from './types.js';
 
 const DATA_DIR = process.env.DATA_DIR ?? 'data';
@@ -116,8 +117,39 @@ function appendHistory(report: AgentReport) {
 // runs outgrew the 30-min cron); closer to kickoff is also fresher form.
 const RESEARCH_HOURS = Number(process.env.AGENT_RESEARCH_HOURS ?? 6);
 
+// Minimal TeamInfo used when Flashscore has no standings page for a team
+// (obscure/reserve/lower-tier). Keeps the match in the research set so FAV_BAND
+// candidates still get web (H2H) research instead of being dropped entirely.
+function placeholderTeam(name: string): TeamInfo {
+  return {
+    name,
+    flashscoreId: null,
+    flashscoreUrl: null,
+    position: null,
+    played: null,
+    points: null,
+    form: '',
+    formScore: 0,
+    lastResults: [],
+    research: [],
+    researchAt: null,
+    scorers: [],
+    assists: [],
+    cards: [],
+    league: null,
+  };
+}
+
 async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[]; researched: number }> {
   const standingsCache = loadStandingsCache();
+  const db = loadDb();
+  const FAV_BAND_LO = Number(process.env.FAV_BAND_LO ?? 1.8);
+  const FAV_BAND_HI = Number(process.env.FAV_BAND_HI ?? 2.2);
+  // Event IDs the validated 1X2 favorite-value selector would pick. These are
+  // forced through web (H2H) research even when Flashscore lacks standings.
+  const favSet = new Set(
+    selectFavBand1X2Picks(buildFavRows(db), FAV_BAND_LO, FAV_BAND_HI).map((p) => p.eventId)
+  );
   const out: MatchResearch[] = [];
   let researched = 0;
   // Timing buckets so the workflow log shows where the run spent its time.
@@ -136,29 +168,62 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
     let home: TeamInfo;
     let away: TeamInfo;
     const t0 = Date.now();
+    // researchTeam is best-effort: obscure teams with no Flashscore standings
+    // would throw and previously dropped the whole match. Fall back to a
+    // placeholder so the match still reaches web (H2H) research when it is a
+    // FAV_BAND candidate.
     try {
       [home, away] = await Promise.all([
-        researchTeam(m.homeTeam, standingsCache),
-        researchTeam(m.awayTeam, standingsCache),
+        researchTeam(m.homeTeam, standingsCache).catch(() => placeholderTeam(m.homeTeam)),
+        researchTeam(m.awayTeam, standingsCache).catch(() => placeholderTeam(m.awayTeam)),
       ]);
     } catch {
       return null;
     }
     msFlashscore += Date.now() - t0;
+
+    const favCandidate = favSet.has(m.eventId);
+    // Keep the match only if it is a FAV_BAND candidate or Flashscore returned
+    // real team data. Obscure non-candidates with no standings are dropped
+    // (unchanged behaviour); candidates are kept so they get web research.
+    const hasData = !!(
+      home.flashscoreId ||
+      home.position ||
+      home.form ||
+      away.flashscoreId ||
+      away.position ||
+      away.form
+    );
+    if (!favCandidate && !hasData) return null;
+
     researched++;
 
-    // Web research is fetched once and shared by both sides so each team gets
-    // a symmetric signal. researchAt lets downstream consumers see how fresh it
-    // is; it stays null when no web search was needed (no form/position).
-    if (home.form || away.form || home.position || away.position) {
+    // Web research is fetched once and shared by both sides so each team gets a
+    // symmetric H2H/form signal. FAV_BAND candidates are forced through even when
+    // they have no standings/form, so the meetings history is always captured.
+    if (home.form || away.form || home.position || away.position || favCandidate) {
       const nowIso = new Date().toISOString();
       const t1 = Date.now();
-      const r = await webResearch(m.homeTeam, m.awayTeam, m.tournament).catch(() => []);
+      const res = await webResearch(m.homeTeam, m.awayTeam, m.tournament).catch((e) => ({
+        status: 'SEARCH_ERROR' as const,
+        snippets: [],
+        reason: (e as Error).message,
+      }));
       msWeb += Date.now() - t1;
-      home.research = r;
-      away.research = r;
+      // Research is informational only — stored as context, never used to
+      // qualify/drop a Strategy A candidate. A BLOCKED result is kept explicit
+      // so it is not confused with "no web information found".
+      home.research = res.snippets;
+      away.research = res.snippets;
+      home.researchStatus = res.status;
+      away.researchStatus = res.status;
       home.researchAt = nowIso;
       away.researchAt = nowIso;
+      if (res.status === 'SEARCH_BLOCKED') {
+        console.warn(
+          `[research] web search BLOCKED for ${m.homeTeam} vs ${m.awayTeam} (${res.reason ?? 'challenge/rate-limit'})`
+        );
+      }
     }
 
     return {
@@ -194,7 +259,6 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
     `[agent] timing: flashscore (form+standings) ${(msFlashscore / 1000).toFixed(0)}s, web snippets ${(msWeb / 1000).toFixed(0)}s`
   );
 
-  const db = loadDb();
   const recs = buildRecommendations(out, matches, db, (mid) => MARKET_NAMES[mid] ?? mid);
   return { recs, researched };
 }
