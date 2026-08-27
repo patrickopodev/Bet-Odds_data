@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DATA_DIR, DB_FILE, fetchEventMarkets } from './lib/common.mjs';
+import { DATA_DIR, DB_FILE, fetchEventMarkets, isSimulated } from './lib/common.mjs';
 import { buildFavRows, selectFavBand1X2Picks } from './lib/favband.mjs';
 import { createShareCode, loadShareCode, shareUrl, ticketSummary } from './share-code.mjs';
 
@@ -49,6 +49,16 @@ async function resolveOutcomeId(eventId, favName) {
 
 const BAR = '─'.repeat(34);
 
+// Five raw SportyBet markets. FAV_BAND only ever qualifies 1X2 (id 1); the rest
+// are shown for coverage and will report 0 qualifying selections by construction.
+const MARKET_SECTIONS = [
+  { id: '1', label: '1X2' },
+  { id: '18', label: 'O/U (Over/Under)' },
+  { id: '41', label: 'Correct Score' },
+  { id: '548', label: 'Multigoals' },
+  { id: '551', label: 'Multiscores' },
+];
+
 async function main() {
   let db;
   try {
@@ -60,23 +70,81 @@ async function main() {
 
   const lo = process.env.FAV_BAND_LO ?? 1.8;
   const hi = process.env.FAV_BAND_HI ?? 2.2;
-  // Same selection the paper track uses — guarantees set equality.
-  const picks = selectFavBand1X2Picks(buildFavRows(db), lo, hi);
+  const DAY = process.env.MANUAL_DAY; // optional UTC-date filter YYYY-MM-DD
 
-  console.log(`\nPAPER RECOMMENDATIONS (FAV_BAND [${lo}, ${hi}))`);
+  const byId = new Map(Object.entries(db.events ?? {}));
+
+  // Strategy A — selector UNCHANGED; same set the paper track evaluates.
+  let picks = selectFavBand1X2Picks(buildFavRows(db), lo, hi);
+
+  // SAFETY: drop simulated (SRL) events — never stake virtual matches.
+  const before = picks.length;
+  picks = picks.filter((p) => {
+    const e = byId.get(p.eventId);
+    return !(isSimulated(e?.homeTeam) || isSimulated(e?.awayTeam) || isSimulated(e?.tournament));
+  });
+  const droppedSim = before - picks.length;
+
+  if (DAY) picks = picks.filter((p) => (byId.get(p.eventId)?.startTime ?? '').startsWith(DAY));
+
+  // --- Section coverage: all five markets, only 1X2 qualifies ---
+  console.log(`\nSECTION COVERAGE — FAV_BAND [${lo}, ${hi})`);
+  console.log(BAR);
+  console.log('(UI merges 1X2 + O/U into one "1X2 / O/U" display section)');
+  for (const s of MARKET_SECTIONS) {
+    const n = s.id === '1' ? picks.length : 0;
+    console.log(`${s.label.padEnd(18)} qualifying: ${n}`);
+  }
+  console.log(BAR);
+
+  console.log(
+    `\nFAV_BAND 1X2 CANDIDATES${DAY ? ' on ' + DAY : ''} (real matches only)`
+  );
+  console.log(`Excluded ${droppedSim} simulated match(es). Candidates: ${picks.length}`);
   console.log(BAR);
   if (!picks.length) {
-    console.log('No FAV_BAND 1X2 picks to slip right now.');
+    console.log('No qualifying picks right now.');
     console.log(BAR);
     return;
   }
-  picks.forEach((p, i) => {
-    console.log(`${i + 1}. ${p.homeTeam} vs ${p.awayTeam}`);
-    console.log(`   Pick: ${p.favName}`);
-    console.log(`   Odds: ${p.favLast}`);
-  });
-  console.log(`Selected: ${picks.length}`);
+
+  const W = { fx: 38, comp: 24, ko: 12, sel: 5, odds: 8, band: 8, sim: 4 };
+  console.log(
+    [
+      'FIXTURE'.padEnd(W.fx),
+      'COMPETITION'.padEnd(W.comp),
+      'KICKOFF'.padEnd(W.ko),
+      'SEL'.padEnd(W.sel),
+      'ODDS'.padEnd(W.odds),
+      'INBAND'.padEnd(W.band),
+      'SIM'.padEnd(W.sim),
+    ].join('')
+  );
   console.log(BAR);
+  for (const p of picks) {
+    const e = byId.get(p.eventId) ?? {};
+    const ko = (e.startTime ?? '').replace('T', ' ').replace(/\.\d+Z$/, 'Z').slice(0, 17);
+    const fx = `${p.homeTeam} vs ${p.awayTeam}`.slice(0, W.fx);
+    const inBand = p.favLast >= lo && p.favLast < hi ? 'YES' : 'NO';
+    console.log(
+      [
+        fx.padEnd(W.fx),
+        String(e.tournament ?? '').slice(0, W.comp).padEnd(W.comp),
+        ko.padEnd(W.ko),
+        p.favName.padEnd(W.sel),
+        String(p.favLast).padEnd(W.odds),
+        inBand.padEnd(W.band),
+        'NO'.padEnd(W.sim),
+      ].join('')
+    );
+  }
+  console.log(BAR);
+  console.log('All candidates are in the 1X2 section. Verify kickoff + live odds on SportyBet before staking.');
+
+  if (process.env.NO_SHARE) {
+    console.log('\nShare-code generation skipped (NO_SHARE set).');
+    return;
+  }
 
   const selections = [];
   const resolved = [];
