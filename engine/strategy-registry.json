@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "updatedAt": "2026-08-27",
+  "description": "Frozen single source of truth for strategy status and parameters. One source of truth per state (AGENTS spec #17). Frozen params MUST NOT change during a daily run (spec #20).",
+  "strategies": [
+    {
+      "strategyId": "STRAT-1X2-FAVBAND-v1",
+      "version": 1,
+      "marketId": "1",
+      "marketName": "1X2",
+      "status": "VALIDATED",
+      "validationStatus": "OOS_VALIDATED",
+      "parameters": {
+        "selection": "favorite",
+        "lo": 1.8,
+        "hi": 2.2,
+        "confidence": 0.92
+      },
+      "source": "train-model-v5b.mjs k-fold OOS: +16.8% ROI, 95% CI [+2.1%, +32.6%] excludes zero (band re-selected on train; FIXED [1.8,2.2) reference band).",
+      "frozen": true,
+      "createdAt": "2026-08-27",
+      "validatedAt": "2026-08-27",
+      "selector": "lib/favband.mjs:selectFavBand1X2Picks",
+      "bandDiscrepancy": {
+        "deployedOverride": "FAV_BAND_LO=1.5 (widened in agent.yml/betting.yml/manual-slip.yml for faster paper sample; lower edge; NOT validated)",
+        "frozenSpec": "[1.8, 2.2)",
+        "resolution": "Validated band is [1.8, 2.2) per train-model-v5b.mjs. The 1.5 widening is an experimental deployment override and is EXCLUDED from this frozen spec. Restore FAV_BAND_LO=1.8 in live workflows to match the validated Strategy A."
+      }
+    },
+    {
+      "strategyId": "STRAT-OU-H1-v1",
+      "version": 1,
+      "marketId": "18",
+      "marketName": "O/U",
+      "status": "PAPER",
+      "validationStatus": "HOLDOUT_TESTED",
+      "parameters": {
+        "line": 2.5,
+        "side": "either",
+        "lo": 1.8,
+        "hi": 2.2,
+        "gate": 30
+      },
+      "source": "Stage 1.5b pre-specified O/U band holdout: untouched test +10.8% ROI over 373 bets.",
+      "frozen": true,
+      "createdAt": "2026-08-27",
+      "ledger": "data/paper-B-picks.json",
+      "selector": "paper-B.mjs:inSpec",
+      "promotionRule": "ELIGIBLE_FOR_HUMAN_REVIEW only when resolved>=30 AND ROI>0. Never auto-LIVE (spec #7)."
+    }
+  ]
+}

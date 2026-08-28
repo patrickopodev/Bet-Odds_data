@@ -1,0 +1,103 @@
+name: Unified Engine (Daily Selector)
+
+# ADDITIVE migration artifact (spec #18, #23). This runs the NEW unified betting
+# engine BESIDE the existing workflows — it does NOT replace or delete them. It
+# only selects LIVE approved picks from the frozen strategy registry and the
+# odds database, and uploads an `approved-picks` artifact. No staking happens
+# here: manual staking stays in manual-slip.yml and auto staking in betting.yml.
+#
+# Once tests prove the new engine's selection equals the legacy paths, the old
+# selectors can be migrated to consume approved-picks.json. Until then this is a
+# read-only shadow of the target architecture.
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: engine-daily
+  cancel-in-progress: false
+
+jobs:
+  select:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Restore odds database
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/restore-artifact.sh odds-data data
+
+      - name: Run unified engine (read-only selection)
+        # Pure selection: no scraping, no staking. Produces data/approved-picks.json
+        # with the five-market summary + validated LIVE picks only.
+        run: node engine/daily-engine.mjs --write
+
+      - name: Observational equivalence vs legacy Strategy A (read-only)
+        # Phase 2/3: proves the engine selects identically to the legacy selector
+        # at the validated band, and quantifies the 1.5-widening delta. No output
+        # is ever fed back into production — observation only.
+        run: node engine/equivalence.mjs --write
+
+      - name: Accumulate observation ledger + readiness gate (read-only)
+        # Appends today's equivalence result to the cumulative ledger and reports
+        # (does NOT trigger) Phase 4 readiness. Fail-closed: a single violation
+        # or insufficient cycles keeps readiness false.
+        run: node engine/observe.mjs
+
+      - name: Deep discovery report (read-only, no minting)
+        # Phase 5 research shadow: tests predefined hypothesis families per market
+        # against a frozen chronological holdout and reports survivors. Never mints
+        # or registers a strategy — survivors are shown for human review only.
+        continue-on-error: true
+        run: node engine/deep-discovery.mjs --write
+
+      - name: Market data-quality report (signal-poor vs data-poor)
+        # Distinguishes "genuinely no edge" from "not enough resolved history to
+        # test the hypothesis". Drives the decision of whether to keep collecting
+        # per-market data (e.g. Correct Score is currently data-poor, not signal-poor).
+        continue-on-error: true
+        run: node engine/deep-discovery.mjs --quality --write
+
+      # --- Phase 4 execution wiring (manual path only; never auto-stakes) ---
+      # Generates the SportyBet share code from the engine's approved picks. This
+      # is the new canonical manual path; manual-slip.yml stays as legacy until
+      # equivalence is proven, then can be retired. Auto-staking remains gated by
+      # STAKE_AUTOPLACE_ENABLED (off by default).
+      - name: Generate manual betslip share code (engine)
+        continue-on-error: true
+        env:
+          STAKE_AUTOPLACE_ENABLED: "false"
+        run: node engine/slip.mjs
+
+      - name: Upload approved-picks + observation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: approved-picks
+          path: |
+            data/approved-picks.json
+            data/engine-equivalence.json
+            data/engine-observation-log.json
+            data/manual-bets.json
+            data/discovery-report.json
+            data/data-quality.json
+          if-no-files-found: warn
+          retention-days: 90

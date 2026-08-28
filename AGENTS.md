@@ -33,3 +33,47 @@ negative, and steam-following (price movement) does not predict winners here.
   confirm the k-fold ROI CI still excludes zero before trusting it live.
 - Do NOT enable auto-staking (`STAKE_AUTOPLACE_ENABLED`) until the paper-trade
   track in `data/paper-picks.json` shows positive ROI over ≥30 resolved picks.
+
+## Unified engine (architecture migration)
+
+The system is being migrated to one unified betting engine + two execution
+adapters (see `engine/`). Migration follows the strict rule: **build beside,
+never delete first** — the existing 8 workflows remain; the new engine runs as
+an additive, read-only shadow (`engine-daily.yml` → `approved-picks` artifact).
+
+- `engine/strategy-registry.json` — **frozen single source of truth** for
+  strategy status/params. `STRAT-1X2-FAVBAND-v1` (VALIDATED) and `STRAT-OU-H1-v1`
+  (PAPER) only. One source of truth per state; params must not change mid-run.
+- `engine/markets.mjs` — generic Market abstraction (1X2 / O/U / Correct Score /
+  Multigoals / Multiscores). Add a 6th market by adding a definition, not by
+  redesigning the engine.
+- `engine/strategies.mjs` — strategy registry + lifecycle + **wrappers around the
+  existing validated selectors** (`lib/favband.mjs`, `paper-B.mjs`). The validated
+  math is preserved verbatim.
+- `engine/validation.mjs` — shared validation gates (simulated, kickoff buffer,
+  confidence, strategy status, stake limits, live-odds band re-check).
+- `engine/pick.mjs` — the single `ApprovedPick` object + audit trail, consumed by
+  both executors.
+- `engine/executors.mjs` — `ManualExecutor` (share code, never stakes) and
+  `AutoExecutor` (safety gate → opt-in stake). Both derive identical selections
+  (`assertExecutionParity`) so manual/auto can never diverge.
+- `engine/training.mjs` — virtual bankroll only; forbidden from the real staking
+  adapter.
+- `engine/daily-engine.mjs` — the unified selector: upcoming + non-simulated
+  matches, all markets, LIVE strategies only, five-market output.
+
+### FAV_BAND discrepancy resolution (spec #6)
+The **validated** Strategy A band is **[1.8, 2.2)**, per `train-model-v5b.mjs`
+(k-fold OOS +16.8%, CI excludes zero). The deployed `FAV_BAND_LO=1.5` widening in
+`agent.yml`/`betting.yml`/`manual-slip.yml` is an **experimental override** (more
+volume, lower edge) and is **excluded** from the frozen `STRAT-1X2-FAVBAND-v1`
+spec. To match the validated result, restore `FAV_BAND_LO=1.8` in those workflows.
+The new engine ignores `FAV_BAND_*` env entirely and uses the registry values.
+
+### Architecture tests
+`test/engine/*.test.mjs` enforce: market isolation, strategy isolation (PAPER
+never LIVE), simulation protection, odds boundaries (1.79/1.80/2.19/2.20),
+execution parity, training isolation, research BLOCKED ≠ NO_RESULTS, frozen
+strategy immutability, and a **Strategy A regression** proving the new engine
+selects identically to the legacy `selectFavBand1X2Picks`. Run with `npm test`.
+

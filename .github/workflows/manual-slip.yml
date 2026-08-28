@@ -1,15 +1,15 @@
-name: Manual Betslip Generator
+name: Manual Full-Card Odds Review
 
-# HUMAN-IN-THE-LOOP track, fully independent of automatic staking.
-# Generates a SportyBet share code from the agent's FAV_BAND 1X2 picks
-# (the same picks the paper track logs) so a human can place them manually.
-# It never moves money and does NOT read STAKE_AUTOPLACE_ENABLED — that secret
-# gates the automatic money path only. Run on demand from the Actions tab.
+# HUMAN-IN-THE-LOOP review track, fully independent of automatic staking.
+# Prints TODAY'S FULL LIST of games with every market's odds so a human can
+# eyeball "perfect fitting" value across the whole card. It makes NO picks and
+# never places a bet. FAV_BAND 1X2 was removed from this track; the agent's
+# buildRecommendations (agent/analysis.ts) still owns that validated rule.
+# Run on demand from the Actions tab.
 
 on:
   workflow_dispatch: {}
-  # Optional scheduled sweep so a fresh code is always available; harmless when
-  # there are no FAV_BAND picks. Disable if you prefer purely on-demand.
+  # Optional scheduled sweep so a fresh full-card review is always available.
   schedule:
     - cron: "*/30 * * * *"
 
@@ -22,15 +22,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  slip:
+  review:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-
-    env:
-      # Mirror the deployed paper band so the manual track is the SAME strategy
-      # the paper track evaluates.
-      FAV_BAND_LO: "1.5"
-      FAV_BAND_HI: "2.2"
 
     steps:
       - name: Checkout repository
@@ -49,20 +43,19 @@ jobs:
       - name: Install Chromium for Playwright
         run: npx playwright-core install chromium --with-deps
 
-      - name: Restore agent recommendations + prior manual ledger
+      - name: Restore latest scrape
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          bash scripts/restore-artifact.sh agent-recs data
-          bash scripts/restore-artifact.sh manual-bets data
+        run: bash scripts/restore-artifact.sh odds-data data
 
-      - name: Generate manual betslip code (FAV_BAND 1X2 only)
+      - name: Print full-card review + generate value share-code
         run: node manual-slip.mjs
 
-      - name: Upload manual bets ledger
+      - name: Upload generated value code
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: manual-bets
-          path: data/manual-bets.json
+          name: manual-code
+          path: data/manual-code.txt
           if-no-files-found: warn
-          retention-days: 90
+          retention-days: 7

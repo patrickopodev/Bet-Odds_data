@@ -1,0 +1,10 @@
+// Phase 5 candidate markets (spec #22). These are DISCOVERED-stage definitions
+// ONLY — no strategy, no selector, no LIVE picks. Adding them here proves the
+// engine accepts a 6th/7th/8th market purely by definition, with zero changes to
+// the execution or selection layers. They will remain "market exists, no
+// validated strategy" until each is trained + validated through the pipeline.
+[
+  { id: '100', name: 'Corners', kind: 'corners', needsSpecifier: true },
+  { id: '101', name: 'BTTS', kind: 'btts', needsSpecifier: false },
+  { id: '102', name: 'Asian Handicap', kind: 'asian-handicap', needsSpecifier: true },
+]
