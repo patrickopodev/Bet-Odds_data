@@ -6,6 +6,12 @@
 // executors only ever talk to Market objects — never to hardcoded market ids
 // scattered across the codebase.
 //
+// NOTE (review action #3): SportyBet's scraper may fetch 1X2 and O/U from a
+// single combined feed section ("1X2 / O/U"), but the engine ALWAYS models them
+// as two DISTINCT logical markets (ids '1' and '18'). There are exactly five
+// logical markets below; the unified engine's five-market summary and every
+// strategy reference them by id. 1X2 and O/U must never be collapsed into one.
+//
 // Each market knows:
 //   - id / name / kind
 //   - whether it needs a line specifier (O/U "2.5")

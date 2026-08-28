@@ -22,9 +22,9 @@
       "validatedAt": "2026-08-27",
       "selector": "lib/favband.mjs:selectFavBand1X2Picks",
       "bandDiscrepancy": {
-        "deployedOverride": "FAV_BAND_LO=1.5 (widened in agent.yml/betting.yml/manual-slip.yml for faster paper sample; lower edge; NOT validated)",
+        "deployedOverride": "REMOVED. agent.yml/betting.yml previously set FAV_BAND_LO=1.5 (widened, lower edge, NOT validated). Eliminated (review action #1): all legacy code now reads the frozen band from this registry via lib/favband.mjs:frozenFavBand(); no env variable can widen it.",
         "frozenSpec": "[1.8, 2.2)",
-        "resolution": "Validated band is [1.8, 2.2) per train-model-v5b.mjs. The 1.5 widening is an experimental deployment override and is EXCLUDED from this frozen spec. Restore FAV_BAND_LO=1.8 in live workflows to match the validated Strategy A."
+        "resolution": "Validated band [1.8, 2.2) is the single authoritative value. Legacy selector, unified engine, manual slip, and auto executor all source it from this frozen registry. FAV_BAND_LO/HI env removed from agent.yml + betting.yml."
       }
     },
     {

@@ -7,15 +7,20 @@ value rule**: bet the match favorite when its (near-kickoff) odds sit in a band.
 It is wired into `agent/analysis.ts` (`buildRecommendations`) and force-recommends
 the favorite in-band, overriding the heuristic confidence.
 
-It is tuned via environment variables (no code change needed):
+It is defined once in the frozen strategy registry (`engine/strategy-registry.json`,
+`STRAT-1X2-FAVBAND-v1`, `[1.8, 2.2)`). The legacy selector, the unified engine,
+the manual slip, and the auto executor ALL source it from there via
+`lib/favband.mjs:frozenFavBand()` — no `FAV_BAND_*` env variable exists anymore,
+so a validated strategy can never be silently widened by a deployment variable
+(review action #1).
 
-- `FAV_BAND_LO` (default `1.8`) — band lower bound (inclusive).
-- `FAV_BAND_HI` (default `2.2`) — band upper bound (exclusive).
+- `FAV_BAND_LO` — fixed at `1.8` (lower bound, inclusive); read from the registry.
+- `FAV_BAND_HI` — fixed at `2.2` (upper bound, exclusive); read from the registry.
 
-> **Currently deployed** via workflow env: `FAV_BAND_LO=1.5`, `FAV_BAND_HI=2.2`
-> (agent.yml + betting.yml). Widened from the validated `[1.8, 2.2)` for faster
-> paper-track sample accumulation — expect more volume but lower edge. The
-> v5b backtest still reports `[1.8, 2.2)` as its fixed reference.
+> **Historical note:** agent.yml + betting.yml formerly deployed `FAV_BAND_LO=1.5`
+> (a widened, lower-edge override). That override has been removed; the only
+> authoritative band is the validated `[1.8, 2.2)`. The v5b backtest still
+> reports `[1.8, 2.2)` as its fixed reference.
 - `FAV_CONFIDENCE` (default `0.92`) — confidence stamped on the pick (must clear
   `MIN_CONFIDENCE` in `scrape.yml`, default `0.6`).
 
@@ -64,11 +69,14 @@ an additive, read-only shadow (`engine-daily.yml` → `approved-picks` artifact)
 
 ### FAV_BAND discrepancy resolution (spec #6)
 The **validated** Strategy A band is **[1.8, 2.2)**, per `train-model-v5b.mjs`
-(k-fold OOS +16.8%, CI excludes zero). The deployed `FAV_BAND_LO=1.5` widening in
-`agent.yml`/`betting.yml`/`manual-slip.yml` is an **experimental override** (more
-volume, lower edge) and is **excluded** from the frozen `STRAT-1X2-FAVBAND-v1`
-spec. To match the validated result, restore `FAV_BAND_LO=1.8` in those workflows.
-The new engine ignores `FAV_BAND_*` env entirely and uses the registry values.
+(k-fold OOS +16.8%, CI excludes zero). The previously-deployed `FAV_BAND_LO=1.5`
+widening in `agent.yml`/`betting.yml` was an **experimental override** (more
+volume, lower edge) and was **excluded** from the frozen `STRAT-1X2-FAVBAND-v1`
+spec. It has now been **removed** (review action #1): no `FAV_BAND_*` env variable
+exists anywhere in the production path, and every consumer reads the band from the
+frozen registry via `lib/favband.mjs:frozenFavBand()`. The new engine always used
+the registry values; the legacy selector/manual-slip/auto-executor now do too, so
+legacy and unified selections are provably identical (see `engine/equivalence-harness.mjs`).
 
 ### Architecture tests
 `test/engine/*.test.mjs` enforce: market isolation, strategy isolation (PAPER

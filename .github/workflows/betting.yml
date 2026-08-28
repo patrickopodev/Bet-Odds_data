@@ -42,9 +42,8 @@ jobs:
       # Map the secret into the env context so it can be referenced from an
       # `if:` condition (the `secrets` context is not allowed directly in `if`).
       STAKE_AUTOPLACE_ENABLED: ${{ secrets.STAKE_AUTOPLACE_ENABLED }}
-      # Keep stake validation consistent with the widened paper band ([1.5,2.2)).
-      FAV_BAND_LO: "1.5"
-      FAV_BAND_HI: "2.2"
+      # Stake validation uses the FROZEN favorite-value band ([1.8, 2.2)) from the
+      # strategy registry (lib/favband.mjs). No FAV_BAND_LO/HI env (review action #1).
 
     steps:
       - name: Checkout repository

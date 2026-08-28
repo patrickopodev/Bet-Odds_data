@@ -5,6 +5,7 @@
 // defense in depth; this is the single, explicit gate the reviewer asked for.
 import fs from 'node:fs';
 import path from 'node:path';
+import { frozenFavBand } from './lib/favband.mjs';
 
 const DATA_DIR = process.env.DATA_DIR ?? 'data';
 const SLIP_FILE = process.env.STAKE_SLIP ?? path.join(DATA_DIR, 'stake-slip.json');
@@ -14,8 +15,9 @@ const LATEST_FILE = path.join(DATA_DIR, 'latest.json');
 const MIN_CONFIDENCE = Number(process.env.MIN_CONFIDENCE ?? 0.6);
 const STAKE_PER_BET = Number(process.env.STAKE_PER_BET ?? 10);
 const STAKE_MAX_SLIPS = Number(process.env.STAKE_MAX_SLIPS ?? 2);
-const FAV_BAND_LO = Number(process.env.FAV_BAND_LO ?? 1.8);
-const FAV_BAND_HI = Number(process.env.FAV_BAND_HI ?? 2.2);
+// FROZEN band from the validated strategy registry — never env-tunable (review
+// action #1). A validated strategy must not be silently widened in production.
+const { lo: FAV_BAND_LO, hi: FAV_BAND_HI } = frozenFavBand();
 // Refuse placements when kickoff is within this window — too late to be safe.
 const START_BUFFER_MS = 5 * 60 * 1000;
 

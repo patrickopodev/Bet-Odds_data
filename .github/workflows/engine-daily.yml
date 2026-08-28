@@ -57,6 +57,13 @@ jobs:
         # is ever fed back into production — observation only.
         run: node engine/equivalence.mjs --write
 
+      - name: Multi-day legacy↔unified equivalence harness (read-only)
+        # Review action #2: proves the unified engine reproduces the legacy
+        # production selector's candidate picks across many frozen daily inputs
+        # (identical data). Additive; reports EQUIVALENT/DIVERGENT. Never stakes.
+        continue-on-error: true
+        run: node engine/equivalence-harness.mjs --write --max-days 30
+
       - name: Accumulate observation ledger + readiness gate (read-only)
         # Appends today's equivalence result to the cumulative ledger and reports
         # (does NOT trigger) Phase 4 readiness. Fail-closed: a single violation
@@ -96,6 +103,7 @@ jobs:
             data/approved-picks.json
             data/engine-equivalence.json
             data/engine-observation-log.json
+            data/equivalence-harness.json
             data/manual-bets.json
             data/discovery-report.json
             data/data-quality.json

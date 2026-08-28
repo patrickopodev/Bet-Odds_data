@@ -13,7 +13,7 @@ import {
 import { webResearch } from './research.js';
 import { buildRecommendations } from './analysis.js';
 import { loadDb, loadLatest, type LatestMatch } from './db.js';
-import { buildFavRows, selectFavBand1X2Picks } from '../lib/favband.mjs';
+import { buildFavRows, selectFavBand1X2Picks, frozenFavBand } from '../lib/favband.mjs';
 import type { AgentReport, MatchResearch, Recommendation, TeamInfo } from './types.js';
 
 const DATA_DIR = process.env.DATA_DIR ?? 'data';
@@ -143,8 +143,9 @@ function placeholderTeam(name: string): TeamInfo {
 async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[]; researched: number }> {
   const standingsCache = loadStandingsCache();
   const db = loadDb();
-  const FAV_BAND_LO = Number(process.env.FAV_BAND_LO ?? 1.8);
-  const FAV_BAND_HI = Number(process.env.FAV_BAND_HI ?? 2.2);
+  // FROZEN band: sourced from the validated strategy registry, never env (review
+  // action #1). This keeps the research set identical to the engine's selection.
+  const { lo: FAV_BAND_LO, hi: FAV_BAND_HI } = frozenFavBand();
   // Event IDs the validated 1X2 favorite-value selector would pick. These are
   // forced through web (H2H) research even when Flashscore lacks standings.
   const favSet = new Set(

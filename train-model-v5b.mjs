@@ -1,19 +1,20 @@
 // Option 3 v5b - OUT-OF-SAMPLE validation of the favorite-value edge + PAPER TRADE mode.
-// The live paper band is env-tunable (FAV_BAND_LO/HI, default [1.8,2.2)).
+// The live paper band is the FROZEN validated band [1.8, 2.2) from the strategy
+// registry (lib/favband.mjs). No env override — a validated band must not be
+// silently widened, even in this research/validation tool (review action #1).
+// To experiment, edit the BANDS array or the FIXED literal intentionally.
 // Validates the v5 discovery WITHOUT leakage: band is chosen on train, bet on held-out test.
 // Modes: (default) validation; --paper = log future picks (no stake); --score-paper = settle them.
 import fs from 'node:fs';
 import { DB_FILE, parseScore, evaluateOutcome } from './lib/common.mjs';
 import { roi, ci } from './lib/settlement.mjs';
-import { buildFavRows, selectFavBand1X2Picks } from './lib/favband.mjs';
+import { buildFavRows, selectFavBand1X2Picks, frozenFavBand } from './lib/favband.mjs';
 
 const MARGIN = 0.077;
 const BANDS = [[1.0, 1.3], [1.3, 1.5], [1.5, 1.8], [1.8, 2.2], [2.2, 3.0]];
 const PAPER_FILE = 'data/paper-picks.json';
-// Live paper band — env-tunable (no code change needed). Defaults to the
-// validated v5 candidate [1.8, 2.2). Widen (e.g. 1.5-2.2) for more volume.
-const FAV_BAND_LO = Number(process.env.FAV_BAND_LO ?? 1.8);
-const FAV_BAND_HI = Number(process.env.FAV_BAND_HI ?? 2.2);
+// Live paper band: the frozen validated band (no env widening).
+const { lo: FAV_BAND_LO, hi: FAV_BAND_HI } = frozenFavBand();
 const FIXED = [FAV_BAND_LO, FAV_BAND_HI]; // live paper band
 
 function mulberry32(a) {

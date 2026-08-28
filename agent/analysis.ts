@@ -1,5 +1,6 @@
 import type { Candidate, MatchResearch, Recommendation, TeamInfo } from './types.js';
 import { historicalStats, outcomeHistory, oddsDrift, MIN_DRIFT_PLAYS, type Db, type LatestMatch } from './db.js';
+import { frozenFavBand } from '../lib/favband.mjs';
 
 export interface CandidateSource {
   marketId: string;
@@ -152,9 +153,11 @@ export function analyzeCandidate(
 // (see train-model-v5b.mjs: +16.8% ROI, 95% CI excludes zero). When present we
 // force-recommend it as the primary pick, overriding the heuristic confidence —
 // this is the one rule the backtest proves beats the 7.7% house margin. Tunable
-// via FAV_BAND_LO / FAV_BAND_HI so we can tighten the band without code changes.
-const FAV_BAND_LO = Number(process.env.FAV_BAND_LO ?? 1.8);
-const FAV_BAND_HI = Number(process.env.FAV_BAND_HI ?? 2.2);
+// The favorite-value band is FROZEN from the validated strategy registry
+// (STRAT-1X2-FAVBAND-v1, [1.8, 2.2)). It is intentionally NOT env-tunable: a
+// validated strategy must never be silently widened by a deployment variable
+// (review action #1 — eliminate the 1.5/1.8 discrepancy).
+const { lo: FAV_BAND_LO, hi: FAV_BAND_HI } = frozenFavBand();
 const FAV_CONFIDENCE = Number(process.env.FAV_CONFIDENCE ?? 0.92);
 
 export function buildRecommendations(

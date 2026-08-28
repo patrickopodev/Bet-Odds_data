@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { DATA_DIR } from './lib/common.mjs';
+import { frozenFavBand } from './lib/favband.mjs';
 
 // ---------------------------------------------------------------------------
 // Paper-trade progress dashboard.
@@ -61,8 +62,7 @@ function main() {
     roi = (profit / resolved.length) * 100;
   }
 
-  const lo = process.env.FAV_BAND_LO ?? 1.8;
-  const hi = process.env.FAV_BAND_HI ?? 2.2;
+  const { lo, hi } = frozenFavBand();
   const band = `[${lo}, ${hi})`;
   const auto = process.env.STAKE_AUTOPLACE_ENABLED === 'true' ? 'ENABLED' : 'OFF';
 
