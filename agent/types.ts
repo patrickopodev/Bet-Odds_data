@@ -1,5 +1,7 @@
 // Shared types for the TypeScript decision agent.
 
+export type MatchType = 'league' | 'cup' | 'friendly' | 'international' | 'other';
+
 // A Flashscore match-feed player contribution: goals/assists/cards counted
 // over a team's recent finished matches.
 export interface PlayerStat {
@@ -34,7 +36,8 @@ export interface TeamInfo {
   points: number | null;
   form: string; // last 5 results as "WDDLW"
   formScore: number; // W=3, D=1, L=0 summed over form
-  lastResults: { opp: string; score: string; result: 'W' | 'D' | 'L' }[];
+  lastResults: { opp: string; score: string; result: 'W' | 'D' | 'L'; eventId?: string; side?: 'home' | 'away'; type?: MatchType }[];
+  competitionMix?: string; // human-readable summary of recent-result types, e.g. "Last 5: 3 league, 1 cup, 1 friendly"
   research: string[]; // web-search snippets for this team
   researchAt: string | null; // ISO timestamp of when research was fetched
   researchStatus?: SearchStatus; // SEARCH_SUCCESS | SEARCH_NO_RESULTS | SEARCH_BLOCKED | SEARCH_ERROR
@@ -54,6 +57,8 @@ export interface MatchResearch {
   home: TeamInfo;
   away: TeamInfo;
   officials: MatchOfficials | null;
+  predictions?: string[]; // external prediction snippets (winner/score/tips) gathered via web research
+  predictionStatus?: SearchStatus; // SEARCH_SUCCESS | SEARCH_NO_RESULTS | SEARCH_BLOCKED | SEARCH_ERROR
 }
 
 export interface Candidate {

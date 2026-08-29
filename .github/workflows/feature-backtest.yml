@@ -1,0 +1,82 @@
+name: Feature Ablation Backtest
+
+# Read-only research: runs the feature ablation harness (engine/backtest-harness.mjs)
+# to test whether adding DB odds-history, odds drift, H2H or competition-context
+# features improves on the existing FAV_BAND selector, out-of-sample. It NEVER
+# selects or places a bet and NEVER promotes a strategy — it only reports ROI +
+# a NO-SIGNAL verdict. See AGENTS.md "Engine cutover plan".
+#
+# Fully quarantined from the money path: restores the read-only `odds-data`
+# artifact, runs the harness, and uploads its JSON report. Nothing is committed
+# to `main`.
+
+on:
+  # Daily — the DB accumulates slowly; a daily snapshot is plenty for research.
+  schedule:
+    - cron: "30 23 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: feature-ablation-backtest
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Restore odds database (read-only)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/restore-artifact.sh odds-data data
+
+      - name: Restore agent research artifacts (standings cache)
+        # The Deep Research Agent caches league standings in standings-cache.json
+        # (uploaded in its `agent-recs` artifact). Best-effort: when absent the
+        # harness's `competition` gate simply reports NO DATA (data-quality
+        # verdict) instead of a fabricated signal.
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/restore-artifact.sh agent-recs data
+
+      - name: Run feature ablation backtest (chronological split)
+        # Best-effort: if the DB artifact is transiently unavailable the report
+        # simply isn't produced rather than failing the run loudly.
+        continue-on-error: true
+        run: node engine/backtest-harness.mjs --write
+
+      - name: Run feature ablation backtest (k-fold, form + H2H + standings)
+        # RESEARCH-PLAN.md Suggestions 1/4/5: the pooled k-fold verdict is the
+        # trustworthy one; feed it the collected H2H + team-form + league-standings
+        # stores so the `h2h`, `form` and `competition` gates are exercised
+        # (not NO DATA). Best-effort.
+        continue-on-error: true
+        run: |
+          node engine/backtest-harness.mjs --write --method=kfold --features=h2h.json --form=team-form.json --standings=standings-cache.json || true
+
+      - name: Upload feature-backtest report
+        uses: actions/upload-artifact@v4
+        with:
+          name: feature-backtest
+          path: data/feature-backtest.json
+          if-no-files-found: warn
+          retention-days: 90

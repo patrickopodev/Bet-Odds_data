@@ -8,7 +8,7 @@ import { sampleDb } from './_fixtures.mjs';
 test('market isolation: 1X2 strategy cannot select O/U', () => {
   const db = sampleDb();
   const registry = loadRegistry();
-  const a = getStrategy(registry, 'STRAT-1X2-FAVBAND-v1');
+  const a = getStrategy(registry, 'STRAT-1X2-BAND-v1');
   const cands = selectStrategy(a, { db });
   assert.ok(cands.length > 0);
   for (const c of cands) {
@@ -18,7 +18,7 @@ test('market isolation: 1X2 strategy cannot select O/U', () => {
   // No O/U pick (marketId 18) can ever come from the 1X2 strategy.
   const { approved } = selectApproved({ db, registry, now: Date.parse('2029-01-01T00:00:00Z') });
   for (const p of approved) {
-    if (p.strategyId === 'STRAT-1X2-FAVBAND-v1') assert.equal(p.marketId, '1');
+    if (p.strategyId === 'STRAT-1X2-BAND-v1') assert.equal(p.marketId, '1');
   }
 });
 
@@ -39,7 +39,7 @@ test('lifecycle: only VALIDATED/LIVE statuses are live; order is enforced', () =
   assert.ok(order.indexOf('VALIDATED') < order.indexOf('LIVE'));
   assert.ok(order.indexOf('PAPER') < order.indexOf('ELIGIBLE_FOR_REVIEW'));
 
-  const a = getStrategy(loadRegistry(), 'STRAT-1X2-FAVBAND-v1');
+  const a = getStrategy(loadRegistry(), 'STRAT-1X2-BAND-v1');
   assert.ok(isLive(a));
 
   // Promotion rule: PAPER cannot jump straight to LIVE.
@@ -55,7 +55,7 @@ test('five-market output distinguishes market-exists from validated-strategy-exi
   const summary = summarizeByMarket({ db, registry, selectionResult: { approved }, now: Date.parse('2029-01-01T00:00:00Z') });
   const byId = Object.fromEntries(summary.map((m) => [m.marketId, m]));
   // 1X2 has a LIVE strategy.
-  assert.equal(byId['1'].liveStrategy, 'STRAT-1X2-FAVBAND-v1');
+  assert.equal(byId['1'].liveStrategy, 'STRAT-1X2-BAND-v1');
   // O/U has no LIVE strategy but Paper-B is observing.
   assert.equal(byId['18'].liveStrategy, 'none LIVE');
   assert.match(byId['18'].observing, /Paper-B|STRAT-OU-H1-v1/);

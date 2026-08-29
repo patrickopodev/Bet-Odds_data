@@ -1,10 +1,27 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-27",
+  "updatedAt": "2026-08-28",
   "description": "Frozen single source of truth for strategy status and parameters. One source of truth per state (AGENTS spec #17). Frozen params MUST NOT change during a daily run (spec #20).",
+  "statusEnum": {
+    "note": "Lifecycle status values a strategy may hold. LIVE_OK = { VALIDATED, LIVE } only. Research candidates use TRAINING / BACKTESTED / HOLDOUT_TESTED / PAPER and are EXCLUDED from live picks until a human promotes them (RESEARCH-PLAN.md §6). Dead ends are kept (never deleted) with a status of REJECTED_CANDIDATE and validationStatus BACKTESTED_NEGATIVE so the audit trail of what was tested and rejected survives (AGENTS 'never delete first').",
+    "values": [
+      "DISCOVERED",
+      "TRAINING",
+      "BACKTESTED",
+      "HOLDOUT_TESTED",
+      "PAPER",
+      "ELIGIBLE_FOR_REVIEW",
+      "VALIDATED",
+      "LIVE",
+      "REJECTED_CANDIDATE",
+      "FAILED"
+    ],
+    "liveOk": ["VALIDATED", "LIVE"],
+    "rejected": "REJECTED_CANDIDATE"
+  },
   "strategies": [
     {
-      "strategyId": "STRAT-1X2-FAVBAND-v1",
+      "strategyId": "STRAT-1X2-BAND-v1",
       "version": 1,
       "marketId": "1",
       "marketName": "1X2",
@@ -20,11 +37,11 @@
       "frozen": true,
       "createdAt": "2026-08-27",
       "validatedAt": "2026-08-27",
-      "selector": "lib/favband.mjs:selectFavBand1X2Picks",
+      "selector": "lib/1x2.mjs:select1X2Picks",
       "bandDiscrepancy": {
-        "deployedOverride": "REMOVED. agent.yml/betting.yml previously set FAV_BAND_LO=1.5 (widened, lower edge, NOT validated). Eliminated (review action #1): all legacy code now reads the frozen band from this registry via lib/favband.mjs:frozenFavBand(); no env variable can widen it.",
+        "deployedOverride": "REMOVED. agent.yml/betting.yml previously set BAND_LO=1.5 (widened, lower edge, NOT validated). Eliminated (review action #1): all legacy code now reads the frozen band from this registry via lib/1x2.mjs:frozen1X2(); no env variable can widen it.",
         "frozenSpec": "[1.8, 2.2)",
-        "resolution": "Validated band [1.8, 2.2) is the single authoritative value. Legacy selector, unified engine, manual slip, and auto executor all source it from this frozen registry. FAV_BAND_LO/HI env removed from agent.yml + betting.yml."
+        "resolution": "Validated band [1.8, 2.2) is the single authoritative value. Legacy selector, unified engine, manual slip, and auto executor all source it from this frozen registry. BAND_LO/HI env removed from agent.yml + betting.yml."
       }
     },
     {
@@ -47,6 +64,83 @@
       "ledger": "data/paper-B-picks.json",
       "selector": "paper-B.mjs:inSpec",
       "promotionRule": "ELIGIBLE_FOR_HUMAN_REVIEW only when resolved>=30 AND ROI>0. Never auto-LIVE (spec #7)."
+    },
+    {
+      "strategyId": "STRAT-1X2-ODDSHIST-v1",
+      "version": 1,
+      "marketId": "1",
+      "marketName": "1X2",
+      "status": "REJECTED_CANDIDATE",
+      "validationStatus": "BACKTESTED_NEGATIVE",
+      "parameters": {
+        "selection": "favorite",
+        "lo": 1.8,
+        "hi": 2.2,
+        "enrichWith": ["dbHistory", "drift"]
+      },
+      "source": "Candidate from feature ablation (engine/backtest-harness.mjs): 1X2_BAND + DB odds-history edge at band + steaming. REJECTED per RESEARCH-PLAN.md Suggestion 3 — the DB-history signal is negative across O/U, Multigoals and Multiscores and non-significant in 1X2/CorrectScore (harness table: 1X2 +2.8% n-base, O/U -12%, Multigoals -45.8%, Multiscores -50.1%).",
+      "frozen": false,
+      "createdAt": "2026-08-28",
+      "rejectedAt": "2026-08-28",
+      "selector": "engine/backtest-harness.mjs:compare1X2Enrichment (research adapter)",
+      "promotionRule": "REJECTED. No path to promotion. Kept for audit trail (never delete first)."
+    },
+    {
+      "strategyId": "STRAT-1X2-FORM-v1",
+      "version": 1,
+      "marketId": "1",
+      "marketName": "1X2",
+      "status": "TRAINING",
+      "validationStatus": "DISCOVERED_CANDIDATE",
+      "parameters": {
+        "selection": "favorite",
+        "lo": 1.8,
+        "hi": 2.2,
+        "enrichWith": ["form"],
+        "needs": "team-form.json (lib/team-form.mjs + flashscore.ts collection)"
+      },
+      "source": "RESEARCH-PLAN.md Suggestion 4: the agent already trusts Flashscore formScore/position for 1X2 confidence (agent/analysis.ts:analyzeCandidate). Backtest that signal OOS via the `form` gate in engine/backtest-harness.mjs formPasses. TRAINING only.",
+      "frozen": false,
+      "createdAt": "2026-08-28",
+      "selector": "engine/backtest-harness.mjs:runAblation + form (research adapter)",
+      "promotionRule": "NEVER auto-LIVE. Promote only after k-fold holdout shows n>=30, ROI>HOUSE_MARGIN, CI lower bound>0 AND beats 1X2_BAND baseline; then ELIGIBLE_FOR_HUMAN_REVIEW."
+    },
+    {
+      "strategyId": "STRAT-OU-GOALTOTAL-v1",
+      "version": 1,
+      "marketId": "18",
+      "marketName": "O/U",
+      "status": "TRAINING",
+      "validationStatus": "DISCOVERED_CANDIDATE",
+      "parameters": {
+        "selection": "favorite",
+        "line": 2.5,
+        "enrichWith": ["form"],
+        "needs": "team-form.json (recent goal totals per team)"
+      },
+      "source": "RESEARCH-PLAN.md Suggestion 4: the agent already trusts recent goal totals (lastResults) for O/U confidence. Backtest the goal-total hypothesis OOS via formPasses (market 18 branch) in engine/backtest-harness.mjs. TRAINING only.",
+      "frozen": false,
+      "createdAt": "2026-08-28",
+      "selector": "engine/backtest-harness.mjs:runAblation + form (research adapter)",
+      "promotionRule": "NEVER auto-LIVE. Promote only after k-fold holdout shows n>=30, ROI>HOUSE_MARGIN, CI lower bound>0 AND beats O/U baseline; then ELIGIBLE_FOR_HUMAN_REVIEW."
+    },
+    {
+      "strategyId": "STRAT-1X2-H2HFORM-v1",
+      "version": 1,
+      "marketId": "1",
+      "marketName": "1X2",
+      "status": "TRAINING",
+      "validationStatus": "DISCOVERED_CANDIDATE",
+      "parameters": {
+        "selection": "favorite",
+        "enrichWith": ["h2h", "competition", "form"],
+        "needs": "structured H2H + standings feed (now collectable via lib/h2h.mjs + flashscore.ts; engine/features.mjs extractor ready)"
+      },
+      "source": "Candidate research-layer strategy (H2H + competition context + form). Structured H2H is collectable from the odds-db / Flashscore (lib/h2h.mjs), and the harness --features=h2h.json path exercises h2hPasses. TRAINING only.",
+      "frozen": false,
+      "createdAt": "2026-08-28",
+      "selector": "engine/backtest-harness.mjs:runAblation (research adapter)",
+      "promotionRule": "NEVER auto-LIVE. Requires H2H data pipeline first (lib/h2h.mjs), then train/holdout proof."
     }
   ]
 }

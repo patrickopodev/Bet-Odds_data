@@ -6,7 +6,7 @@ import { sampleDb } from './_fixtures.mjs';
 
 test('frozen strategy: registry params are immutable and match the validated spec', () => {
   const registry = loadRegistry();
-  const a = getStrategy(registry, 'STRAT-1X2-FAVBAND-v1');
+  const a = getStrategy(registry, 'STRAT-1X2-BAND-v1');
   assert.equal(a.frozen, true);
   // Validated band is [1.8, 2.2); the experimental 1.5 widening is excluded.
   assert.equal(a.parameters.lo, 1.8);
@@ -32,14 +32,14 @@ test('frozen strategy: a daily run never mutates the registry (spec #20)', () =>
   assert.deepEqual(registry, before);
 
   // And re-selecting still uses the original frozen params (no drift).
-  const a = getStrategy(registry, 'STRAT-1X2-FAVBAND-v1');
+  const a = getStrategy(registry, 'STRAT-1X2-BAND-v1');
   const cands = selectStrategy(a, { db });
   assert.ok(cands.every((c) => c.odds >= 1.8 && c.odds < 2.2));
 });
 
 test('frozen strategy: status cannot change during a daily run (no DISCOVERED->LIVE)', () => {
   const registry = loadRegistry();
-  const a = getStrategy(registry, 'STRAT-1X2-FAVBAND-v1');
+  const a = getStrategy(registry, 'STRAT-1X2-BAND-v1');
   // Mutating status at runtime would be the leakage the spec forbids; the engine
   // reads status at selection time, so we assert a tampered copy is what would
   // change behavior (documenting that the caller must not mutate mid-run).

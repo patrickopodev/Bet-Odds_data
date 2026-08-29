@@ -29,7 +29,7 @@ import { resolveTeam, fetchTeamForm } from './dist/flashscore.js';
 //      "fitting" odds reach the share code. Research is display + filter only;
 //      it never invents odds.
 //
-// FAV_BAND 1X2 is intentionally NOT used here (removed from this track).
+// 1X2_BAND 1X2 is intentionally NOT used here (removed from this track).
 // Makes NO automatic bets.
 // ---------------------------------------------------------------------------
 

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isSimulated } from './lib/common.mjs';
+import { isSimulated, isFriendly } from './lib/common.mjs';
 
 const DATA_DIR = process.env.DATA_DIR ?? 'data';
 const AGENT_FILE = path.join(DATA_DIR, 'agent-recommendations.json');
@@ -18,10 +18,6 @@ const MIN_CONFIDENCE = Number(process.env.MIN_CONFIDENCE ?? 0.6);
 export const SINGLE_ODDS_MIN = 3.0;
 export const BUNDLE_ODDS_MIN = 1.25;
 export const BUNDLE_SIZE = 4;
-
-function isFriendly(tournament) {
-  return /friendly|friendlies|pre-season|preseason/i.test(tournament ?? '');
-}
 
 export { isFriendly };
 

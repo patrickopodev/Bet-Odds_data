@@ -70,6 +70,15 @@ jobs:
         timeout-minutes: 5
         run: node build-db.mjs
 
+      # Research stores (H2H + team-form) for the feature-ablation harness
+      # (RESEARCH-PLAN.md Suggestions 4-5). Best-effort: derived from the
+      # settled events already in odds-db.json; folds into the same artifact so
+      # history accumulates across runs and is never committed to main.
+      - name: Build research stores (h2h + team-form)
+        timeout-minutes: 5
+        continue-on-error: true
+        run: node scripts/build-research-store.mjs
+
       # Good/bad odds report feeds tomorrow's model; reads the DB we just built.
       - name: Generate good/bad odds report
         timeout-minutes: 10
@@ -95,5 +104,10 @@ jobs:
             data/report-*.md
             data/correctscore-report.md
             data/correctscore-relations.json
+            data/h2h.json
+            data/team-form.json
           if-no-files-found: warn
-          retention-days: 90
+          # RESEARCH-PLAN.md Suggestion 2: grow the settled-history sample so a
+          # 30-bet gate yields a tight CI. 365d retention keeps enough history
+          # for the harness to clear its gates without committing data to main.
+          retention-days: 365

@@ -79,11 +79,11 @@ test('findExistingEquivalent detects a duplicate; mintPaperStrategy is unique', 
 
 test('registerStrategy is append-only and never alters existing entries', () => {
   const reg = loadRegistry();
-  const before = JSON.parse(JSON.stringify(reg.strategies.find((s) => s.strategyId === 'STRAT-1X2-FAVBAND-v1')));
+  const before = JSON.parse(JSON.stringify(reg.strategies.find((s) => s.strategyId === 'STRAT-1X2-BAND-v1')));
   const cand = { selection: '1-0', lo: 3.0, hi: 4.0 };
   const s = mintPaperStrategy('41', cand, { holdoutRoi: 0.2, holdoutN: 25 }, { registry: reg });
   const updated = registerStrategy(reg, s);
-  const after = updated.strategies.find((x) => x.strategyId === 'STRAT-1X2-FAVBAND-v1');
+  const after = updated.strategies.find((x) => x.strategyId === 'STRAT-1X2-BAND-v1');
   assert.deepEqual(after, before); // LIVE 1X2 untouched
   assert.ok(updated.strategies.some((x) => x.strategyId === s.strategyId));
 });

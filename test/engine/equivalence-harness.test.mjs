@@ -10,12 +10,12 @@ import {
   runHarnessOnDb,
   runHarnessOverHistory,
 } from '../../engine/equivalence-harness.mjs';
-import { frozenFavBand } from '../../lib/favband.mjs';
+import { frozen1X2 } from '../../lib/1x2.mjs';
 import { sampleDb } from './_fixtures.mjs';
 
 // Build a minimal SportyBet snapshot in the real on-disk format build-db.mjs
 // ingests (1X2 + O/U outcomes carry their own marketId; the section is "1X2 /
-// O/U"). `fav` is the 1X2 favorite odds used to drive the FAV_BAND selection.
+// O/U"). `fav` is the 1X2 favorite odds used to drive the 1X2_BAND selection.
 function makeSnapshot(file, { scrapedAt, startTime, fav = 1.9, favSide = 'Home' }) {
   const sides = { Home: 4.0, Draw: 3.4, Away: 4.0 };
   sides[favSide] = fav;
@@ -108,11 +108,11 @@ test('harness: multi-day proves EQUIVALENT across several frozen daily inputs', 
 
 // ── Frozen band invariant ───────────────────────────────────────────────────
 test('harness: legacy uses the frozen [1.8,2.2) band, never env', async () => {
-  const band = frozenFavBand();
+  const band = frozen1X2();
   assert.equal(band.lo, 1.8);
   assert.equal(band.hi, 2.2);
   // Legacy candidates must exclude a 1.5 favorite even if someone sets env.
-  process.env.FAV_BAND_LO = '1.0';
+  process.env.BAND_LO = '1.0';
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'eq-frozen-'));
   try {
     makeSnapshot(path.join(dir, 'snapshot-2026-08-22T12-00-00-000Z.json'), {
@@ -124,7 +124,7 @@ test('harness: legacy uses the frozen [1.8,2.2) band, never env', async () => {
     assert.equal(rep.totals.legacyCandidates, 0, '1.5 favorite must be excluded by frozen band');
     assert.equal(rep.totals.engineCandidates, 0);
   } finally {
-    delete process.env.FAV_BAND_LO;
+    delete process.env.BAND_LO;
     fs.rmSync(dir, { recursive: true, force: true });
   }
 });

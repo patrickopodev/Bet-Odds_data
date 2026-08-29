@@ -17,7 +17,7 @@
 //     test  (new)  -> untouched evaluation    (the verdict)
 //   survival = test settled >= MIN_TEST AND test ROI > 0
 //
-// Strategy A (1X2 FAV_BAND) is NEVER touched by this file. O/U is an
+// Strategy A (1X2 1X2_BAND) is NEVER touched by this file. O/U is an
 // independent hypothesis. If no hypothesis survives, O/U stays research-only.
 //
 // DO NOT EDIT HYPOTHESES after seeing results. That would recreate the
@@ -167,7 +167,7 @@ async function run() {
   lines.push(
     'Hypotheses were defined BEFORE evaluation and frozen (see HYPOTHESES in the script). They are ' +
       'NOT optimized on any ROI. The TEST leg below is untouched by hypothesis design. Strategy A ' +
-      '(1X2 FAV_BAND) is independent and not modified.',
+      '(1X2 1X2_BAND) is independent and not modified.',
     ''
   );
   lines.push(`Resolved O/U bets: ${bets.length} (${train.length} train / ${test.length} test).`, '');
@@ -211,7 +211,7 @@ async function run() {
   } else {
     lines.push(
       '⚠️ No pre-specified O/U hypothesis survived the untouched holdout. O/U stays RESEARCH-ONLY. ' +
-        'Do not create paper-B. The 1X2 FAV_BAND remains the only validated edge — and this negative ' +
+        'Do not create paper-B. The 1X2 1X2_BAND remains the only validated edge — and this negative ' +
         'result reinforces that it is a genuine, pre-specified signal, not a mined artifact.',
       ''
     );

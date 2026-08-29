@@ -1,20 +1,23 @@
 // ---------------------------------------------------------------------------
-// EXECUTION ADAPTERS (spec #11, #12, #13).
+// EXECUTION ADAPTERS (spec #11, #13).
 //
-// ManualExecutor and AutoExecutor consume the SAME approvedPicks array. The
-// only difference is HOW the bet is placed: manual emits a SportyBet share code
-// and STOPS; auto runs the safety gates then (opt-in) stakes real money.
+// The unified engine's ONLY live execution path is the MANUAL executor: it
+// verifies each pick, builds a SportyBet share code, records intent, and STOPS.
+// Real money is placed by a human loading that code (or, on the legacy path, by
+// `stake-autoplace.mjs` behind the opt-in STAKE_AUTOPLACE_ENABLED gate).
 //
-// Both adapters derive their selections through the SAME buildSelections()
-// function, which is what makes execution parity enforceable (spec #20):
-// given identical inputs + identical outcome-id resolver, the selection sets
-// MUST be byte-identical before any execution divergence.
+// There is intentionally ONE auto-stake implementation (stake-autoplace.mjs). A
+// second, parallel `autoExecute` was removed: it was never wired into
+// `betting.yml` and would have been an untested-in-prod auto-stake. Keeping a
+// single auto-stake path removes the risk of two divergent implementations.
+//
+// All selection logic flows through buildSelections(), so the manual executor
+// can never alter *which* picks are chosen — it only maps an ApprovedPick to a
+// share-selection spec (spec #20).
 // ---------------------------------------------------------------------------
 import fs from 'node:fs';
 import path from 'node:path';
 import { stampExecution } from './pick.mjs';
-import { validatePick, withinStakeLimits, GATE_DEFAULTS } from './validation.mjs';
-import { isLive } from './strategies.mjs';
 
 const DATA_DIR = process.env.DATA_DIR ?? 'data';
 
@@ -54,66 +57,19 @@ export async function manualExecute(approvedPicks, { resolveOutcomeId, createSha
 }
 
 // ---------------------------------------------------------------------------
-// AUTO EXECUTOR (spec #12): validate -> STAKE_AUTOPLACE_ENABLED? -> safety gates
-// -> stake. Fail-closed: if autoplace is OFF, or no placeStake injected, it only
-// builds the slip (no real money). placeStake is injected so tests never touch
-// the browser; production injects a wrapper around stake-autoplace.mjs.
+// SELECTION FIDELITY (spec #20).
+//
+// The manual executor MUST NOT drop or alter any pick: the selections it emits
+// must equal buildSelections(approvedPicks) exactly. This guarantees execution
+// can never diverge from the validated engine selection — there is no second
+// code path that could reorder, skip, or rewrite a pick.
 // ---------------------------------------------------------------------------
-export async function autoExecute(
-  approvedPicks,
-  { resolveOutcomeId, stakeAutoplaceEnabled = false, placeStake = null, limits = GATE_DEFAULTS, now = Date.now() } = {}
-) {
-  if (!resolveOutcomeId) throw new Error('autoExecute requires resolveOutcomeId');
-
-  const selections = buildSelections(approvedPicks, resolveOutcomeId);
-  const strategyById = new Map(); // not needed but documents parity
-  void strategyById;
-
-  // Re-run the shared gate on every pick (defense in depth, even if the engine
-  // already gated — auto path must never trust the engine blindly).
-  const gated = approvedPicks.map((p) => {
-    const v = validatePick(p, { strategy: { status: p.audit.strategyStatus, parameters: p.audit.strategyParams }, liveOdds: p.liveOdds, now, limits });
-    return { pick: p, ok: v.ok, failures: v.failures };
-  });
-  const passed = gated.filter((g) => g.ok).map((g) => g.pick);
-
-  const limitCheck = withinStakeLimits(passed.map((p) => ({ status: 'pending' })), { limits });
-  const mayStake = stakeAutoplaceEnabled && limitCheck.ok && passed.length > 0;
-
-  let staked = false;
-  let stakeResult = null;
-  if (mayStake) {
-    if (typeof placeStake !== 'function') {
-      // Fail closed: enabled but no staking adapter wired -> do NOT stake.
-      stakeResult = { staked: false, reason: 'NO_STAKE_ADAPTER' };
-    } else {
-      stakeResult = await placeStake(passed, selections);
-      staked = Boolean(stakeResult?.staked);
-    }
-  }
-
-  const stamped = approvedPicks.map((p) => {
-    const g = gated.find((x) => x.pick === p);
-    if (!g.ok) return stampExecution(p, { mode: 'AUTO_SKIPPED', result: 'REJECTED:' + g.failures.join(';') });
-    return stampExecution(p, { mode: mayStake && staked ? 'AUTO' : 'AUTO_PENDING', stake: mayStake ? p.odds : null });
-  });
-
-  return {
-    mode: 'AUTO',
-    stakes: staked,
-    autoplaceEnabled: stakeAutoplaceEnabled,
-    limitOk: limitCheck.ok,
-    selections,
-    stakeResult,
-    picks: stamped,
-  };
-}
-
-// Parity assertion (spec #20): manual and auto must derive identical selections.
-export function assertExecutionParity(manualSelections, autoSelections) {
-  const norm = (s) => JSON.stringify(s.map((x) => [x.eventId, x.marketId, x.outcomeId, x.specifier ?? null]).sort());
-  if (norm(manualSelections) !== norm(autoSelections)) {
-    throw new Error('EXECUTION_PARITY_VIOLATION: manual and auto selections diverge');
+export function assertSelectionFidelity(approvedPicks, resolveOutcomeId, selections) {
+  const expected = buildSelections(approvedPicks, resolveOutcomeId);
+  const norm = (s) =>
+    JSON.stringify(s.map((x) => [x.eventId, x.marketId, x.outcomeId, x.specifier ?? null]).sort());
+  if (norm(expected) !== norm(selections)) {
+    throw new Error('SELECTION_FIDELITY_VIOLATION: executor altered the engine selection');
   }
   return true;
 }

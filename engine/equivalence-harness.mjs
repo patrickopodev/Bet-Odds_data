@@ -7,7 +7,7 @@
 //   match ID, market, selection, odds, kickoff, simulated status, exclusion
 //   reason, final approved pick.
 //
-// Both sides use the SAME frozen band (lib/favband.mjs:frozenFavBand) and the
+// Both sides use the SAME frozen band (lib/1x2.mjs:frozen1X2) and the
 // SAME eligibility guard (upcoming + non-simulated + non-resolved). The unified
 // engine's placement gates (kickoff buffer / confidence) are defense-in-depth
 // applied identically at stake time in BOTH paths, so selection equivalence is
@@ -27,7 +27,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildFavRows, selectFavBand1X2Picks, frozenFavBand } from '../lib/favband.mjs';
+import { buildFavRows, select1X2Picks, frozen1X2 } from '../lib/1x2.mjs';
 import { ingestSnapshot } from '../build-db.mjs';
 import { loadRegistry, getStrategy, selectStrategy } from './strategies.mjs';
 import { identifyMatches, summarizeByMarket } from './daily-engine.mjs';
@@ -35,7 +35,7 @@ import { getMarket } from './markets.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = process.env.DATA_DIR ?? 'data';
-const STRAT_A = 'STRAT-1X2-FAVBAND-v1';
+const STRAT_A = 'STRAT-1X2-BAND-v1';
 
 const keyOf = (r) => `${r.matchId}|${r.marketId}|${r.selection}|${r.odds}`;
 
@@ -43,11 +43,11 @@ const keyOf = (r) => `${r.matchId}|${r.marketId}|${r.selection}|${r.odds}`;
 // among eligible (upcoming + non-simulated + non-resolved) matches. Market is
 // 1X2 only — by construction the legacy favorite rule never selects O/U, CS,
 // Multigoals, or Multiscores (review action #3: five markets stay distinct).
-export function legacyCandidates(db, { now = Date.now(), band = frozenFavBand() } = {}) {
+export function legacyCandidates(db, { now = Date.now(), band = frozen1X2() } = {}) {
   const eligible = identifyMatches(db, now);
   const eligibleIds = new Set(eligible.map((e) => e.eventId));
   const rows = buildFavRows(db);
-  return selectFavBand1X2Picks(rows, band.lo, band.hi)
+  return select1X2Picks(rows, band.lo, band.hi)
     .filter((r) => eligibleIds.has(r.eventId))
     .map((r) => {
       const ev = db.events?.[r.eventId] ?? {};
@@ -91,7 +91,7 @@ export function engineCandidates(db, { now = Date.now(), registry = loadRegistry
     });
 }
 
-export function compareCycle({ db, now = Date.now(), registry = loadRegistry(), band = frozenFavBand() } = {}) {
+export function compareCycle({ db, now = Date.now(), registry = loadRegistry(), band = frozen1X2() } = {}) {
   const legacy = legacyCandidates(db, { now, band });
   const engine = engineCandidates(db, { now, registry });
   const lk = new Set(legacy.map(keyOf));
@@ -126,7 +126,7 @@ export function compareCycle({ db, now = Date.now(), registry = loadRegistry(), 
   };
 }
 
-export function runHarnessOnDb({ db, now = Date.now(), registry = loadRegistry(), band = frozenFavBand() } = {}) {
+export function runHarnessOnDb({ db, now = Date.now(), registry = loadRegistry(), band = frozen1X2() } = {}) {
   const rep = compareCycle({ db, now, registry, band });
   const status =
     rep.status === 'EQUIVALENT' && rep.legacyOnlyCount === 0 && rep.engineOnlyCount === 0 ? 'EQUIVALENT' : 'DIVERGENT';
@@ -193,7 +193,7 @@ export async function runHarnessOverHistory({
   dataDir = DATA_DIR,
   maxDays = 30,
   registry = loadRegistry(),
-  band = frozenFavBand(),
+  band = frozen1X2(),
 } = {}) {
   const files = listSnapshotFiles(dataDir);
   const cycles = [];

@@ -20,7 +20,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadDb } from '../lib/common.mjs';
+import { loadDb, isFriendly } from '../lib/common.mjs';
 import { listMarkets, getMarket, registerExtensionMarkets } from './markets.mjs';
 import { loadRegistry, getLiveStrategies, selectStrategy } from './strategies.mjs';
 import { validatePick, GATE_DEFAULTS } from './validation.mjs';
@@ -42,6 +42,11 @@ export function identifyMatches(db, now = Date.now()) {
   for (const ev of Object.values(db.events ?? {})) {
     if (ev.finalScore) continue; // resolved -> not a live candidate
     if (ev.isSimulated) continue; // simulated fixtures excluded (spec #8/#16)
+    // Friendly gate: mirror stake.mjs (spec #11/#20). Friendlies are never
+    // stakeable unless ALLOW_FRIENDLIES is set, so the engine must not approve
+    // them either — otherwise engine approvals would diverge from what the money
+    // path actually stakes.
+    if (isFriendly(ev.tournament)) continue;
     if (!isUpcoming(ev, now)) continue; // kickoff must be in the future
     out.push(ev);
   }

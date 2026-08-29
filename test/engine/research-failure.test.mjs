@@ -11,7 +11,7 @@ test('research failure: BLOCKED is distinct from NO_RESULTS (spec #9, #20)', () 
   // A blocked search must never be mistaken for "no information found" — both
   // are informational only and must NOT change the statistical selection.
   const registry = loadRegistry();
-  const a = getStrategy(registry, 'STRAT-1X2-FAVBAND-v1');
+  const a = getStrategy(registry, 'STRAT-1X2-BAND-v1');
   const candidate = { eventId: 'E1', selection: 'Home', odds: 1.95, kickoff: '2030-01-01T12:00:00Z', league: 'L' };
 
   const blocked = buildApprovedPick({ strategy: a, candidate, researchStatus: 'SEARCH_BLOCKED' });

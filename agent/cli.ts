@@ -13,7 +13,7 @@ import {
 import { webResearch } from './research.js';
 import { buildRecommendations } from './analysis.js';
 import { loadDb, loadLatest, type LatestMatch } from './db.js';
-import { buildFavRows, selectFavBand1X2Picks, frozenFavBand } from '../lib/favband.mjs';
+import { buildFavRows, select1X2Picks, frozen1X2 } from '../lib/1x2.mjs';
 import type { AgentReport, MatchResearch, Recommendation, TeamInfo } from './types.js';
 
 const DATA_DIR = process.env.DATA_DIR ?? 'data';
@@ -118,7 +118,7 @@ function appendHistory(report: AgentReport) {
 const RESEARCH_HOURS = Number(process.env.AGENT_RESEARCH_HOURS ?? 6);
 
 // Minimal TeamInfo used when Flashscore has no standings page for a team
-// (obscure/reserve/lower-tier). Keeps the match in the research set so FAV_BAND
+// (obscure/reserve/lower-tier). Keeps the match in the research set so 1X2_BAND
 // candidates still get web (H2H) research instead of being dropped entirely.
 function placeholderTeam(name: string): TeamInfo {
   return {
@@ -145,11 +145,11 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
   const db = loadDb();
   // FROZEN band: sourced from the validated strategy registry, never env (review
   // action #1). This keeps the research set identical to the engine's selection.
-  const { lo: FAV_BAND_LO, hi: FAV_BAND_HI } = frozenFavBand();
+  const { lo: BAND_LO, hi: BAND_HI } = frozen1X2();
   // Event IDs the validated 1X2 favorite-value selector would pick. These are
   // forced through web (H2H) research even when Flashscore lacks standings.
   const favSet = new Set(
-    selectFavBand1X2Picks(buildFavRows(db), FAV_BAND_LO, FAV_BAND_HI).map((p) => p.eventId)
+    select1X2Picks(buildFavRows(db), BAND_LO, BAND_HI).map((p) => p.eventId)
   );
   const out: MatchResearch[] = [];
   let researched = 0;
@@ -172,7 +172,7 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
     // researchTeam is best-effort: obscure teams with no Flashscore standings
     // would throw and previously dropped the whole match. Fall back to a
     // placeholder so the match still reaches web (H2H) research when it is a
-    // FAV_BAND candidate.
+    // 1X2_BAND candidate.
     try {
       [home, away] = await Promise.all([
         researchTeam(m.homeTeam, standingsCache).catch(() => placeholderTeam(m.homeTeam)),
@@ -184,7 +184,7 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
     msFlashscore += Date.now() - t0;
 
     const favCandidate = favSet.has(m.eventId);
-    // Keep the match only if it is a FAV_BAND candidate or Flashscore returned
+    // Keep the match only if it is a 1X2_BAND candidate or Flashscore returned
     // real team data. Obscure non-candidates with no standings are dropped
     // (unchanged behaviour); candidates are kept so they get web research.
     const hasData = !!(
@@ -200,14 +200,16 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
     researched++;
 
     // Web research is fetched once and shared by both sides so each team gets a
-    // symmetric H2H/form signal. FAV_BAND candidates are forced through even when
+    // symmetric H2H/form signal. 1X2_BAND candidates are forced through even when
     // they have no standings/form, so the meetings history is always captured.
+    let res: Awaited<ReturnType<typeof webResearch>> | null = null;
     if (home.form || away.form || home.position || away.position || favCandidate) {
       const nowIso = new Date().toISOString();
       const t1 = Date.now();
-      const res = await webResearch(m.homeTeam, m.awayTeam, m.tournament).catch((e) => ({
+      res = await webResearch(m.homeTeam, m.awayTeam, m.tournament).catch((e) => ({
         status: 'SEARCH_ERROR' as const,
         snippets: [],
+        predictions: [],
         reason: (e as Error).message,
       }));
       msWeb += Date.now() - t1;
@@ -236,6 +238,8 @@ async function research(matches: LatestMatch[]): Promise<{ recs: Recommendation[
       home,
       away,
       officials: null,
+      predictions: res?.predictions ?? [],
+      predictionStatus: res?.predictionStatus,
     };
   };
 

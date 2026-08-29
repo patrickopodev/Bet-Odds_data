@@ -257,7 +257,7 @@ export function dataQualityReport(db) {
     }
 
     let verdict;
-    if (marketId === '1') verdict = 'LIVE (STRAT-1X2-FAVBAND-v1)';
+    if (marketId === '1') verdict = 'LIVE (STRAT-1X2-BAND-v1)';
     else if (marketId === '18') verdict = 'PAPER (STRAT-OU-H1-v1)';
     else if (survivors > 0) verdict = 'candidate(s) survived holdout -> PAPER-eligible';
     else if (ge30 >= 5) verdict = 'signal-poor (tested, no edge)';

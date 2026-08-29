@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { resolveOutcomeId } from '../../engine/resolve-outcome.mjs';
-import { manualExecute, autoExecute, buildSelections, assertExecutionParity } from '../../engine/executors.mjs';
+import { manualExecute } from '../../engine/executors.mjs';
 import { registerMarket, MARKETS, listMarketIds } from '../../engine/markets.mjs';
 import { evaluatePromotionGate, proposePromotion } from '../../engine/promotion.mjs';
 
@@ -11,7 +11,7 @@ const fakeCreate = async (sels) => ({ code: `CODE(${sels.length})` });
 
 test('engine generates a share code from approved picks (manual, no stake)', async () => {
   const picks = [
-    { pickId: 'p1', matchId: 'E1', marketId: '1', strategyId: 'STRAT-1X2-FAVBAND-v1', selection: 'Home', odds: 1.95, line: null, kickoff: '2030-01-01T12:00:00Z', competition: 'L', confidence: 0.92, isSimulated: false, researchStatus: 'SEARCH_NO_RESULTS', recommendedMinOdds: 1.8, generatedAt: '2030-01-01T00:00:00Z', audit: { strategyStatus: 'VALIDATED', strategyParams: { lo: 1.8, hi: 2.2 }, validationGates: { ok: true, failures: [] }, executionMode: null, stake: null, result: null, pnl: null } },
+    { pickId: 'p1', matchId: 'E1', marketId: '1', strategyId: 'STRAT-1X2-BAND-v1', selection: 'Home', odds: 1.95, line: null, kickoff: '2030-01-01T12:00:00Z', competition: 'L', confidence: 0.92, isSimulated: false, researchStatus: 'SEARCH_NO_RESULTS', recommendedMinOdds: 1.8, generatedAt: '2030-01-01T00:00:00Z', audit: { strategyStatus: 'VALIDATED', strategyParams: { lo: 1.8, hi: 2.2 }, validationGates: { ok: true, failures: [] }, executionMode: null, stake: null, result: null, pnl: null } },
   ];
   const res = await manualExecute(picks, { resolveOutcomeId: fakeResolver, createShareCode: fakeCreate, writeLedger: false });
   assert.equal(res.stakes, false);

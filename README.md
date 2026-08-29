@@ -2,7 +2,7 @@
 
 Scheduled GitHub Action that scrapes **today's football odds** from SportyBet (Ghana mobile site) via their internal JSON API — no login, no UI scraping for the main path — records every odds move into a persistent database, settles finished matches against Flashscore, and mines the history for good/bad prices.
 
-Runs every 30 minutes via `.github/workflows/scrape.yml` and commits fresh `data/` back to the repo.
+Orchestrated by several GitHub Actions (see *GitHub Action schedule* below). The `collector.yml` workflow scrapes every 30 minutes and folds results into the persistent odds database, which is kept in a GitHub Artifact (`odds-data`) — **nothing is committed back to `main`**.
 
 ---
 
@@ -244,7 +244,29 @@ npm test        # node --test test/
 
 ## GitHub Action schedule
 
-`.github/workflows/scrape.yml` runs `*/30 * * * *` UTC. Every run executes the full pipeline and, if `data/` changed, commits it back as `chore(webscraper): update scraped data`. Scraped artifacts are also uploaded as a 90-day workflow artifact (`scraped-data`). Run it manually via **Actions → Scheduled Web Scraper → Run workflow**.
+Nine workflows run the system (all in `.github/workflows/`). **No workflow commits `data/` to `main`** — the odds DB and reports live in the `odds-data` GitHub Artifact (90-day retention) and are restored at the start of each run. Trigger any of them manually via **Actions → <workflow> → Run workflow**.
+
+| Workflow | Purpose | Schedule |
+|---|---|---|
+| `collector.yml` | Scrape SportyBet → `build-db` → `analyze-odds --db` + `analyze-correctscore`; writes `odds-data` artifact | `*/30 * * * *` |
+| `agent.yml` | TypeScript research agent (`dist/cli.js`) + `train-model-v5b --paper` | `*/30 * * * *` |
+| `betting.yml` | Money path: `resolve-results` → `stake` → `stake-placement` → `confirm` → `stake-autoplace` → `monitor` | `*/30 * * * *` |
+| `engine-daily.yml` | Unified engine shadow: `daily-engine` + equivalence/deep-discovery + `slip` (read-only; writes `approved-picks` artifact) | `*/30 * * * *` |
+| `manual-slip.yml` | `manual-slip.mjs` full-card odds review | `*/30 * * * *` + dispatch |
+| `paper-B.yml` | `paper-B.mjs` O/U paper track | `*/30 * * * *` |
+| `prematch-monitor.yml` | `prematch-monitor.mjs` (15-min odds window) | `*/15 * * * *` |
+| `stage1.yml` | `stage1-market-roi.mjs` per-market historical ROI | `0 23 * * *` |
+| `backtest.yml` | `backtest.mjs` history + paper scoring gates | `15 0 * * *` |
+
+> **Unified engine is a read-only shadow (for now).** `engine-daily.yml` produces
+> `approved-picks.json` and runs equivalence/observation checks, but the live money
+> path (`betting.yml`) still runs the legacy `agent.yml → stake.mjs →
+> stake-autoplace.mjs` chain. `engine/equivalence.mjs` proves the engine selects
+> the *same* picks `stake.mjs` would (selector + stake gates + friendly gate).
+> Flipping `betting.yml` to the engine is gated on ≥14 days of proven end-to-end
+> parity — see **Engine cutover plan** in `AGENTS.md`. The engine's only live
+> executor is the manual share-code path (`engine/slip.mjs`); real auto-staking
+> remains the single `stake-autoplace.mjs` behind `STAKE_AUTOPLACE_ENABLED`.
 
 ---
 
@@ -274,7 +296,9 @@ npm test        # node --test test/
 
 ```
 .
-├── .github/workflows/scrape.yml   # 30-min scheduled pipeline
+├── .github/workflows/            # 9 workflows (collector, agent, betting, engine-daily,
+│                                 #   manual-slip, paper-B, prematch-monitor, stage1, backtest)
+│                                 #   — none commit data/; persistence is via the odds-data artifact
 ├── lib/common.mjs                 # shared HTTP, API clients, normalization, DB IO
 ├── agent/                         # TypeScript decision agent (research, confirm, monitor)
 ├── dist/                          # compiled agent output (build artifact, gitignored)
@@ -290,7 +314,7 @@ npm test        # node --test test/
 ├── share-code.mjs                 # SportyBet share-code API client
 ├── test/                          # node --test suite
 ├── SCRAPING-WORKFLOW.md           # endpoint/flow notes for the single API method
-└── data/                          # snapshots, odds-db.json, reports, slip (committed)
+└── data/                          # snapshots, odds-db.json, reports, slip (gitignored; persisted via odds-data artifact)
 ```
 
 ## Notes & limitations

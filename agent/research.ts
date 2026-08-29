@@ -6,7 +6,7 @@
 // symmetric.
 //
 // Research is INFORMATIONAL ONLY. It is attached to each team as context for
-// manual review and MUST NOT feed Strategy A's selection — the FAV_BAND rule
+// manual review and MUST NOT feed Strategy A's selection — the 1X2_BAND rule
 // qualifies candidates independently of any web result.
 //
 // Anti-bot resilience (Phase 1): detects HTTP 202 / challenge pages, applies
@@ -123,6 +123,19 @@ export interface WebResearchResult {
   snippets: string[];
   httpStatus?: number;
   reason?: string;
+  predictions?: string[]; // external prediction snippets (winner / score / tips)
+  predictionStatus?: SearchStatus; // SEARCH_SUCCESS | SEARCH_NO_RESULTS | SEARCH_BLOCKED | SEARCH_ERROR
+}
+
+// Pure builder for the prediction-focused queries — kept separate from
+// runQuery so it can be unit-tested without network access.
+export function buildPredictionQueries(home: string, away: string, tournament: string): string[] {
+  return [
+    `${home} vs ${away} prediction`,
+    `${home} vs ${away} predicted score`,
+    `${home} vs ${away} betting tips`,
+    `${home} ${away} match prediction ${tournament}`,
+  ];
 }
 
 // --- retry/backoff tuning ---
@@ -215,5 +228,29 @@ export async function webResearch(
   if (all.length > 0) status = 'SEARCH_SUCCESS';
   else if (blocked) status = 'SEARCH_BLOCKED';
   else if (errored) status = 'SEARCH_ERROR';
-  return { status, snippets: uniq(all).slice(0, 10) };
+
+  // External predictions (winner / score / tips) fetched separately so they are
+  // always reported distinctly from the H2H/form context snippets.
+  const predQueries = buildPredictionQueries(home, away, tournament);
+  const predictions: string[] = [];
+  let predBlocked = false;
+  let predErrored = false;
+  for (const q of predQueries) {
+    await sleep(spacingMs());
+    const r = await runQuery(provider, q);
+    if (r.status === 'SEARCH_SUCCESS') predictions.push(...r.snippets);
+    else if (r.status === 'SEARCH_BLOCKED') predBlocked = true;
+    else if (r.status === 'SEARCH_ERROR') predErrored = true;
+  }
+  let predictionStatus: SearchStatus = 'SEARCH_NO_RESULTS';
+  if (predictions.length > 0) predictionStatus = 'SEARCH_SUCCESS';
+  else if (predBlocked) predictionStatus = 'SEARCH_BLOCKED';
+  else if (predErrored) predictionStatus = 'SEARCH_ERROR';
+
+  return {
+    status,
+    snippets: uniq(all).slice(0, 10),
+    predictions: uniq(predictions).slice(0, 10),
+    predictionStatus,
+  };
 }

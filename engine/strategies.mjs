@@ -6,7 +6,7 @@
 // EXCLUDED from live selection by construction (spec #8 step 3, #20).
 //
 // The validated selectors are imported UNCHANGED from the existing code:
-//   - Strategy A  -> lib/favband.mjs:selectFavBand1X2Picks  (validated +16.8% OOS)
+//   - Strategy A  -> lib/1x2.mjs:select1X2Picks  (validated +16.8% OOS)
 //   - Paper-B     -> paper-B.mjs:inSpec                      (frozen O/U H1 spec)
 // Wrapping them (rather than re-implementing) guarantees the migration cannot
 // silently alter the validated math (spec #6, #23).
@@ -14,7 +14,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildFavRows, selectFavBand1X2Picks } from '../lib/favband.mjs';
+import { buildFavRows, select1X2Picks } from '../lib/1x2.mjs';
 import { inSpec as ouH1InSpec } from '../paper-B.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -65,10 +65,10 @@ export function canPromote(strategy) {
 
 // Strategy A: 1X2 favorite in the frozen band [lo, hi). Returns candidate rows
 // exactly as the legacy selector does; the engine adds kickoff/simulated gates.
-function selectFavBandA(strategy, ctx) {
+function select1X2A(strategy, ctx) {
   const rows = buildFavRows(ctx.db);
   const { lo, hi } = strategy.parameters;
-  const picks = selectFavBand1X2Picks(rows, lo, hi);
+  const picks = select1X2Picks(rows, lo, hi);
   return picks.map((r) => ({
     eventId: r.eventId,
     homeTeam: r.homeTeam,
@@ -108,7 +108,7 @@ function selectOuH1(strategy, ctx) {
 }
 
 const SELECTORS = {
-  'STRAT-1X2-FAVBAND-v1': selectFavBandA,
+  'STRAT-1X2-BAND-v1': select1X2A,
   'STRAT-OU-H1-v1': selectOuH1,
 };
 

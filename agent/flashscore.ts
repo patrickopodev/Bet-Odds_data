@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { chromium } from 'playwright-core';
 import { UA, decodeFeedBlock, extractFeedEvents, normTeam, resolveTeam } from '../lib/common.mjs';
+import { classifyCompetition, competitionMix, type MatchType } from './competition.js';
 import type { PlayerStat, TeamInfo } from './types.js';
 
 export { resolveTeam };
@@ -29,8 +30,9 @@ export interface LeagueRef {
 
 export interface TeamForm {
   form: string;
-  lastResults: { opp: string; score: string; result: 'W' | 'D' | 'L'; eventId?: string; side?: 'home' | 'away' }[];
+  lastResults: { opp: string; score: string; result: 'W' | 'D' | 'L'; eventId?: string; side?: 'home' | 'away'; type?: MatchType }[];
   league: LeagueRef | null;
+  competitionMix?: string;
 }
 
 // Decode every block in a feed, including tournament-header blocks that carry
@@ -97,6 +99,11 @@ export async function fetchTeamForm(team: FsTeam): Promise<TeamForm> {
     .sort((a, b) => Number(b.AD) - Number(a.AD))
     .slice(0, 5);
 
+  // Map each tournament id seen in this team's feeds to its competition name so
+  // we can label every recent result with its competition type (league/cup/…).
+  const idToName = new Map<string, string>();
+  for (const l of leagueCounts.values()) idToName.set(l.id, l.name);
+
   const lastResults: TeamForm['lastResults'] = [];
   for (const e of finished) {
     const my = e.PX === team.id;
@@ -104,10 +111,15 @@ export async function fetchTeamForm(team: FsTeam): Promise<TeamForm> {
     const oppGoals = Number(my ? e.AH : e.AG);
     const opp = my ? e.AF : e.CX;
     const result = myGoals > oppGoals ? 'W' : myGoals === oppGoals ? 'D' : 'L';
-    lastResults.push({ opp, score: `${myGoals}-${oppGoals}`, result, eventId: e.AA, side: my ? 'home' : 'away' });
+    // Competition type: prefer the event's own tournament id; fall back to the
+    // team's primary league. Either way we "state" the match type explicitly.
+    const evLeagueName = e.ZC ? idToName.get(e.ZC) : undefined;
+    const type: MatchType = classifyCompetition(evLeagueName ?? league?.name);
+    lastResults.push({ opp, score: `${myGoals}-${oppGoals}`, result, eventId: e.AA, side: my ? 'home' : 'away', type });
   }
   const form = lastResults.map((r) => r.result).join('');
-  return { form, lastResults, league };
+  const mix = competitionMix(lastResults.map((r) => r.type ?? 'other'));
+  return { form, lastResults, league, competitionMix: mix };
 }
 
 export interface StandingsRow {
@@ -483,6 +495,7 @@ export async function researchTeam(
     const tf = await fetchTeamForm(team);
     info.form = tf.form;
     info.lastResults = tf.lastResults;
+    info.competitionMix = tf.competitionMix;
     info.formScore = tf.lastResults.reduce((n, r) => n + (r.result === 'W' ? 3 : r.result === 'D' ? 1 : 0), 0);
 
     if (tf.league && tf.league.url && !/friendly/i.test(tf.league.name)) {

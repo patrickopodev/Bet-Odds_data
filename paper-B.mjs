@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------
 // PAPER-B — forward paper track for the pre-specified O/U H1 hypothesis.
 //
-// This is an INDEPENDENT experiment from Strategy A (1X2 FAV_BAND). It never
+// This is an INDEPENDENT experiment from Strategy A (1X2 1X2_BAND). It never
 // reads or writes paper-picks.json and never interacts with Strategy A.
 //
 // Frozen hypothesis (Stage 1.5b, untouched holdout +10.8% ROI / 373 bets):

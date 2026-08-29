@@ -1,12 +1,12 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { DATA_DIR } from './lib/common.mjs';
-import { frozenFavBand } from './lib/favband.mjs';
+import { frozen1X2 } from './lib/1x2.mjs';
 
 // ---------------------------------------------------------------------------
 // Paper-trade progress dashboard.
 //
-// Reads ONLY data/paper-picks.json — the 1X2 favorite-value (FAV_BAND) track
+// Reads ONLY data/paper-picks.json — the 1X2 favorite-value (1X2_BAND) track
 // logged by `train-model-v5b.mjs --paper`. It is deliberately kept separate
 // from the correct-score analyzer (analyze-correctscore.mjs / market 41): that
 // signal has no forward samples yet and must not contaminate this qualification
@@ -14,7 +14,7 @@ import { frozenFavBand } from './lib/favband.mjs';
 //
 // This script is READ-ONLY: it never writes paper-picks.json, and it does not
 // touch selection, settlement, or the 30-resolved + positive-ROI gate. It only
-// measures. The band shown is read from FAV_BAND_LO/HI env (the deployed band).
+// measures. The band shown is read from BAND_LO/HI env (the deployed band).
 // ---------------------------------------------------------------------------
 
 const REQUIRED_RESOLVED = 30;
@@ -62,7 +62,7 @@ function main() {
     roi = (profit / resolved.length) * 100;
   }
 
-  const { lo, hi } = frozenFavBand();
+  const { lo, hi } = frozen1X2();
   const band = `[${lo}, ${hi})`;
   const auto = process.env.STAKE_AUTOPLACE_ENABLED === 'true' ? 'ENABLED' : 'OFF';
 

@@ -1,6 +1,6 @@
 import type { Candidate, MatchResearch, Recommendation, TeamInfo } from './types.js';
 import { historicalStats, outcomeHistory, oddsDrift, MIN_DRIFT_PLAYS, type Db, type LatestMatch } from './db.js';
-import { frozenFavBand } from '../lib/favband.mjs';
+import { frozen1X2 } from '../lib/1x2.mjs';
 
 export interface CandidateSource {
   marketId: string;
@@ -154,10 +154,10 @@ export function analyzeCandidate(
 // force-recommend it as the primary pick, overriding the heuristic confidence —
 // this is the one rule the backtest proves beats the 7.7% house margin. Tunable
 // The favorite-value band is FROZEN from the validated strategy registry
-// (STRAT-1X2-FAVBAND-v1, [1.8, 2.2)). It is intentionally NOT env-tunable: a
+// (STRAT-1X2-BAND-v1, [1.8, 2.2)). It is intentionally NOT env-tunable: a
 // validated strategy must never be silently widened by a deployment variable
 // (review action #1 — eliminate the 1.5/1.8 discrepancy).
-const { lo: FAV_BAND_LO, hi: FAV_BAND_HI } = frozenFavBand();
+const { lo: BAND_LO, hi: BAND_HI } = frozen1X2();
 const FAV_CONFIDENCE = Number(process.env.FAV_CONFIDENCE ?? 0.92);
 
 export function buildRecommendations(
@@ -181,15 +181,15 @@ export function buildRecommendations(
       .sort((a, b) => b.confidence - a.confidence);
 
     // Validated favorite-value rule: force-recommend the 1X2 favorite when its
-    // current odds sit in [FAV_BAND_LO, FAV_BAND_HI).
+    // current odds sit in [BAND_LO, BAND_HI).
     const oneXtwo = candidates.filter((c) => c.marketId === '1');
     if (oneXtwo.length === 3) {
       const fav = oneXtwo.reduce((a, b) => (a.odds <= b.odds ? a : b));
-      if (fav.odds >= FAV_BAND_LO && fav.odds < FAV_BAND_HI) {
+      if (fav.odds >= BAND_LO && fav.odds < BAND_HI) {
         fav.confidence = Math.max(fav.confidence, FAV_CONFIDENCE);
         fav.recommended = true;
         fav.recommendedMinOdds = fav.odds;
-        fav.reason += ` | FAVORITE VALUE band [${FAV_BAND_LO},${FAV_BAND_HI}) — validated +16.8% OOS`;
+        fav.reason += ` | FAVORITE VALUE band [${BAND_LO},${BAND_HI}) — validated +16.8% OOS`;
       }
     }
 

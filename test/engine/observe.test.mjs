@@ -5,8 +5,10 @@ import { recordRun, loadLog, evaluateReadiness, READINESS_DEFAULTS } from '../..
 function fakeReport(equivalence, picks = [], count = picks.length) {
   return {
     equivalenceWithValidated: equivalence,
-    counts: { engine: count, legacyDeployed: count, legacyValidated: count },
-    frozenOutDelta: [],
+    equivalenceWithStakePipeline: equivalence,
+    enginePicksPassStakeGates: true,
+    engineCount: count,
+    legacyValidatedCount: count,
     picks: { engine: picks },
   };
 }

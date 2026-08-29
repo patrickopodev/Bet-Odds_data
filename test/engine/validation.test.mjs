@@ -14,7 +14,7 @@ test('odds boundaries: 1.79 reject, 1.80 accept, 2.19 accept, 2.20 reject (spec 
 
 test('simulation protection: isSimulated=true never stakes', () => {
   const registry = loadRegistry();
-  const a = getStrategy(registry, 'STRAT-1X2-FAVBAND-v1');
+  const a = getStrategy(registry, 'STRAT-1X2-BAND-v1');
   const pick = {
     matchId: 'E1', marketId: '1', strategyId: a.strategyId, selection: 'Home', odds: 1.95,
     kickoff: '2030-01-01T12:00:00Z', confidence: 0.92, isSimulated: true, recommendedMinOdds: 1.8,
@@ -30,7 +30,7 @@ test('simulation protection: isSimulated=true never stakes', () => {
 });
 
 test('validation gates: confidence floor, kickoff buffer, live-odds band recheck', () => {
-  const a = getStrategy(loadRegistry(), 'STRAT-1X2-FAVBAND-v1');
+  const a = getStrategy(loadRegistry(), 'STRAT-1X2-BAND-v1');
   const base = { matchId: 'E1', marketId: '1', strategyId: a.strategyId, selection: 'Home', odds: 1.95, kickoff: '2030-01-01T12:00:00Z', confidence: 0.92, recommendedMinOdds: 1.8, isSimulated: false };
 
   // Confidence below MIN_CONFIDENCE (here artificially) fails.

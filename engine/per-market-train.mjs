@@ -9,7 +9,7 @@
 // It deliberately does NOT:
 //   - promote anything to LIVE (human review only),
 //   - invoke any staking executor,
-//   - modify the existing LIVE 1X2 strategy (STRAT-1X2-FAVBAND-v1),
+//   - modify the existing LIVE 1X2 strategy (STRAT-1X2-BAND-v1),
 //   - modify Paper-B's frozen H1 specification (STRAT-OU-H1-v1),
 //   - duplicate O/U H1 if the sweep re-discovers the exact existing rule.
 //
@@ -34,7 +34,7 @@ const DATA_DIR = process.env.DATA_DIR ?? 'data';
 const MARKET_NAMES = { '1': '1X2', '18': 'O/U', '41': 'Correct Score', '548': 'Multigoals', '551': 'Multiscores' };
 const ID_PREFIX = { '1': 'STRAT-1X2', '18': 'STRAT-OU', '41': 'STRAT-CS', '548': 'STRAT-MG', '551': 'STRAT-MS' };
 
-// Odds bands scanned during discovery (same family as the validated FAV_BAND scan).
+// Odds bands scanned during discovery (same family as the validated 1X2_BAND scan).
 export const BANDS = [[1.0, 1.3], [1.3, 1.5], [1.5, 1.8], [1.8, 2.2], [2.2, 3.0], [3.0, 4.0], [4.0, 6.0]];
 export const MIN_TRAIN = 30; // resolved samples to trust a discovery
 export const MIN_HOLDOUT = 20; // resolved samples to trust the frozen holdout

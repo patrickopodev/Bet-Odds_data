@@ -1,6 +1,6 @@
 // Option 3 v5b - OUT-OF-SAMPLE validation of the favorite-value edge + PAPER TRADE mode.
 // The live paper band is the FROZEN validated band [1.8, 2.2) from the strategy
-// registry (lib/favband.mjs). No env override — a validated band must not be
+// registry (lib/1x2.mjs). No env override — a validated band must not be
 // silently widened, even in this research/validation tool (review action #1).
 // To experiment, edit the BANDS array or the FIXED literal intentionally.
 // Validates the v5 discovery WITHOUT leakage: band is chosen on train, bet on held-out test.
@@ -8,14 +8,14 @@
 import fs from 'node:fs';
 import { DB_FILE, parseScore, evaluateOutcome } from './lib/common.mjs';
 import { roi, ci } from './lib/settlement.mjs';
-import { buildFavRows, selectFavBand1X2Picks, frozenFavBand } from './lib/favband.mjs';
+import { buildFavRows, select1X2Picks, frozen1X2 } from './lib/1x2.mjs';
 
 const MARGIN = 0.077;
 const BANDS = [[1.0, 1.3], [1.3, 1.5], [1.5, 1.8], [1.8, 2.2], [2.2, 3.0]];
 const PAPER_FILE = 'data/paper-picks.json';
 // Live paper band: the frozen validated band (no env widening).
-const { lo: FAV_BAND_LO, hi: FAV_BAND_HI } = frozenFavBand();
-const FIXED = [FAV_BAND_LO, FAV_BAND_HI]; // live paper band
+const { lo: BAND_LO, hi: BAND_HI } = frozen1X2();
+const FIXED = [BAND_LO, BAND_HI]; // live paper band
 
 function mulberry32(a) {
   return function () {
@@ -91,7 +91,7 @@ if (process.argv.includes('--paper') || process.argv.includes('--score-paper')) 
   const paper = loadPaper();
   const seen = new Set(paper.map((p) => p.id));
   if (process.argv.includes('--paper')) {
-    for (const e of selectFavBand1X2Picks(rows, FIXED[0], FIXED[1])) {
+    for (const e of select1X2Picks(rows, FIXED[0], FIXED[1])) {
       if (seen.has(e.id)) continue;
       paper.push({ id: e.id, league: e.league, pick: e.favName, odds: e.favLast, addedAt: new Date().toISOString(), status: 'OPEN' });
       seen.add(e.id);

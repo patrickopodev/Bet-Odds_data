@@ -13,7 +13,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { compareStrategyA } from './equivalence.mjs';
+import { compareStrategyA, compareStrategyAAgainstStake } from './equivalence.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = process.env.DATA_DIR ?? 'data';
@@ -44,11 +44,13 @@ export function recordRun(report, { file = LOG_FILE, now = Date.now() } = {}) {
   const entry = {
     date,
     ts: new Date(now).toISOString(),
+    // Selector-level parity: engine == legacy 1x2 selector (spec #6).
     equivalenceWithValidated: report.equivalenceWithValidated,
-    engineCount: report.counts.engine,
-    legacyDeployedCount: report.counts.legacyDeployed,
-    legacyValidatedCount: report.counts.legacyValidated,
-    frozenOutDeltaCount: report.frozenOutDelta.length,
+    // End-to-end parity: engine == the actual stake.mjs money path (spec #20).
+    equivalenceWithStakePipeline: report.equivalenceWithStakePipeline,
+    enginePicksPassStakeGates: report.enginePicksPassStakeGates,
+    engineCount: report.engineCount,
+    legacyValidatedCount: report.legacyValidatedCount,
     eligibleEnginePicks: pickKeys(report),
   };
   const log = loadLog(file);
@@ -67,7 +69,9 @@ export function evaluateReadiness(log, { defaults = READINESS_DEFAULTS } = {}) {
   const { minDays, minDistinctPicks, requireAllEquivalent } = defaults;
   const runs = log.length;
   const distinct = new Set(log.flatMap((e) => e.eligibleEnginePicks)).size;
-  const allEquivalent = log.every((e) => e.equivalenceWithValidated);
+  const allEquivalent = log.every(
+    (e) => e.equivalenceWithValidated && e.equivalenceWithStakePipeline && e.enginePicksPassStakeGates
+  );
   // Trailing consecutive equivalent runs (most recent first).
   let trailing = 0;
   for (let i = log.length - 1; i >= 0; i--) {
@@ -90,9 +94,19 @@ export function evaluateReadiness(log, { defaults = READINESS_DEFAULTS } = {}) {
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
   const { loadDb } = await import('../lib/common.mjs');
-  const report = compareStrategyA(await loadDb());
+  const db = await loadDb();
+  const validated = compareStrategyA(db);
+  const stake = compareStrategyAAgainstStake(db);
+  const report = {
+    equivalenceWithValidated: validated.equivalenceWithValidated,
+    equivalenceWithStakePipeline: stake.equivalenceWithStakePipeline,
+    enginePicksPassStakeGates: stake.enginePicksPassStakeGates,
+    engineCount: validated.counts.engine,
+    legacyValidatedCount: validated.counts.legacyValidated,
+    picks: { engine: validated.picks.engine },
+  };
   const log = recordRun(report);
   const r = evaluateReadiness(log);
-  console.log(`Daily cycles observed: ${r.runs} | distinct eligible picks: ${r.distinctPicks} | all equivalent: ${r.allEquivalent}`);
+  console.log(`Daily cycles observed: ${r.runs} | distinct eligible picks: ${r.distinctPicks} | all equivalent (selector+stake): ${r.allEquivalent}`);
   console.log(`Readiness for Phase 4: ${r.ready ? 'READY ✅' : 'NOT YET'} — ${r.note}`);
 }

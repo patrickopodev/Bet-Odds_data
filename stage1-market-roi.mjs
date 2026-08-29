@@ -12,7 +12,7 @@
 // SportyBet market id (1, 18, 41, 548, 551) so the five feeds are compared
 // on identical footing.
 //
-// A 1X2 FAV_BAND [1.8,2.2) sanity check is included: it must reproduce the
+// A 1X2 1X2_BAND [1.8,2.2) sanity check is included: it must reproduce the
 // known ~+16.8% OOS edge (train-model-v5b.mjs). If it does, the rest of the
 // report is trustworthy; if it doesn't, the methodology is broken — fix first.
 //
@@ -28,7 +28,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DATA_DIR, loadDb, aggregateHistoricalStats } from './lib/common.mjs';
-import { buildFavRows } from './lib/favband.mjs';
+import { buildFavRows } from './lib/1x2.mjs';
 
 const MARKETS = {
   '1': '1X2',
@@ -42,10 +42,10 @@ const MARKETS = {
 // 30-pick paper track for. Below this it is INSUFFICIENT EVIDENCE.
 const MIN_SAMPLE = 30;
 
-// FAV_BAND control bounds (the validated backtest band, NOT the widened live
+// 1X2_BAND control bounds (the validated backtest band, NOT the widened live
 // [1.5,2.2) — we want to reproduce the published edge here).
-const FAV_BAND_LO = 1.8;
-const FAV_BAND_HI = 2.2;
+const BAND_LO = 1.8;
+const BAND_HI = 2.2;
 
 function pct(x) {
   return x == null ? 'n/a' : `${(x * 100).toFixed(1)}%`;
@@ -89,7 +89,7 @@ function naiveMarketRollup(all) {
 
 function favBandSanityCheck(db) {
   const rows = buildFavRows(db).filter((r) => r.resolved);
-  const band = rows.filter((r) => r.favLast >= FAV_BAND_LO && r.favLast < FAV_BAND_HI);
+  const band = rows.filter((r) => r.favLast >= BAND_LO && r.favLast < BAND_HI);
   const pnl = band.reduce((a, r) => a + r.pnl, 0);
   return {
     totalResolved: rows.length,
@@ -134,7 +134,7 @@ async function run() {
   );
 
   // --- Sanity check ---
-  lines.push('## Control check: 1X2 FAV_BAND [' + FAV_BAND_LO + ',' + FAV_BAND_HI + ')', '');
+  lines.push('## Control check: 1X2 1X2_BAND [' + BAND_LO + ',' + BAND_HI + ')', '');
   lines.push(
     `Resolved 1X2 favorites: ${sanity.totalResolved} | in-band: ${sanity.bandCount} | ` +
       `band ROI: ${pct(sanity.bandRoi)} (pnl ${money(sanity.bandPnl)})`
