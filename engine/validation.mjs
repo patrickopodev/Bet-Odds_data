@@ -13,6 +13,7 @@ import { isLive } from './strategies.mjs';
 
 export const GATE_DEFAULTS = {
   MIN_CONFIDENCE: 0.6,
+  MIN_WIN_RATE: 0.10,
   STAKE_PER_BET: 10,
   STAKE_MAX_SLIPS: 2,
   START_BUFFER_MS: 5 * 60 * 1000,
@@ -50,10 +51,20 @@ export function validatePick(pick, { strategy, liveOdds = null, now = Date.now()
   if (liveOdds != null) {
     const min = Number(pick.recommendedMinOdds ?? pick.odds ?? 0);
     if (min && Number(liveOdds) < min - 1e-9) failures.push('LIVE_ODDS_BELOW_MIN');
-    if (strategy.parameters?.lo != null && strategy.parameters?.hi != null) {
-      if (!bandAccepts(Number(liveOdds), strategy.parameters.lo, strategy.parameters.hi)) {
+    const params = strategy.parameters ?? {};
+    const bandLo = params.lo ?? params.fallbackBand?.[0];
+    const bandHi = params.hi ?? params.fallbackBand?.[1];
+    if (bandLo != null && bandHi != null) {
+      if (!bandAccepts(Number(liveOdds), bandLo, bandHi)) {
         failures.push('LIVE_ODDS_OUT_OF_BAND');
       }
+    }
+  }
+
+  if (limits.MIN_WIN_RATE != null && limits.MIN_WIN_RATE > 0) {
+    const histWinRate = Number(pick.historicalWinRate ?? 0);
+    if (histWinRate > 0 && histWinRate < limits.MIN_WIN_RATE) {
+      failures.push('WIN_RATE_BELOW_MIN');
     }
   }
 

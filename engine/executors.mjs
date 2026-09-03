@@ -24,13 +24,15 @@ const DATA_DIR = process.env.DATA_DIR ?? 'data';
 // Map an ApprovedPick -> a SportyBet share selection spec
 // "eventId,marketId,outcomeId[,specifier]". `resolveOutcomeId` is injected so
 // tests can avoid network; production passes a live-catalog resolver.
-export function buildSelections(approvedPicks, resolveOutcomeId) {
-  return approvedPicks.map((p) => {
-    const outcomeId = resolveOutcomeId(p);
+export async function buildSelections(approvedPicks, resolveOutcomeId) {
+  const selections = [];
+  for (const p of approvedPicks) {
+    const outcomeId = await resolveOutcomeId(p);
     const sel = { eventId: p.matchId, marketId: p.marketId, outcomeId };
     if (p.line != null) sel.specifier = String(p.line);
-    return sel;
-  });
+    selections.push(sel);
+  }
+  return selections;
 }
 
 // ---------------------------------------------------------------------------
@@ -39,7 +41,7 @@ export function buildSelections(approvedPicks, resolveOutcomeId) {
 // ---------------------------------------------------------------------------
 export async function manualExecute(approvedPicks, { resolveOutcomeId, createShareCode = null, writeLedger = true } = {}) {
   if (!resolveOutcomeId) throw new Error('manualExecute requires resolveOutcomeId');
-  const selections = buildSelections(approvedPicks, resolveOutcomeId);
+  const selections = await buildSelections(approvedPicks, resolveOutcomeId);
   let code = null;
   if (createShareCode) {
     const res = await createShareCode(selections);
@@ -49,7 +51,8 @@ export async function manualExecute(approvedPicks, { resolveOutcomeId, createSha
   if (writeLedger) {
     const ledgerPath = path.join(DATA_DIR, 'manual-bets.json');
     fs.mkdirSync(DATA_DIR, { recursive: true });
-    const prev = JSON.parse(fs.readFileSync(ledgerPath, 'utf8').catch(() => '[]') || '[]');
+    let prev;
+    try { prev = JSON.parse(fs.readFileSync(ledgerPath, 'utf8')); } catch { prev = []; }
     const next = prev.concat(stamped.map((p) => ({ pickId: p.pickId, mode: 'MANUAL', code, generatedAt: p.generatedAt })));
     fs.writeFileSync(ledgerPath, JSON.stringify(next, null, 2));
   }
@@ -64,8 +67,8 @@ export async function manualExecute(approvedPicks, { resolveOutcomeId, createSha
 // can never diverge from the validated engine selection — there is no second
 // code path that could reorder, skip, or rewrite a pick.
 // ---------------------------------------------------------------------------
-export function assertSelectionFidelity(approvedPicks, resolveOutcomeId, selections) {
-  const expected = buildSelections(approvedPicks, resolveOutcomeId);
+export async function assertSelectionFidelity(approvedPicks, resolveOutcomeId, selections) {
+  const expected = await buildSelections(approvedPicks, resolveOutcomeId);
   const norm = (s) =>
     JSON.stringify(s.map((x) => [x.eventId, x.marketId, x.outcomeId, x.specifier ?? null]).sort());
   if (norm(expected) !== norm(selections)) {

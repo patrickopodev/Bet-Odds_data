@@ -69,6 +69,7 @@ function buildReport(db) {
       totalSettled: tot.settled,
       totalWon: tot.won,
       baseWinRate: tot.settled ? tot.won / tot.settled : null,
+      strategyBand: (() => { const v = rows.filter((b) => b.value); return v.length > 0 ? { lo: v[0].odds, hi: v[v.length - 1].odds + 0.5 } : null; })(),
       bands: rows,
     });
   }

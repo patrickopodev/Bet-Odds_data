@@ -37,6 +37,13 @@ const RELEVANT_MARKETS = new Set(['1', '18', '548', '41', '551']);
 // confidence to ~100% and back out a min odds of ~0.92 was a real hole.
 const MIN_HISTORY_SAMPLE = 5;
 
+// The 1X2 favorite priced in [BAND_LO, BAND_HI) is the validated, out-of-sample
+// value pick (train-model-v5b.mjs: +16.8% ROI, CI excludes zero). When present we
+// force-recommend it as the primary pick, overriding the heuristic confidence.
+// The band is FROZEN from STRAT-1X2-BAND-v1 ([1.8, 2.2)); not env-tunable.
+const { lo: BAND_LO, hi: BAND_HI } = frozen1X2();
+const FAV_CONFIDENCE = Number(process.env.FAV_CONFIDENCE ?? 0.92);
+
 function teamConfidence(t: TeamInfo, base: number): number {
   let score = base;
   if (t.formScore >= 9) score += 0.15; // 3+ wins in last 5
@@ -149,17 +156,6 @@ export function analyzeCandidate(
   };
 }
 
-// The 1X2 favorite priced in this band is a validated, out-of-sample value pick
-// (see train-model-v5b.mjs: +16.8% ROI, 95% CI excludes zero). When present we
-// force-recommend it as the primary pick, overriding the heuristic confidence —
-// this is the one rule the backtest proves beats the 7.7% house margin. Tunable
-// The favorite-value band is FROZEN from the validated strategy registry
-// (STRAT-1X2-BAND-v1, [1.8, 2.2)). It is intentionally NOT env-tunable: a
-// validated strategy must never be silently widened by a deployment variable
-// (review action #1 — eliminate the 1.5/1.8 discrepancy).
-const { lo: BAND_LO, hi: BAND_HI } = frozen1X2();
-const FAV_CONFIDENCE = Number(process.env.FAV_CONFIDENCE ?? 0.92);
-
 export function buildRecommendations(
   researched: MatchResearch[],
   matches: LatestMatch[],
@@ -181,7 +177,8 @@ export function buildRecommendations(
       .sort((a, b) => b.confidence - a.confidence);
 
     // Validated favorite-value rule: force-recommend the 1X2 favorite when its
-    // current odds sit in [BAND_LO, BAND_HI).
+    // current odds sit in [BAND_LO, BAND_HI). This is the one strategy the
+    // backtest proves beats the house margin (+16.8% OOS, CI excludes zero).
     const oneXtwo = candidates.filter((c) => c.marketId === '1');
     if (oneXtwo.length === 3) {
       const fav = oneXtwo.reduce((a, b) => (a.odds <= b.odds ? a : b));
@@ -189,6 +186,7 @@ export function buildRecommendations(
         fav.confidence = Math.max(fav.confidence, FAV_CONFIDENCE);
         fav.recommended = true;
         fav.recommendedMinOdds = fav.odds;
+        fav.favBand = true;
         fav.reason += ` | FAVORITE VALUE band [${BAND_LO},${BAND_HI}) — validated +16.8% OOS`;
       }
     }

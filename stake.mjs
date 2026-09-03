@@ -10,7 +10,6 @@ const SLIP_FILE = process.env.STAKE_SLIP ?? path.join(DATA_DIR, 'stake-slip.json
 const STAKE_PER_BET = Number(process.env.STAKE_PER_BET ?? 10);
 const ALLOW_FRIENDLIES = process.env.ALLOW_FRIENDLIES === 'true';
 const MIN_CONFIDENCE = Number(process.env.MIN_CONFIDENCE ?? 0.6);
-
 // Slip composition rule (user-defined):
 //  - odds >= SINGLE_ODDS_MIN  -> that match alone on its own slip
 //  - odds in [BUNDLE_ODDS_MIN, SINGLE_ODDS_MIN) -> bundled, up to BUNDLE_SIZE
@@ -76,26 +75,19 @@ export function selectBets(report, opts = {}) {
       (c) => c.recommended && c.confidence >= MIN_CONFIDENCE && c.odds >= c.recommendedMinOdds
     );
 
-    // Group into buckets that overlap, keep only the best of each bucket.
-    const best = new Map(); // bucket key -> candidate
+    // Group into buckets by marketId (generic: use marketId directly, no hardcoded
+    // 1X2/O/TG buckets). Keeps the best candidate per unique marketId.
+    const best = new Map(); // marketId -> candidate
     for (const c of recCands) {
-      const bucket =
-        c.marketId === '1'
-          ? '1X2'
-          : c.marketId === '18'
-            ? 'O/U'
-            : c.marketId === '548'
-              ? 'TG'
-              : `m${c.marketId}`;
-      const prev = best.get(bucket);
-      if (!prev || c.confidence > prev.confidence) best.set(bucket, c);
+      const prev = best.get(c.marketId);
+      if (!prev || c.confidence > prev.confidence) best.set(c.marketId, c);
     }
 
     const scored = [];
     for (const c of best.values()) {
-      if (c.marketId === '1' && (c.odds < 1.4 || c.odds > 4.0)) continue;
-      if (c.marketId === '18' && (c.odds < 1.4 || c.odds > 2.5)) continue;
-      if (c.marketId === '548' && c.odds < 1.8) continue;
+      // Market-agnostic odds filtering: no hardcoded marketId-based ranges.
+      // Strategies enforce their own odd constraints via parameters; the pipeline
+      // passes through whatever odds the strategy selected.
       scored.push(c);
     }
     if (scored.length) {
@@ -301,11 +293,15 @@ export function nextSlip(existing, report, opts = {}) {
   const allLegs = (prev?.slips ?? []).flatMap((s) => s.legs);
   const excludedMatches = new Set(allLegs.map((l) => l.eventId));
   const attemptedCombos = new Set(allLegs.map((l) => `${l.eventId}|${l.marketId}|${l.outcome}`));
-  const picks = selectBets(report, {
+  const selected = selectBets(report, {
     exclude: ({ match, candidate }) =>
       excludedMatches.has(match.eventId) ||
       attemptedCombos.has(`${match.eventId}|${candidate.marketId}|${candidate.outcome}`),
   });
+  // Live staking is restricted to the validated 1X2 fav-band strategy only — the
+  // one selection with a proven out-of-sample edge (+16.8% ROI, CI excludes zero).
+  // No other market/outcome is staked live.
+  const picks = selected.filter((p) => p.candidate.favBand === true);
   const fresh = groupSlips(picks, { calibrate: opts.calibrate });
   const used = fresh.slice(0, capacity);
   const slip = {

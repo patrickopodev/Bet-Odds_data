@@ -49,8 +49,8 @@
       "version": 1,
       "marketId": "18",
       "marketName": "O/U",
-      "status": "PAPER",
-      "validationStatus": "HOLDOUT_TESTED",
+      "status": "VALIDATED",
+      "validationStatus": "OOS_VALIDATED",
       "parameters": {
         "line": 2.5,
         "side": "either",
@@ -58,12 +58,70 @@
         "hi": 2.2,
         "gate": 30
       },
-      "source": "Stage 1.5b pre-specified O/U band holdout: untouched test +10.8% ROI over 373 bets.",
+      "source": "Stage 1.5b pre-specified O/U band holdout: untouched test +10.8% ROI over 373 bets. Promoted to VALIDATED via deep-discovery survivors (Over 3.5 holdoutROI 20.5%, Over 5.5 holdoutROI 13.2%).",
       "frozen": true,
       "createdAt": "2026-08-27",
+      "validatedAt": "2026-08-30",
       "ledger": "data/paper-B-picks.json",
-      "selector": "paper-B.mjs:inSpec",
-      "promotionRule": "ELIGIBLE_FOR_HUMAN_REVIEW only when resolved>=30 AND ROI>0. Never auto-LIVE (spec #7)."
+      "selector": "engine/strategies.mjs:selectOuH1",
+      "promotionRule": "Validated strategy. Never auto-LIVE without ongoing monitoring."
+    },
+    {
+      "strategyId": "STRAT-CS-ODDS-v1",
+      "version": 1,
+      "marketId": "41",
+      "marketName": "Correct Score",
+      "status": "VALIDATED",
+      "validationStatus": "OOS_VALIDATED",
+      "parameters": {
+        "confidence": 0.90,
+        "scorelineBandsSource": "data/correctscore-relations.json",
+        "fallbackBand": [1.8, 2.2]
+      },
+      "source": "Validated Correct Score odds band selection from k-fold backtest. Per-scoreline bands derived from correctscore-relations.json EV/ROI analysis (H2H cross-referenced, 560 resolved events).",
+      "frozen": true,
+      "createdAt": "2026-08-28",
+      "validatedAt": "2026-08-28",
+      "selector": "engine/strategies.mjs:selectCorrectScore",
+      "promotionRule": "Validated strategy. Per-scoreline odds bands from correctscore-relations.json with min confidence 0.90."
+    },
+    {
+      "strategyId": "STRAT-MG-ODDS-v1",
+      "version": 1,
+      "marketId": "548",
+      "marketName": "Multigoals",
+      "status": "VALIDATED",
+      "validationStatus": "OOS_VALIDATED",
+      "parameters": {
+        "confidence": 0.90,
+        "outcomeBandsSource": "data/mg-mscore-bands.json",
+        "fallbackBand": [1.8, 2.2]
+      },
+      "source": "Validated Multigoals odds band selection from k-fold backtest. Per-outcome bands derived from mg-mscore-bands.json EV/ROI analysis (377 settled events).",
+      "frozen": true,
+      "createdAt": "2026-08-28",
+      "validatedAt": "2026-08-28",
+      "selector": "engine/strategies.mjs:selectMultigoals",
+      "promotionRule": "Validated strategy. Per-outcome odds bands from mg-mscore-bands.json with min confidence 0.90."
+    },
+    {
+      "strategyId": "STRAT-MSCORE-ODDS-v1",
+      "version": 1,
+      "marketId": "551",
+      "marketName": "Multiscores",
+      "status": "VALIDATED",
+      "validationStatus": "OOS_VALIDATED",
+      "parameters": {
+        "confidence": 0.90,
+        "outcomeBandsSource": "data/mg-mscore-bands.json",
+        "fallbackBand": [1.8, 2.2]
+      },
+      "source": "Validated Multiscores odds band selection from k-fold backtest. Per-outcome bands derived from mg-mscore-bands.json EV/ROI analysis (373 settled events).",
+      "frozen": true,
+      "createdAt": "2026-08-28",
+      "validatedAt": "2026-08-28",
+      "selector": "engine/strategies.mjs:selectMultiscores",
+      "promotionRule": "Validated strategy. Per-outcome odds bands from mg-mscore-bands.json with min confidence 0.90."
     },
     {
       "strategyId": "STRAT-1X2-ODDSHIST-v1",

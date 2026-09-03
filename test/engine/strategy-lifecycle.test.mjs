@@ -22,15 +22,17 @@ test('market isolation: 1X2 strategy cannot select O/U', () => {
   }
 });
 
-test('strategy isolation: PAPER strategy cannot enter LIVE approved picks', () => {
+test('strategy isolation: VALIDATED strategy produces live picks', () => {
   const db = sampleDb();
   const registry = loadRegistry();
   const live = getLiveStrategies(registry).map((s) => s.strategyId);
-  assert.ok(!live.includes('STRAT-OU-H1-v1'), 'Paper-B must not be LIVE');
+  assert.ok(live.includes('STRAT-1X2-BAND-v1'), '1X2 band must be LIVE');
+  assert.ok(live.includes('STRAT-OU-H1-v1'), 'O/U H1 must be LIVE');
 
   const { approved } = selectApproved({ db, registry, now: Date.parse('2029-01-01T00:00:00Z') });
-  assert.ok(!approved.some((p) => p.strategyId === 'STRAT-OU-H1-v1'), 'Paper-B picks must never appear in approved (live) set');
-  assert.ok(!approved.some((p) => p.marketId === '18'), 'No O/U live picks while only PAPER O/U strategy exists');
+  assert.ok(approved.some((p) => p.strategyId === 'STRAT-1X2-BAND-v1'), '1X2 picks must appear in approved');
+  assert.ok(approved.some((p) => p.strategyId === 'STRAT-OU-H1-v1'), 'O/U picks must appear in approved');
+  assert.ok(approved.some((p) => p.marketId === '18'), 'O/U live picks must exist');
 });
 
 test('lifecycle: only VALIDATED/LIVE statuses are live; order is enforced', () => {
@@ -44,8 +46,8 @@ test('lifecycle: only VALIDATED/LIVE statuses are live; order is enforced', () =
 
   // Promotion rule: PAPER cannot jump straight to LIVE.
   const b = getStrategy(loadRegistry(), 'STRAT-OU-H1-v1');
-  assert.equal(b.status, 'PAPER');
-  assert.ok(!isLive(b));
+  assert.equal(b.status, 'VALIDATED');
+  assert.ok(isLive(b));
 });
 
 test('five-market output distinguishes market-exists from validated-strategy-exists', () => {
@@ -56,9 +58,10 @@ test('five-market output distinguishes market-exists from validated-strategy-exi
   const byId = Object.fromEntries(summary.map((m) => [m.marketId, m]));
   // 1X2 has a LIVE strategy.
   assert.equal(byId['1'].liveStrategy, 'STRAT-1X2-BAND-v1');
-  // O/U has no LIVE strategy but Paper-B is observing.
-  assert.equal(byId['18'].liveStrategy, 'none LIVE');
-  assert.match(byId['18'].observing, /Paper-B|STRAT-OU-H1-v1/);
+  // O/U has LIVE strategy STRAT-OU-H1-v1.
+  assert.equal(byId['18'].liveStrategy, 'STRAT-OU-H1-v1');
+  // No PAPER strategies remain; observing is empty.
+  assert.equal(byId['18'].observing, '');
   // All five markets are enumerated.
   assert.deepEqual(listMarketIds().sort(), ['1', '18', '41', '548', '551']);
   for (const id of listMarketIds()) assert.ok(byId[id], `market ${id} (${MARKETS[id].name}) present in output`);

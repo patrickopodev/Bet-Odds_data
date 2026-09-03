@@ -139,16 +139,17 @@ export function buildPredictionQueries(home: string, away: string, tournament: s
 }
 
 // --- retry/backoff tuning ---
-const MAX_ATTEMPTS = 3; // initial request + 2 retries
+const MAX_ATTEMPTS = 5; // initial request + 4 retries for persistent anti-bot challenges
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-const backoffMs = (retry: number) => Math.min(8000, 1000 * 2 ** retry) + Math.random() * 500;
-const spacingMs = () => 700 + Math.random() * 500; // politeness between queries
+const backoffMs = (retry: number) => Math.min(15000, 1500 * 2 ** retry) + Math.random() * 1000;
+const spacingMs = () => 1000 + Math.random() * 1000; // politeness between queries; increased base
 
 // One query, with retry/backoff and explicit block detection. Never loops
 // forever: ordinary 4xx (other than 429) are reported immediately, not retried.
 async function runQuery(provider: SearchProvider, query: string): Promise<WebResearchResult> {
   let blockedSeen = false;
   let errorSeen = false;
+  let successSeen = false;
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     if (attempt > 0) await sleep(backoffMs(attempt));
     try {
@@ -170,6 +171,7 @@ async function runQuery(provider: SearchProvider, query: string): Promise<WebRes
       if (httpStatus >= 400) {
         return { status: 'SEARCH_ERROR', snippets: [], httpStatus, reason: `HTTP ${httpStatus}` };
       }
+      successSeen = true;
       const snippets = provider.parse(html, 2);
       return {
         status: snippets.length ? 'SEARCH_SUCCESS' : 'SEARCH_NO_RESULTS',
@@ -187,7 +189,10 @@ async function runQuery(provider: SearchProvider, query: string): Promise<WebRes
   if (blockedSeen) {
     return { status: 'SEARCH_BLOCKED', snippets: [], reason: 'exhausted retries (challenge/rate-limit)' };
   }
-  return { status: 'SEARCH_ERROR', snippets: [], reason: 'exhausted retries (network/5xx)' };
+  if (errorSeen && !successSeen) {
+    return { status: 'SEARCH_ERROR', snippets: [], reason: 'exhausted retries (network/5xx)' };
+  }
+  return { status: 'SEARCH_NO_RESULTS', snippets: [], reason: 'no results after retries' };
 }
 
 // Web research is a flat list of recent news/preview snippets shared by both

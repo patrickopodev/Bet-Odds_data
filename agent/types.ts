@@ -74,6 +74,7 @@ export interface Candidate {
   confidence: number; // 0..1 blended research score
   recommendedMinOdds: number; // odds threshold the JS staker must respect
   recommended: boolean;
+  favBand?: boolean; // true when force-recommended by the validated 1X2 fav-band rule
   reason: string;
 }
 

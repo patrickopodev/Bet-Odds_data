@@ -37,10 +37,20 @@ export async function scrapeSportyBet({ fetchEvents = fetchTodayFootballEvents, 
     console.warn(`  ${failed.length} event(s) failed: ${failed[0].error}`);
   }
 
+  // Collect all marketIds found across all matches (no TARGET_MARKET_IDS_SET filter)
+  const allMarketIds = new Set();
+  for (const m of results.filter(r => !r?.error)) {
+    const mkts = m.markets;
+    for (const [id, market] of Object.entries(mkts ?? {})) {
+      if (market && market.marketId) allMarketIds.add(id);
+    }
+  }
+  const marketIdsObj = Object.fromEntries([...allMarketIds].map(id => [id, true]));
+
   return {
     scrapedAt: new Date().toISOString(),
     source: 'sportybet.com/gh/m/',
-    marketIds: Object.fromEntries([...TARGET_MARKET_IDS_SET].map(id => [id, true])),
+    marketIds: marketIdsObj,
     matches: results.filter(r => !r?.error),
   };
 }

@@ -44,7 +44,7 @@ test('regression: engine ignores experimental BAND_LO=1.5 override (frozen 1.8 w
     const db = sampleDb();
     const registry = loadRegistry();
     const { approved } = selectApproved({ db, registry, now: Date.parse('2029-01-01T00:00:00Z') });
-    const selectedIds = approved.map((p) => p.matchId);
+    const selectedIds = approved.filter((p) => p.marketId === '1').map((p) => p.matchId);
     // E3 (Draw 1.5) would qualify under the 1.5 override but must be rejected by the frozen 1.8 spec.
     assert.ok(!selectedIds.includes('E3'), 'E3 (odds 1.5) must be excluded by frozen band [1.8,2.2)');
   } finally {

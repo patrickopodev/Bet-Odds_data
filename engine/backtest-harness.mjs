@@ -442,6 +442,49 @@ export function runAblation(db, { features = null, formDb = null, standings = nu
   return { baseline: summarizeRow(base), rows, method };
 }
 
+// Out-of-sample validation of the LIVE STAKE GATE itself: a bet is placed when the
+// train-derived empirical win rate (identical band logic to the agent's
+// outcomeHistory, via buildTrainStats.edge) implies positive EV (winRate*odds>1),
+// markets in `excludeMarkets` are dropped, and selectBets' per-market odds bounds
+// apply. Train stats are rebuilt per fold from the OTHER folds only, so a holdout
+// pick never sees its own outcome (no leakage). This tests whether the in-sample
+// +34% from the DB-prob EV gate holds OOS — i.e. is the gate actually edgeful, or
+// was it overfit to the whole DB?
+export function validateStakeGate(db, { k = 5, excludeMarkets = new Set(['41', '551']), minBets = 30 } = {}) {
+  const all = settledEvents(db);
+  const splits = [];
+  for (let f = 0; f < k; f++) {
+    splits.push({
+      train: all.filter((_, i) => i % k !== f),
+      holdout: all.filter((_, i) => i % k === f),
+    });
+  }
+  const pooled = [];
+  for (const { train, holdout } of splits) {
+    const trainStats = buildTrainStats(train);
+    for (const ev of holdout) {
+      const score = parseScore(ev.finalScore);
+      if (!score) continue;
+      const byMarket = marketNames(ev);
+      for (const o of outcomesList(ev)) {
+        const mkt = o.marketId;
+        if (!RELEVANT_MARKETS.has(mkt) || excludeMarkets.has(mkt)) continue;
+        const odds = lastOdds(o);
+        if (odds == null) continue;
+        if (mkt === '1' && (odds < 1.4 || odds > 4.0)) continue;
+        if (mkt === '18' && (odds < 1.4 || odds > 2.5)) continue;
+        if (mkt === '548' && odds < 1.8) continue;
+        const e = trainStats.edge(mkt, o.name, odds);
+        if (e.winRate == null || e.edge <= 0) continue; // no evidence or not +EV -> gate refuses
+        const r = evaluateOutcome(mkt, o.name, score, byMarket.get(mkt));
+        const pnl = r === 'WON' ? odds - 1 : r === 'LOST' ? -1 : 0;
+        pooled.push({ eventId: ev.eventId, marketId: mkt, name: o.name, odds, result: r, pnl });
+      }
+    }
+  }
+  return summarizeBets(pooled, false, minBets, { method: 'kfold-stakegate' });
+}
+
 function summarizeRow(r) {
   return {
     n: r.n,
@@ -528,6 +571,25 @@ if (isMain) {
   const method = argValue('method', 'split');
   const k = Number(argValue('k', '5'));
   const folds = Number(argValue('folds', '5'));
+
+  if (process.argv.includes('--stake-gate')) {
+    const exclude = argValue('exclude', '41,551').split(',').map((s) => s.trim()).filter(Boolean);
+    const res = validateStakeGate(db, { k, excludeMarkets: new Set(exclude) });
+    console.log(`=== Live stake-gate OUT-OF-SAMPLE validation (k=${k}, exclude markets [${exclude.join(',')}]) ===`);
+    console.log(
+      `bets=${res.n} won=${res.won} lost=${res.lost} ROI=${(res.roi * 100).toFixed(1)}% ` +
+        `CI=[${(res.ci[0] * 100).toFixed(1)}%,${(res.ci[1] * 100).toFixed(1)}%] -> ${res.verdict}`
+    );
+    if (process.argv.includes('--write')) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+      fs.writeFileSync(
+        path.join(DATA_DIR, 'stake-gate-backtest.json'),
+        JSON.stringify({ generatedAt: new Date().toISOString(), k, exclude, ...res }, null, 2)
+      );
+      console.log('Wrote data/stake-gate-backtest.json');
+    }
+    process.exit(0);
+  }
 
   console.log(`=== Feature ablation backtest (method=${method}, trainFrac=${trainFrac}) ===`);
   const ablation = runAblation(db, { features, formDb, standings, trainFrac, method, k, folds });

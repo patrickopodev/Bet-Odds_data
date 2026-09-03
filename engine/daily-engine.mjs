@@ -20,7 +20,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadDb, isFriendly } from '../lib/common.mjs';
+import { loadDb, isFriendly, isSimulated } from '../lib/common.mjs';
 import { listMarkets, getMarket, registerExtensionMarkets } from './markets.mjs';
 import { loadRegistry, getLiveStrategies, selectStrategy } from './strategies.mjs';
 import { validatePick, GATE_DEFAULTS } from './validation.mjs';
@@ -42,6 +42,7 @@ export function identifyMatches(db, now = Date.now()) {
   for (const ev of Object.values(db.events ?? {})) {
     if (ev.finalScore) continue; // resolved -> not a live candidate
     if (ev.isSimulated) continue; // simulated fixtures excluded (spec #8/#16)
+    if (isSimulated(ev.tournament)) continue; // SRL virtual simulations excluded
     // Friendly gate: mirror stake.mjs (spec #11/#20). Friendlies are never
     // stakeable unless ALLOW_FRIENDLIES is set, so the engine must not approve
     // them either — otherwise engine approvals would diverge from what the money
@@ -54,17 +55,21 @@ export function identifyMatches(db, now = Date.now()) {
 }
 
 // Produce approved picks for LIVE strategies only.
+// Iterates ALL events; each LIVE strategy's selectStrategy returns candidates
+// only for markets it supports (i.e. the strategy's registered marketId).
 export function selectApproved({ db, registry, researchStatus = {}, now = Date.now(), limits = GATE_DEFAULTS }) {
   const live = getLiveStrategies(registry);
   const approved = [];
   const rejected = [];
 
   for (const strategy of live) {
+    // Each strategy registers which marketId it operates on (from strategy-registry.json).
+    // The selector function returns candidates only for events whose markets match.
     const candidates = selectStrategy(strategy, { db });
     for (const c of candidates) {
       const ev = db.events?.[c.eventId];
       // Enforce upcoming + non-simulated at the engine level too.
-      if (!ev || ev.finalScore || ev.isSimulated || !isUpcoming(ev, now)) {
+      if (!ev || ev.finalScore || ev.isSimulated || isSimulated(ev.tournament) || !isUpcoming(ev, now)) {
         rejected.push({ candidate: c, reason: 'NOT_UPCOMING_OR_SIMULATED' });
         continue;
       }

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { refillSlip, selectBets, isFriendly, nextSlip, keepableSlips, keepableBets, groupSlips, normalizeSlip, effectiveMaxSlips, SINGLE_ODDS_MIN, BUNDLE_ODDS_MIN, BUNDLE_SIZE } from '../stake.mjs';
 
 function mkCand(marketId, outcome, odds, conf) {
-  return { marketId, market: '1X2', outcome, odds, recommendedMinOdds: 1.2, recommended: true, confidence: conf };
+  return { marketId, market: '1X2', outcome, odds, recommendedMinOdds: 1.2, recommended: true, confidence: conf, favBand: true };
 }
 
 function mkMatch(id, tournament, candidates) {

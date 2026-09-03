@@ -44,10 +44,10 @@ test('frozen strategy: status cannot change during a daily run (no DISCOVERED->L
   // reads status at selection time, so we assert a tampered copy is what would
   // change behavior (documenting that the caller must not mutate mid-run).
   const tampered = JSON.parse(JSON.stringify(registry));
-  tampered.strategies[0].status = 'DISCOVERED';
+  for (const s of tampered.strategies) s.status = 'DISCOVERED';
   const { approved: liveApproved } = runEngine({ db: sampleDb(), registry, now: Date.parse('2029-01-01T00:00:00Z') });
   const { approved: tamperedApproved } = runEngine({ db: sampleDb(), registry: tampered, now: Date.parse('2029-01-01T00:00:00Z') });
-  // With status DISCOVERED, the strategy is no longer LIVE -> zero approved picks.
+  // With both strategies DISCOVERED, neither is LIVE -> zero approved picks.
   assert.ok(liveApproved.length > 0);
   assert.equal(tamperedApproved.length, 0);
 });

@@ -266,8 +266,10 @@ if (isMain) {
   const maxDaysIdx = process.argv.indexOf('--max-days');
   const maxDays = maxDaysIdx >= 0 ? Number(process.argv[maxDaysIdx + 1]) : 30;
 
+  const { loadDb } = await import('../lib/common.mjs');
+  const db = await loadDb();
   const report = single
-    ? runHarnessOnDb({})
+    ? runHarnessOnDb({ db })
     : await runHarnessOverHistory({ maxDays });
   const t = report.totals ?? report.cycle?.totals ?? {};
 

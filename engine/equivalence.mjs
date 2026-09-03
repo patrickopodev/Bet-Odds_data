@@ -99,17 +99,18 @@ export function compareStrategyAAgainstStake(db, { now = Date.now(), maxSlips = 
         tournament: r.league,
         startTime: db.events?.[r.eventId]?.startTime ?? null,
       },
-      candidates: [
-        {
-          marketId: '1',
-          market: '1X2',
-          outcome: r.favName,
-          odds: r.favLast,
-          recommended: true,
-          confidence: 0.92,
-          recommendedMinOdds: r.favLast,
-        },
-      ],
+       candidates: [
+         {
+           marketId: '1',
+           market: '1X2',
+           outcome: r.favName,
+           odds: r.favLast,
+           recommended: true,
+           confidence: 0.92,
+           recommendedMinOdds: r.favLast,
+           favBand: true,
+         },
+       ],
     })),
   };
 

@@ -56,7 +56,7 @@ function implied(odds) {
 }
 
 function oneXtwoMargin(section) {
-  const outs = (section?.outcomes ?? []).filter((o) => o.marketId === '1' && o.active);
+  const outs = (section?.outcomes ?? []).filter((o) => o.active);
   if (outs.length < 2) return null;
   return outs.reduce((s, o) => s + implied(o.odds), 0);
 }
@@ -100,22 +100,11 @@ function researchFit(pick, homeInfo, awayInfo) {
   const noData = !homeInfo && !awayInfo;
   if (noData) return { keep: true, note: 'research unavailable (kept)' };
 
-  // 1X2: compare the picked side's form to the opponent's.
-  if (pick.marketId === '1' && pick.name !== 'Draw') {
-    const me = pick.name === 'Home' ? homeInfo : awayInfo;
-    const opp = pick.name === 'Home' ? awayInfo : homeInfo;
-    const meF = me?.formScore ?? 0;
-    const oppF = opp?.formScore ?? 0;
-    const gap = oppF - meF;
-    if (gap >= 4) return { keep: false, note: `form gap ${gap} against` };
-    return { keep: true, note: `form ${me?.form || '?'}` };
-  }
-  if (pick.marketId === '1') return { keep: true, note: 'draw (research neutral)' };
+  // Determine if this is a line market (has a numeric specifier, e.g. O/U 2.5)
+  const line = pick.specifier ? parseFloat(String(pick.specifier).replace('total=', '')) : null;
 
-  // O/U: recent goal totals vs the line.
-  if (pick.marketId === '18') {
-    const line = parseFloat(String(pick.specifier ?? '').replace('total=', ''));
-    if (!line) return { keep: true, note: 'no line (kept)' };
+  if (line !== null && !isNaN(line)) {
+    // Line market (Over/Under, Asian HC, etc.): compare recent goal totals vs the line.
     const goals = [...(homeInfo?.lastResults ?? []), ...(awayInfo?.lastResults ?? [])]
       .map((r) => {
         const [a, b] = String(r.score ?? '').split('-').map(Number);
@@ -124,13 +113,13 @@ function researchFit(pick, homeInfo, awayInfo) {
       .filter((x) => x != null);
     if (goals.length < 2) return { keep: true, note: 'thin recent goals (kept)' };
     const avg = goals.reduce((x, y) => x + y, 0) / goals.length;
-    const isOver = pick.name.startsWith('Over');
+    const isOver = String(pick.name).startsWith('Over') || String(pick.name).startsWith('Under');
     const fits = isOver ? avg >= line : avg <= line;
     if (!fits) return { keep: false, note: `avg ${avg.toFixed(1)} goals vs line ${line}` };
     return { keep: true, note: `avg ${avg.toFixed(1)} goals vs line ${line}` };
   }
 
-  // Correct Score / Multiscores / Multigoals: research is contextual only.
+  // Non-line markets (1X2, Correct Score, Multiscores, Multigoals): research is contextual only.
   const me = homeInfo;
   return { keep: true, note: `form ${me?.form || '?'}` };
 }
