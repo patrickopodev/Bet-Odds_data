@@ -568,7 +568,11 @@ if (isMain) {
     return i >= 0 ? process.argv[i + 1] : def;
   };
   const trainFrac = Number(argValue('train-frac', '0.7'));
-  const method = argValue('method', 'split');
+  // Default to k-fold: a single 70/30 split on ~560 events leaves ~170
+  // holdout bets — CI spans zero for 1X2 (NO-SIGNAL artifact). k-fold
+  // re-uses all data for both train and holdout, tightening the pooled
+  // CI so the NO-SIGNAL gate is trustworthy (see RESEARCH-PLAN.md M1).
+  const method = argValue('method', 'kfold');
   const k = Number(argValue('k', '5'));
   const folds = Number(argValue('folds', '5'));
 

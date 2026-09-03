@@ -48,15 +48,25 @@ export function isPlacementFailure(pageText) {
   return /insufficient|bet failed|place bet failed|error occurred/i.test(pageText ?? '');
 }
 
-// Extract old->new odds pairs from an "Accept Changes" dialog body
-// ("Over 2.5 1.85 → 1.60"; separators: → -> => –>). Returns [] when the text
+// Extract old->new odds pairs from an "Accept Changes" dialog body.
+// Handles multiple arrow styles and also a "From X to Y" pattern
+// that some locales render instead of →. Returns [] when the text
 // carries no recognizable change pair.
 export function parseOddsChanges(dialogText) {
   const pairs = [];
-  const re = /(\d+(?:\.\d+)?)\s*(?:→|->|=>|–>)\s*(\d+(?:\.\d+)?)/g;
+  // Arrow styles used by the app: → -> => –> (including en-dash variants).
+  const re = /(\d+(?:\.\d+)?)\s*(?:→|->|=>|–>|→)\s*(\d+(?:\.\d+)?)/g;
   let m;
   while ((m = re.exec(String(dialogText ?? ''))) !== null) {
     pairs.push({ from: Number(m[1]), to: Number(m[2]) });
+  }
+  // Fallback: "From 1.85 to 1.60" / "X to Y" pattern when arrows are absent.
+  if (!pairs.length) {
+    const fallback = /(\d+(?:\.\d+)?)\s+to\s+(\d+(?:\.\d+)?)/gi;
+    let fb;
+    while ((fb = fallback.exec(String(dialogText ?? ''))) !== null) {
+      pairs.push({ from: Number(fb[1]), to: Number(fb[2]) });
+    }
   }
   return pairs;
 }
@@ -124,22 +134,67 @@ async function run() {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
   });
-  const ck = async (sel) => { try { await page.locator(sel).first().click({ force: true, timeout: 6000 }); return true; } catch { return false; } };
+  // Robust click helper: retries with a longer timeout and force-click
+  // fallback. Returns true if the element was clicked or found.
+  const ck = async (sel, { timeout = 8000, retries = 2 } = {}) => {
+    for (let r = 0; r <= retries; r++) {
+      try {
+        const el = page.locator(sel).first();
+        await el.waitFor({ state: 'visible', timeout });
+        await el.click({ force: true, timeout });
+        return true;
+      } catch {
+        if (r === retries) return false;
+        await page.waitForTimeout(500);
+      }
+    }
+    return false;
+  };
+
+  // Robust text-input helper: clears then types, retrying if the
+  // field is stale or re-rendered by the app.
+  const typeInto = async (loc, text, { retries = 2 } = {}) => {
+    for (let r = 0; r <= retries; r++) {
+      try {
+        await loc.first().click({ force: true });
+        await loc.first().selectAll();
+        await loc.first().fill(text);
+        await page.waitForTimeout(200);
+        const val = await loc.first().inputValue().catch(() => '');
+        if (val === text) return true;
+      } catch {
+        if (r === retries) return false;
+        await page.waitForTimeout(500);
+      }
+    }
+    return false;
+  };
 
   await page.goto('https://sportybet.com/gh/m/', { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.waitForTimeout(6000);
+  await page.waitForTimeout(4000);
+  let loggedIn = false;
   for (let a = 1; a <= 3; a++) {
-    await ck('div.m-btn-login');
+    await ck('div.m-btn-login, [class*="login"], button:has-text("Log In")');
+    // Wait for the login modal to appear with a generous timeout.
     try {
-      await page.locator('input[type="tel"]').first().waitFor({ state: 'visible', timeout: 15000 });
+      await page.locator('input[type="tel"], input[type="email"], input[name="username"], input[name="login"]').first().waitFor({ state: 'visible', timeout: 20000 });
     } catch {
-      continue; // modal did not open; retry the login click
+      // Modal may have already been open or may use a different selector; try anyway.
     }
-    await page.locator('input[type="tel"]').first().fill(process.env.SB_USER);
-    await page.locator('input[type="password"]').first().fill(process.env.SB_PASS);
-    await ck('button:has-text("Login")');
-    await page.waitForTimeout(9000);
-    if (await page.evaluate(() => document.body.innerText.includes('GHS'))) { console.log('[stake-autoplace] logged in'); break; }
+    // Try common mobile login input patterns.
+    const telInput = page.locator('input[type="tel"]').first();
+    const emailInput = page.locator('input[type="email"]').first();
+    const loginInput = telInput.count() ? telInput : emailInput.count() ? emailInput : page.locator('input').first();
+    await typeInto(loginInput, process.env.SB_USER ?? '');
+    await typeInto(page.locator('input[type="password"]').first(), process.env.SB_PASS ?? '');
+    await ck('button:has-text("Login"), button:has-text("Log In"), [type="submit"]');
+    // Wait for the GHS currency indicator that confirms login success.
+    for (let w = 0; w < 5; w++) {
+      await page.waitForTimeout(3000);
+      const body = await page.evaluate(() => document.body.innerText);
+      if (body.includes('GHS') || body.includes('Logout') || body.includes('My Bets')) { loggedIn = true; break; }
+    }
+    if (loggedIn) { console.log('[stake-autoplace] logged in'); break; }
     if (a === 3) { console.error('[stake-autoplace] login failed'); process.exit(1); }
   }
 
@@ -221,21 +276,34 @@ async function run() {
       await page.waitForTimeout(1200);
     }
 
-    // Open the stake keypad (tapping the amount), clear the prefilled amount,
-    // then type the bankroll stake.
+    // Open the stake keypad (tapping the amount), clear the
+    // prefilled amount, then type the bankroll stake. The keypad
+    // field may re-render after tapping, so we type with retries.
+    const stakeField = page.locator('[data-op="betslip-stake-amount"]');
     await ck('[data-op="betslip-stake-amount"]');
-    await page.waitForTimeout(1200);
-    for (let i = 0; i < 15; i++) { await page.keyboard.press('Backspace'); await page.waitForTimeout(60); }
-    await page.keyboard.type(stake);
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(500);
+    const typedOk = await typeInto(stakeField, stake);
+    if (!typedOk) {
+      s.status = 'failed';
+      s.error = 'could not type stake into keypad field';
+      console.error(`[stake-autoplace] ${s.slipId}: stake field not editable`);
+      continue;
+    }
+    await page.waitForTimeout(600);
     const shownStake = (await page.evaluate(() => document.querySelector('[data-op="betslip-stake-amount"]')?.textContent ?? ''))
       .replace(/\s+/g, '');
     console.log(`[stake-autoplace] slip ${s.slipId} stake typed ${stake} (field shows ${shownStake})`);
     if (!stakeRegistered(shownStake, stake)) {
-      s.status = 'failed';
-      s.error = `stake did not register (field shows ${shownStake})`;
-      console.error(`[stake-autoplace] ${s.slipId}: stake did not register`);
-      continue;
+      // One retry: the field may not have refreshed yet.
+      await page.waitForTimeout(500);
+      const retryShown = (await page.evaluate(() => document.querySelector('[data-op="betslip-stake-amount"]')?.textContent ?? ''))
+        .replace(/\s+/g, '');
+      if (!stakeRegistered(retryShown, stake)) {
+        s.status = 'failed';
+        s.error = `stake did not register (field shows ${shownStake})`;
+        console.error(`[stake-autoplace] ${s.slipId}: stake did not register`);
+        continue;
+      }
     }
 
     await ck('[data-op="betslip-placebet-button"], [data-op="betslip-placebet"]');
@@ -251,8 +319,14 @@ async function run() {
       // would place the bet below the agent's recommendedMinOdds floor, so
       // parse the new prices and only accept when every leg is still at or
       // above its minOdds. Unparseable dialog -> refuse the slip.
-      const changeText = await page.evaluate(() => document.body.innerText);
-      const changes = parseOddsChanges(changeText);
+      // Retry the text capture once in case the dialog rendered slowly.
+      let changeText = await page.evaluate(() => document.body.innerText);
+      let changes = parseOddsChanges(changeText);
+      if (changes.length === 0) {
+        await page.waitForTimeout(1000);
+        changeText = await page.evaluate(() => document.body.innerText);
+        changes = parseOddsChanges(changeText);
+      }
       if (oddsChangesAcceptable(s.legs, changes)) {
         await accept.click({ force: true }).catch(() => {});
         await page.waitForTimeout(6000);
@@ -264,20 +338,23 @@ async function run() {
         continue;
       }
     }
+    // Final verification: confirm the bet was placed by re-checking
+    // the slip state on the page after a brief settlement window.
     await page.waitForTimeout(4000);
-
-    // Poll briefly for the outcome before deciding: a slow toast must not be
-    // misread as a failure (the click may already have moved money).
     let placedSeen = false;
     let definiteFail = false;
-    for (let i = 0; i < 5 && !placedSeen && !definiteFail; i++) {
+    let lastBody = '';
+    for (let i = 0; i < 8 && !placedSeen && !definiteFail; i++) {
       if (i > 0) await page.waitForTimeout(2000);
-      const body = await page.evaluate(() => document.body.innerText);
-      placedSeen = isPlacementSuccess(body);
-      definiteFail = !placedSeen && isPlacementFailure(body);
+      lastBody = await page.evaluate(() => document.body.innerText);
+      placedSeen = isPlacementSuccess(lastBody);
+      definiteFail = !placedSeen && isPlacementFailure(lastBody);
     }
-    const confirmBody = await page.evaluate(() => document.body.innerText);
-    if (isPlacementSuccess(confirmBody)) {
+    // lastBody holds the latest page text from the polling loop —
+    // re-verify success/failure with a fresh read (the app may
+    // render the toast after the last poll).
+    const finalBody = await page.evaluate(() => document.body.innerText);
+    if (isPlacementSuccess(finalBody)) {
       s.status = 'placed';
       s.placedAt = new Date().toISOString();
       for (const leg of s.legs) { leg.status = 'placed'; leg.placedAt = new Date().toISOString(); }

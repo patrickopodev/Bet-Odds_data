@@ -72,7 +72,7 @@ export function selectBets(report, opts = {}) {
     if (isSimulated(match.tournament) || isSimulated(match.homeTeam) || isSimulated(match.awayTeam)) continue;
 
     const recCands = candidates.filter(
-      (c) => c.recommended && c.confidence >= MIN_CONFIDENCE && c.odds >= c.recommendedMinOdds
+      (c) => c.recommended && c.confidence >= MIN_CONFIDENCE && c.odds >= c.recommendedMinOdds && c.odds >= BUNDLE_ODDS_MIN
     );
 
     // Group into buckets by marketId (generic: use marketId directly, no hardcoded
@@ -298,11 +298,7 @@ export function nextSlip(existing, report, opts = {}) {
       excludedMatches.has(match.eventId) ||
       attemptedCombos.has(`${match.eventId}|${candidate.marketId}|${candidate.outcome}`),
   });
-  // Live staking is restricted to the validated 1X2 fav-band strategy only — the
-  // one selection with a proven out-of-sample edge (+16.8% ROI, CI excludes zero).
-  // No other market/outcome is staked live.
-  const picks = selected.filter((p) => p.candidate.favBand === true);
-  const fresh = groupSlips(picks, { calibrate: opts.calibrate });
+  const fresh = groupSlips(selected, { calibrate: opts.calibrate });
   const used = fresh.slice(0, capacity);
   const slip = {
     createdAt: new Date().toISOString(),
