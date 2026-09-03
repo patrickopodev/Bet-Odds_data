@@ -12,8 +12,6 @@ export interface FavRow {
   score: { home: number; away: number } | null;
 }
 
-export const FROZEN_1X2_BAND: { lo: number; hi: number };
-
 export function frozen1X2(): { lo: number; hi: number };
 
 export function buildFavRows(db: { events?: Record<string, unknown> }): FavRow[];
