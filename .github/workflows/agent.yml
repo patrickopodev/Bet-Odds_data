@@ -66,17 +66,18 @@ jobs:
           # odds-db.json via the collector's build-db step).
           bash scripts/restore-artifact.sh prematch-data data
 
-      - name: Verify Flashscore connectivity
+      - name: Verify Flashscore/Livesport connectivity
         timeout-minutes: 2
         continue-on-error: true
         run: |
-          # Quick check: is Flashscore reachable from this runner?
-          # If not, the research step will fail fast instead of burning 75 min.
+          # Check the actual API endpoint the research agent calls.
+          # If s.livesport.services is blocked, the 75-min research step
+          # will fail fast instead of burning the full timeout.
           node -e "
             const http = require('http');
-            const req = http.get('https://www.flashscore.com/team/any/1/', (r) => { console.log('Flashscore reachable'); });
-            req.on('error', (e) => { console.warn('WARNING: Flashscore unreachable (' + e.message + ')'); });
-            req.setTimeout(5000, () => { console.warn('WARNING: Flashscore timed out'); req.destroy(); });
+            const req = http.get('https://s.livesport.services/api/v2/search?q=test&sport=football&lang=en', (r) => { console.log('Livesport reachable (status ' + r.statusCode + ')'); });
+            req.on('error', (e) => { console.warn('WARNING: s.livesport.services unreachable (' + e.message + ') — research will time out'); });
+            req.setTimeout(5000, () => { console.warn('WARNING: s.livesport.services timed out — research will time out'); req.destroy(); });
           "
 
       - name: Run deep research agent
