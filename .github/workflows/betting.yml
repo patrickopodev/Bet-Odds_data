@@ -119,7 +119,7 @@ jobs:
         run: node dist/monitor.js
 
       - name: Resolve finished matches (end-of-day)
-        timeout-minutes: 20
+        timeout-minutes: 45
         run: node resolve-results.mjs
 
       # Persist only the slips/results this workflow owns.

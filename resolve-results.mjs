@@ -13,7 +13,12 @@ import {
 
 export { extractFeedEvents };
 
-const CONCURRENCY = 3;
+const CONCURRENCY = 5;
+
+// Only resolve events that started within the last 7 days. Older
+// unsettled events are stale (match long since finished) and re-resolving
+// them wastes the 45-minute workflow step budget.
+const MAX_STALE_DAYS = 7;
 
 // Allow a small tolerance when matching a scraped kickoff (unix seconds) to the
 // Flashscore feed's AD field, in case the fixture time shifted slightly.
@@ -52,10 +57,13 @@ async function run() {
   const db = await loadDb();
   const events = Object.values(db.events);
   const pending = events.filter((ev) => !ev.finalScore);
-  console.log(`Resolving ${pending.length} unsettled event(s) via Flashscore...`);
+  const cutoff = Date.now() - MAX_STALE_DAYS * 24 * 60 * 60 * 1000;
+  const recent = pending.filter((ev) => ev.startTime && new Date(ev.startTime).getTime() > cutoff);
+  const stale = pending.length - recent.length;
+  console.log(`Resolving ${recent.length} unsettled event(s) via Flashscore (${stale} skipped as >${MAX_STALE_DAYS}d stale)...`);
 
   const teamCache = new Map();
-  const settled = await mapWithConcurrency(pending, async (ev) => {
+  const settled = await mapWithConcurrency(recent, async (ev) => {
     if (!ev.homeTeam || !ev.awayTeam || !ev.startTime) {
       return { eventId: ev.eventId, skipped: 'missing team/start' };
     }

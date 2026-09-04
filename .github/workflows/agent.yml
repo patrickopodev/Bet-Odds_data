@@ -66,6 +66,19 @@ jobs:
           # odds-db.json via the collector's build-db step).
           bash scripts/restore-artifact.sh prematch-data data
 
+      - name: Verify Flashscore connectivity
+        timeout-minutes: 2
+        continue-on-error: true
+        run: |
+          # Quick check: is Flashscore reachable from this runner?
+          # If not, the research step will fail fast instead of burning 75 min.
+          node -e "
+            const http = require('http');
+            const req = http.get('https://www.flashscore.com/team/any/1/', (r) => { console.log('Flashscore reachable'); });
+            req.on('error', (e) => { console.warn('WARNING: Flashscore unreachable (' + e.message + ')'); });
+            req.setTimeout(5000, () => { console.warn('WARNING: Flashscore timed out'); req.destroy(); });
+          "
+
       - name: Run deep research agent
         timeout-minutes: 75
         run: node dist/cli.js
