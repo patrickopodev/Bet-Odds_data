@@ -115,3 +115,18 @@ research BLOCKED ≠ NO_RESULTS, frozen strategy immutability, and a **Strategy 
 regression** proving the new engine selects identically to the legacy
 `select1X2Picks`. Run with `npm test`.
 
+## Workflow failures resolved
+
+All 8 GitHub Actions workflows now pass on commit `0f75f62e`. Key fixes:
+
+| Fix | File | Why |
+|---|---|---|
+| Added `npx tsc` build step | `.github/workflows/manual-slip.yml` | `dist/flashscore.js` is gitignored; workflow imported it without building |
+| `fetchWithRetry` (exp backoff) | `lib/common.mjs` | SportyBet HTTP 403s from GitHub Actions runner; transient 403s now retry 3× |
+| 7-day event filter + concurrency 3→5 | `resolve-results.mjs` | `resolve-results.mjs` timed out on 5745 events at CONCURRENCY=3 |
+| Step timeout 20→45 min | `.github/workflows/betting.yml` | Resolve step needed more time after filtering |
+| Connectivity check for `s.livesport.services` | `.github/workflows/agent.yml` | Research agent burned 75 min on unreachable API |
+
+### Remaining environmental issue
+Deep Research Agent occasionally fails on `s.livesport.services` when GitHub Actions runners have network issues. The connectivity check now fails fast instead of burning the full timeout. If this persists, a self-hosted runner with proper network access is needed.
+
