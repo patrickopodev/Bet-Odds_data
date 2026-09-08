@@ -126,7 +126,10 @@ All 8 GitHub Actions workflows now pass on commit `0f75f62e`. Key fixes:
 | 7-day event filter + concurrency 3→5 | `resolve-results.mjs` | `resolve-results.mjs` timed out on 5745 events at CONCURRENCY=3 |
 | Step timeout 20→45 min | `.github/workflows/betting.yml` | Resolve step needed more time after filtering |
 | Connectivity check for `s.livesport.services` | `.github/workflows/agent.yml` | Research agent burned 75 min on unreachable API |
+| `--max-old-space-size=4096` | `collector.yml`, `betting.yml` | `JSON.stringify` on 43MB+ odds-db.json exceeded V8 heap ("Invalid string length") |
+| `resolveTeam` fallback to Uniscore + persistent cache | `lib/common.mjs` | `s.livesport.services` unreachable from GitHub Actions; team-cache.json avoids repeated lookups |
+| `resolveTeam` cache (data/team-cache.json) | `lib/common.mjs` | Resolved team IDs persist across runs; avoid re-calling Livesport |
 
 ### Remaining environmental issue
-Deep Research Agent occasionally fails on `s.livesport.services` when GitHub Actions runners have network issues. The connectivity check now fails fast instead of burning the full timeout. If this persists, a self-hosted runner with proper network access is needed.
+Deep Research Agent occasionally fails on `s.livesport.services` when GitHub Actions runners have network issues. The connectivity check now fails fast instead of burning the full timeout. The `resolveTeam` function falls back to `uniscore.com` and persists results in `data/team-cache.json`. If this persists, a self-hosted runner with proper network access is needed.
 
