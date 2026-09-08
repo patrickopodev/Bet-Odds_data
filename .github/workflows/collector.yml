@@ -64,11 +64,11 @@ jobs:
         id: scrape
         timeout-minutes: 15
         continue-on-error: true
-        run: node scraper.js
+        run: node --max-old-space-size=4096 scraper.js
 
       - name: Build persistent odds database
         timeout-minutes: 5
-        run: node build-db.mjs
+        run: node --max-old-space-size=4096 build-db.mjs
 
       # Research stores (H2H + team-form) for the feature-ablation harness
       # (RESEARCH-PLAN.md Suggestions 4-5). Best-effort: derived from the
@@ -82,7 +82,7 @@ jobs:
       # Good/bad odds report feeds tomorrow's model; reads the DB we just built.
       - name: Generate good/bad odds report
         timeout-minutes: 10
-        run: node analyze-odds.mjs --db
+        run: node --max-old-space-size=4096 analyze-odds.mjs --db
 
       # Correct-score (market 41) repeated-odds -> outcome relation report.
       # Reuses the shared aggregateHistoricalStats, so its value bands are the
@@ -90,7 +90,7 @@ jobs:
       # buildRecommendations (agent/analysis.ts).
       - name: Analyze correct-score relations
         timeout-minutes: 10
-        run: node analyze-correctscore.mjs
+        run: node --max-old-space-size=4096 analyze-correctscore.mjs
 
       - name: Upload odds data artifact
         uses: actions/upload-artifact@v4

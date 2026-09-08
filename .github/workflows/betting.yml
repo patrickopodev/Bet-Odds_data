@@ -120,7 +120,7 @@ jobs:
 
       - name: Resolve finished matches (end-of-day)
         timeout-minutes: 45
-        run: node resolve-results.mjs
+        run: node --max-old-space-size=4096 resolve-results.mjs
 
       # Persist only the slips/results this workflow owns.
       - name: Upload betting data artifact
